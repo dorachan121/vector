@@ -1,0 +1,32 @@
+# ルールエンジン (Vector.Core) を Unity なしで検証する。
+# Unity のライセンスが不要なので、プッシュごとに数十秒で回る。
+name: Core
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "Assets/Vector/Scripts/Core/**"
+      - "Assets/Vector/Tests/**"
+      - "Tools/**"
+      - ".github/workflows/core.yml"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Unit tests
+        run: dotnet test Tools/CoreTests -c Release
+      - name: Bonus bet RTP (exact)
+        run: dotnet run --project Tools/Simulator -c Release -- bonus
+      - name: Main game smoke simulation
+        run: dotnet run --project Tools/Simulator -c Release -- main 2000 greedy

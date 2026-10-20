@@ -84,7 +84,7 @@ namespace Vector.Game.Table
                 if (i == Selected)
                     continue;
                 if (i == index)
-                    cards[i].SetGlow(Theme.Gold, 0.5f);
+                    cards[i].SetGlow(Theme.GoldBright, 0.85f);
                 else
                     cards[i].ClearGlow();
             }

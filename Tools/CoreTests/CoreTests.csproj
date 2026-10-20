@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Unity を使わずに Vector.Core のユニットテストを実行する（CI 用）。テストコードは Unity と共有する -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Vector/Scripts/Core/**/*.cs" LinkBase="Core" />
+    <!-- セーブデータのテストは UnityEngine (JsonUtility) に依存するため Unity でのみ実行する -->
+    <Compile Include="../../Assets/Vector/Tests/EditMode/*.cs"
+             Exclude="../../Assets/Vector/Tests/EditMode/PersistenceTests.cs;../../Assets/Vector/Tests/EditMode/MemoryProfileStorage.cs"
+             LinkBase="Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+</Project>

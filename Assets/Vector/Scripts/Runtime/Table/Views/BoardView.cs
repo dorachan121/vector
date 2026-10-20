@@ -107,7 +107,7 @@ namespace Vector.Game.Table
                 if (cards[i] != null)
                     continue;
                 slots[i].color = selectable ? Theme.GoldBright.WithAlpha(0.8f) : Theme.FeltPrint;
-                fills[i].color = selectable ? Theme.Gold.WithAlpha(0.10f) : Color.clear;
+                fills[i].color = selectable ? Theme.Gold.WithAlpha(0.07f) : Color.clear;
             }
         }
 
@@ -116,7 +116,7 @@ namespace Vector.Game.Table
             if (cards[cell] != null)
                 return;
             slots[cell].color = hovered ? Theme.GoldBright : Theme.GoldBright.WithAlpha(0.8f);
-            fills[cell].color = Theme.Gold.WithAlpha(hovered ? 0.28f : 0.10f);
+            fills[cell].color = Theme.Gold.WithAlpha(hovered ? 0.25f : 0.07f);
             Tween.Scale(slots[cell].transform, Vector3.one * (hovered ? 1.05f : 1f), 0.12f);
         }
 

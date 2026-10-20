@@ -46,6 +46,7 @@ namespace Vector.Game.Table
             view.Hud.LobbyClicked += GoToLobby;
             view.Hud.HelpClicked += () => Track(HelpDialog.Open(view.Overlay, Rules));
             view.Hud.SettingsClicked += () => Track(SettingsDialog.Open(view.Overlay, profiles, GameContext.ApplySettings));
+            betting.End();
             StartCoroutine(MainLoop());
         }
 
