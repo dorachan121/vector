@@ -30,7 +30,6 @@ namespace Vector.Game.UI
 
         public static readonly Color Panel = new Color(0.03f, 0.05f, 0.04f, 0.82f);
         public static readonly Color PanelLine = new Color(0.89f, 0.75f, 0.43f, 0.35f);
-        public static readonly Color Shade = new Color(0f, 0f, 0f, 0.6f);
 
         public static readonly Color CardFace = Hex("FBF8F0");
         public static readonly Color CardRed = Hex("C4262E");

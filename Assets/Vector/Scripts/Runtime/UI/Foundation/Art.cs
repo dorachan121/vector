@@ -181,8 +181,6 @@ namespace Vector.Game.UI
         // トランプ
         // ------------------------------------------------------------------
 
-        public const float CardAspect = 0.714f;
-
         /// <summary>スートのマーク（白）。色は Image.color で付ける。</summary>
         public static Sprite Suit(Suit suit) => Cached($"suit{suit}", () => Disc(160, SuitDistance(suit)));
 

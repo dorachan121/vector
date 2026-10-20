@@ -236,6 +236,7 @@ namespace Vector.Game.Table
             view.Board.DimExcept(CellsOf(result));
             yield return Tween.Wait(0.6f);
 
+            view.Status.SetVisible(false);
             view.Result.Show(result, Round.Bets[BetSpot.Bonus] > 0);
             PlayResultSound(result);
             yield return PayOut(result);
@@ -288,6 +289,7 @@ namespace Vector.Game.Table
         IEnumerator Cleanup()
         {
             view.Result.Hide();
+            view.Status.SetVisible(true);
             ResetTable();
             yield return fx.CollectCards();
         }
@@ -304,6 +306,7 @@ namespace Vector.Game.Table
             betting.End();
             view.Picker.Hide();
             view.Result.Hide();
+            view.Status.SetVisible(true);
             view.Status.HideTimer();
             ResetTable();
             yield return fx.CollectCards();

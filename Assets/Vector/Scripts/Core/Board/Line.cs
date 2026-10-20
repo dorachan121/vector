@@ -20,8 +20,6 @@ namespace Vector.Core
 
         public int Sum(int[] values) => values[A] + values[B] + values[C];
 
-        public bool Contains(int cell) => cell == A || cell == B || cell == C;
-
         public override string ToString() => $"{Family}{Index}({A},{B},{C})";
     }
 }

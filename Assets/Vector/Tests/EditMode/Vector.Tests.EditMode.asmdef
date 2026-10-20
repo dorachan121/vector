@@ -3,6 +3,7 @@
     "rootNamespace": "Vector.Tests",
     "references": [
         "Vector.Core",
+        "Vector.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

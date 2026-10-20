@@ -27,12 +27,10 @@ namespace Vector.Core
         public Shoe Shoe => shoe;
         public Board Board { get; } = new Board();
         public RoundPhase Phase { get; private set; } = RoundPhase.Betting;
-        public GameMode Mode { get; private set; }
         public BetLayout Bets { get; private set; } = new BetLayout();
         public IReadOnlyList<Card> Hand => hand;
         public PokerHand BonusHand { get; private set; }
         public int RoundNumber { get; private set; }
-        public RoundResult Result { get; private set; }
 
         public LineFamily PlayerFamily
         {
@@ -68,11 +66,9 @@ namespace Vector.Core
             if (!check.IsValid)
                 throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
 
-            Mode = mode;
             Bets = bets.Clone();
             Board.Clear();
             hand.Clear();
-            Result = null;
             RoundNumber++;
 
             var center = shoe.Draw();
@@ -139,10 +135,9 @@ namespace Vector.Core
             foreach (var bet in Bets.NonZero())
                 bets.Add(Settlement.Settle(rules, bet.Key, bet.Value, winner, BonusHand));
 
-            Result = new RoundResult(playerFamily, dealerFamily, playerScore, dealerScore,
-                Scoring.BestLines(values, playerFamily), Scoring.BestLines(values, dealerFamily), BonusHand, bets);
             Phase = RoundPhase.Complete;
-            return Result;
+            return new RoundResult(playerFamily, dealerFamily, playerScore, dealerScore,
+                Scoring.BestLines(values, playerFamily), Scoring.BestLines(values, dealerFamily), BonusHand, bets);
         }
 
         /// <summary>
@@ -156,7 +151,6 @@ namespace Vector.Core
             long stake = Bets.Total;
             Board.Clear();
             hand.Clear();
-            Result = null;
             Phase = RoundPhase.Complete;
             return stake;
         }

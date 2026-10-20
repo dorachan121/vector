@@ -39,7 +39,7 @@ namespace Vector.Core
                 var tally = new OutcomeTally();
                 for (int n = 0; n < familyPlayouts; n++)
                     tally.Add(Playout.Run(values, hand, family, true, random));
-                result[i] = new FamilyEstimate(family, tally.WinRate, tally.TieRate, tally.ExpectedValue(rules.MainPays.Ratio));
+                result[i] = new FamilyEstimate(family, tally.WinRate, tally.ExpectedValue(rules.MainPays.Ratio));
             }
             return result;
         }

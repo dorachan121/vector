@@ -28,16 +28,6 @@ namespace Vector.Game.UI
             }
         }
 
-        public static string FamilyJapanese(LineFamily family)
-        {
-            switch (family)
-            {
-                case LineFamily.Row: return "横";
-                case LineFamily.Column: return "縦";
-                default: return "斜め";
-            }
-        }
-
         public static string Spot(BetSpot spot)
         {
             switch (spot)

@@ -16,7 +16,6 @@ namespace Vector.Game.Table
         bool selectable;
 
         public int Selected { get; private set; } = -1;
-        public int Count => cards.Count;
 
         public event Action<int> CardClicked;
 
@@ -41,8 +40,6 @@ namespace Vector.Game.Table
             card.Click.Hovered += h => OnHover(card, h);
             card.Click.Interactable = selectable;
         }
-
-        public CardView this[int index] => cards[index];
 
         /// <summary>カードを手札から外して返す。残りは詰めて並べ直す。</summary>
         public CardView Take(int index)

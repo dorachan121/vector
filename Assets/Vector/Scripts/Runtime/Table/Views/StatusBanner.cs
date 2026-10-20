@@ -55,6 +55,8 @@ namespace Vector.Game.Table
             return changed;
         }
 
+        public void SetVisible(bool visible) => gameObject.SetActive(visible);
+
         public void HideTimer()
         {
             ring.transform.parent.gameObject.SetActive(false);

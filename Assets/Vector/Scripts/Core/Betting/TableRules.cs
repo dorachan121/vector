@@ -28,7 +28,7 @@ namespace Vector.Core
 
         public Odds BackPlayerPays { get; } = new Odds(1);
         public Odds BackDealerPays { get; } = new Odds(9, 10);
-        public Odds BackTiePays { get; } = new Odds(7);
+        public Odds BackTiePays { get; } = new Odds(6);
 
         public IReadOnlyDictionary<PokerHand, Odds> BonusPays { get; } = new Dictionary<PokerHand, Odds>
         {
