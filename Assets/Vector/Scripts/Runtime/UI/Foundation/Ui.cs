@@ -17,7 +17,7 @@ namespace Vector.Game.UI
         const int SpriteRadius = 32;
 
         /// <summary>スクリーン全体を覆うキャンバスを作る。</summary>
-        public static Canvas CreateCanvas(string name, int sortingOrder)
+        static Canvas CreateCanvas(string name, int sortingOrder)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             var canvas = go.GetComponent<Canvas>();
@@ -28,6 +28,20 @@ namespace Vector.Game.UI
             scaler.referenceResolution = ReferenceResolution;
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             return canvas;
+        }
+
+        /// <summary>
+        /// 1画面ぶんの土台を作る。背景は画面いっぱいに敷き、中身の親は安全領域（ノッチを避けた範囲）に収める。
+        /// </summary>
+        public static RectTransform CreateScreen(string name)
+        {
+            var canvas = CreateCanvas(name + "Canvas", 0);
+            var backdrop = Image(canvas.transform, "Backdrop", Art.Backdrop, Color.white, Vector2.zero, Vector2.zero);
+            backdrop.rectTransform.anchorMin = Vector2.zero;
+            backdrop.rectTransform.anchorMax = Vector2.one;
+            var root = Stretch(canvas.transform, name);
+            root.gameObject.AddComponent<SafeAreaFitter>();
+            return root;
         }
 
         public static void EnsureEventSystem()

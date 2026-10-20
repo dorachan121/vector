@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using Vector.Core;
 using Vector.Game.UI;
+using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.Table
 {
@@ -85,5 +86,17 @@ namespace Vector.Game.Table
         }
 
         public void Hide() => gameObject.SetActive(false);
+
+        /// <summary>キーボード操作: 1 / 2 / 3 で ROW / COLUMN / SLASH。</summary>
+        void Update()
+        {
+            if (Dialog.IsAnyOpen)
+                return;
+            for (int i = 0; i < Lines.Families.Count; i++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
+                    Chosen?.Invoke(Lines.Families[i]);
+            }
+        }
     }
 }

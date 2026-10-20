@@ -36,11 +36,7 @@ namespace Vector.Game.Lobby
 
         void Build()
         {
-            var canvas = Ui.CreateCanvas("LobbyCanvas", 0);
-            root = Ui.Stretch(canvas.transform, "Lobby");
-            var backdrop = Ui.Image(root, "Backdrop", Art.Backdrop, Color.white, Vector2.zero, Vector2.zero);
-            backdrop.rectTransform.anchorMin = Vector2.zero;
-            backdrop.rectTransform.anchorMax = Vector2.one;
+            root = Ui.CreateScreen("Lobby");
             Ui.Image(root, "Felt", Art.Table, new Color(1, 1, 1, 0.35f), new Vector2(0, -40), new Vector2(1870, 870));
 
             BuildTitle();

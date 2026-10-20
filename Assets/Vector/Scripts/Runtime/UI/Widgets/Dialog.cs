@@ -13,6 +13,9 @@ namespace Vector.Game.UI.Widgets
     {
         const float ButtonHeight = 64f;
 
+        /// <summary>開いているダイアログ（後ろほど前面）。</summary>
+        static readonly List<Dialog> open = new List<Dialog>();
+
         readonly List<CasinoButton> buttons = new List<CasinoButton>();
         RectTransform panel;
         Vector2 size;
@@ -22,6 +25,12 @@ namespace Vector.Game.UI.Widgets
 
         public event Action Closed;
 
+        /// <summary>ダイアログが1つでも開いていれば true（その間はテーブルの持ち時間やショートカットを止める）。</summary>
+        public static bool IsAnyOpen => open.Count > 0;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatics() => open.Clear();
+
         public static Dialog Open(Transform root, string title, string body, Vector2 size)
         {
             var shade = Ui.Image(root, "Dialog", null, new Color(0, 0, 0, 0.7f), Vector2.zero, Vector2.zero, true);
@@ -30,6 +39,7 @@ namespace Vector.Game.UI.Widgets
             shadeRect.anchorMax = Vector2.one;
             var dialog = shade.gameObject.AddComponent<Dialog>();
             dialog.size = size;
+            open.Add(dialog);
 
             dialog.panel = Ui.Panel(shadeRect, "Panel", Vector2.zero, size, new Color(0.05f, 0.08f, 0.07f, 0.98f), 24, true).rectTransform;
             Ui.Outline(dialog.panel, "Outline", Vector2.zero, size, Theme.Gold.WithAlpha(0.8f), 24);
@@ -74,7 +84,17 @@ namespace Vector.Game.UI.Widgets
             if (this == null)
                 return;
             Closed?.Invoke();
+            Closed = null;
             Destroy(gameObject);
         }
+
+        void Update()
+        {
+            // Esc で最前面のダイアログだけを閉じる
+            if (Input.GetKeyDown(KeyCode.Escape) && open.Count > 0 && open[open.Count - 1] == this)
+                Close();
+        }
+
+        void OnDestroy() => open.Remove(this);
     }
 }

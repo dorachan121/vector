@@ -48,13 +48,9 @@ namespace Vector.Game.Table
         public static TableView Build(GameMode mode, TableRules rules)
         {
             var view = new TableView();
-            var canvas = Ui.CreateCanvas("TableCanvas", 0);
-            var root = Ui.Stretch(canvas.transform, "Table");
+            var root = Ui.CreateScreen("Table");
             view.Root = root;
 
-            var backdrop = Ui.Image(root, "Backdrop", Art.Backdrop, Color.white, Vector2.zero, Vector2.zero);
-            backdrop.rectTransform.anchorMin = Vector2.zero;
-            backdrop.rectTransform.anchorMax = Vector2.one;
             Ui.Image(root, "Felt", Art.Table, Color.white, TableCenter, TableSize);
             string print = mode == GameMode.Player
                 ? $"ALL LINES PAY {rules.MainPays}  ·  TIES PUSH"

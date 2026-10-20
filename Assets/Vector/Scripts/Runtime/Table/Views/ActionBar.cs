@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Vector.Game.UI;
+using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.Table
 {
@@ -32,6 +33,17 @@ namespace Vector.Game.Table
             bar.doubleUp = Ui.Button(rt, "Double", "x2", new Vector2(80, 0), small, ButtonColor, Theme.Ivory, () => bar.DoubleClicked?.Invoke(), 30);
             bar.deal = Ui.Button(rt, "Deal", "DEAL", new Vector2(265, 0), new Vector2(210, 80), Theme.Gold, Theme.Ink, () => bar.DealClicked?.Invoke(), 38, 40);
             return bar;
+        }
+
+        /// <summary>キーボード操作: Space / Enter でディール、Backspace で取り消し。</summary>
+        void Update()
+        {
+            if (Dialog.IsAnyOpen)
+                return;
+            if (deal.Interactable && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+                DealClicked?.Invoke();
+            else if (undo.Interactable && Input.GetKeyDown(KeyCode.Backspace))
+                UndoClicked?.Invoke();
         }
 
         public void Refresh(bool betting, bool canUndo, bool canRebet, bool canDouble, bool canDeal)

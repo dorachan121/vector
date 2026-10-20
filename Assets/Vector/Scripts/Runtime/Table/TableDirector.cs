@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vector.Core;
@@ -23,14 +22,14 @@ namespace Vector.Game.Table
         TableSession session;
         TableView view;
         TableFx fx;
+        RoundPresenter presenter;
         ProfileService profiles;
         BettingInput betting;
         IPlayerSeat seat;
-        int openDialogs;
 
         TableRules Rules => session.Rules;
         RoundEngine Round => session.Round;
-        bool Paused => openDialogs > 0;
+        static bool Paused => Dialog.IsAnyOpen;
 
         public void Begin(TableSession session, TableView view, ProfileService profiles, PlayerAdvisor advisor)
         {
@@ -38,14 +37,15 @@ namespace Vector.Game.Table
             this.view = view;
             this.profiles = profiles;
             fx = new TableFx(view);
+            presenter = new RoundPresenter(view, fx);
             betting = new BettingInput(session, view, fx);
             seat = session.Mode == GameMode.Player
                 ? new HumanSeat(view, advisor, Rules, () => profiles.Profile.settings.showStrategy, () => Paused)
                 : (IPlayerSeat)new AiSeat(view, advisor);
 
             view.Hud.LobbyClicked += GoToLobby;
-            view.Hud.HelpClicked += () => Track(HelpDialog.Open(view.Overlay, Rules));
-            view.Hud.SettingsClicked += () => Track(SettingsDialog.Open(view.Overlay, profiles, GameContext.ApplySettings));
+            view.Hud.HelpClicked += () => HelpDialog.Open(view.Overlay, Rules);
+            view.Hud.SettingsClicked += () => SettingsDialog.Open(view.Overlay, profiles, GameContext.ApplySettings);
             betting.End();
             StartCoroutine(MainLoop());
         }
@@ -152,7 +152,6 @@ namespace Vector.Game.Table
                     Sfx.Play(SfxKind.ChipsCollect);
                 }, true);
             dialog.Closed += () => closed = true;
-            Track(dialog);
             while (!closed)
                 yield return null;
         }
@@ -196,7 +195,6 @@ namespace Vector.Game.Table
             yield return seat.ChooseFamily(Round, f => family = f);
             Round.ChooseFamily(family);
             Sfx.Play(SfxKind.Chip);
-            view.PlayerPlate.SetFamily(Labels.Family(family));
             UpdateScores();
         }
 
@@ -225,73 +223,16 @@ namespace Vector.Game.Table
         {
             var result = session.Settle();
             profiles.RecordSettlement(session.Balance, result);
-            view.Status.Show("SHOWDOWN");
-
-            view.PlayerPlate.SetScore(result.PlayerScore);
-            view.DealerPlate.SetFamily(Labels.Family(result.DealerFamily));
-            view.DealerPlate.SetScore(result.DealerScore);
-            view.PlayerPlate.SetWinner(result.Winner == RoundWinner.Player);
-            view.DealerPlate.SetWinner(result.Winner == RoundWinner.Dealer);
-            view.Board.MarkLines(result.PlayerLines, Theme.PlayerBlue);
-            view.Board.MarkLines(result.DealerLines, Theme.DealerRed);
-            view.Board.DimExcept(CellsOf(result));
-            yield return Tween.Wait(0.6f);
-
-            view.Status.SetVisible(false);
-            view.Result.Show(result, Round.Bets[BetSpot.Bonus] > 0);
-            PlayResultSound(result);
-            yield return PayOut(result);
+            yield return presenter.ShowResult(result, Round.Bets[BetSpot.Bonus] > 0);
 
             view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
             view.Hud.SetBalance(session.Balance, true);
             yield return Tween.Wait(ResultSeconds);
         }
 
-        IEnumerator PayOut(RoundResult result)
-        {
-            var bank = view.Shoe.transform.position;
-            var wallet = view.Hud.BalanceWorldPosition;
-            foreach (var bet in result.Bets)
-            {
-                var spot = view.Spots[bet.Spot];
-                spot.ShowOutcome(bet.Outcome);
-                if (bet.Outcome == BetOutcome.Win)
-                {
-                    view.Paytable.HighlightSpot(bet.Spot);
-                    fx.FlyChips(bet.Net, bank, spot.Stack.TopWorldPosition);
-                }
-                else if (bet.Outcome == BetOutcome.Lose)
-                {
-                    fx.FlyChips(bet.Stake, spot.Stack.TopWorldPosition, bank);
-                    spot.SetAmount(0);
-                }
-            }
-            yield return Tween.Wait(TableFx.ChipFlightSeconds);
-
-            bool anyReturn = false;
-            foreach (var bet in result.Bets)
-            {
-                if (bet.Return <= 0)
-                    continue;
-                anyReturn = true;
-                var spot = view.Spots[bet.Spot];
-                spot.SetAmount(bet.Return);
-                fx.FlyChips(bet.Return, spot.Stack.TopWorldPosition, wallet, 0.35f);
-            }
-            if (anyReturn)
-            {
-                Sfx.Play(SfxKind.ChipsCollect);
-                yield return Tween.Wait(0.35f + TableFx.ChipFlightSeconds);
-            }
-            foreach (var spot in view.Spots.Values)
-                spot.SetAmount(0);
-        }
-
         IEnumerator Cleanup()
         {
-            view.Result.Hide();
-            view.Status.SetVisible(true);
-            ResetTable();
+            presenter.Reset();
             yield return fx.CollectCards();
         }
 
@@ -306,10 +247,8 @@ namespace Vector.Game.Table
             profiles.RecordVoid(session.Balance);
             betting.End();
             view.Picker.Hide();
-            view.Result.Hide();
-            view.Status.SetVisible(true);
             view.Status.HideTimer();
-            ResetTable();
+            presenter.Reset();
             yield return fx.CollectCards();
             view.Hud.SetBalance(session.Balance, true);
             view.Toast.Show(refund > 0
@@ -322,27 +261,7 @@ namespace Vector.Game.Table
         // 補助
         // ------------------------------------------------------------------
 
-        void UpdateScores()
-        {
-            var values = Round.Board.ToValues();
-            var family = Round.PlayerFamily;
-            view.Board.UpdateSums(values, family);
-            view.PlayerPlate.SetScore(Scoring.FamilyScore(values, family));
-            view.DealerPlate.SetFamily(Labels.Family(Scoring.DealerFamily(values, family)));
-            view.DealerPlate.SetScore(Scoring.DealerScore(values, family));
-        }
-
-        void ResetTable()
-        {
-            view.PlayerPlate.Clear();
-            view.DealerPlate.Clear();
-            view.Paytable.ClearHighlights();
-            foreach (var spot in view.Spots.Values)
-            {
-                spot.ResetOutcome();
-                spot.SetAmount(0);
-            }
-        }
+        void UpdateScores() => presenter.ShowScores(Round.Board.ToValues(), Round.PlayerFamily);
 
         void RefreshTableInfo()
         {
@@ -352,32 +271,6 @@ namespace Vector.Game.Table
         }
 
         void RefreshShoe() => view.Shoe.SetRemaining(Round.Shoe.Remaining, Round.Shoe.TotalCards);
-
-        static HashSet<int> CellsOf(RoundResult result)
-        {
-            var cells = new HashSet<int>();
-            foreach (var line in result.PlayerLines)
-                cells.UnionWith(new[] { line.A, line.B, line.C });
-            foreach (var line in result.DealerLines)
-                cells.UnionWith(new[] { line.A, line.B, line.C });
-            return cells;
-        }
-
-        static void PlayResultSound(RoundResult result)
-        {
-            if (result.Net > 0)
-                Sfx.Play(result.Net >= result.TotalStake * 5 ? SfxKind.BigWin : SfxKind.Win);
-            else if (result.Net < 0)
-                Sfx.Play(SfxKind.Lose);
-            else
-                Sfx.Play(SfxKind.Push);
-        }
-
-        void Track(Dialog dialog)
-        {
-            openDialogs++;
-            dialog.Closed += () => openDialogs--;
-        }
 
         void GoToLobby()
         {
