@@ -93,6 +93,7 @@
 - **チップ** — $1 / $5 / $10 / $100 / $500 / $1K / $5K / $10K（UNDO・CLEAR・REBET・×2）
 - **スコアボード** — バカラの罫線と同じビーズロード。シューが替わるとリセット
 - **キャッシャー** — 手持ちがミニマムを下回ったら遊戯用チップを $10,000 まで補充
+- **スマートフォン** — 横向き固定、ノッチ・パンチホールを避けるセーフエリア対応
 - **中断ラウンドの返金** — 配札後にアプリが落ちた場合、次回起動時にそのラウンドの賭け金を返金
 
 ---
@@ -105,6 +106,7 @@
 | ライン選択 | ROW / COLUMN / SLASH のボタン（戦略ヒント ON なら勝率と ★推奨 を表示） |
 | 配置 | 手札のカードをクリックして選び、置きたいマスをクリック |
 | 設定 | 効果音の音量、高速ディール、戦略ヒントの ON/OFF |
+| キーボード | Space / Enter = DEAL、Backspace = UNDO、1 / 2 / 3 = ROW / COLUMN / SLASH、Esc = ダイアログを閉じる |
 
 ---
 
@@ -122,16 +124,17 @@ Assets/Vector/
 │   │   ├── Round/       RoundEngine / RoundResult / Scoreboard …
 │   │   ├── Session/     TableSession（ベット操作・引き落とし・払い戻し）
 │   │   └── Strategy/    IDealerPolicy / HouseWay / PlayerAdvisor / GreedyPolicy / Playout …
-│   └── Runtime/         Vector.Runtime（Unity 側）
-│       ├── App/         GameContext / Log / Background / GuardedRoutine
-│       ├── Persistence/ PlayerProfile / ProfileService / ProfileCodec / FileProfileStorage
-│       ├── Audio/       Sfx / SfxSynth（効果音は実行時に合成）
-│       ├── UI/          Foundation（Theme・Fonts・Art・Tween・Ui）/ Widgets（Dialog・Toast・Help・Settings）
-│       ├── Table/       TableScene / TableDirector / BettingInput / TableFx / Seats / Views
-│       └── Lobby/       LobbyScene / SeatCard
-├── Tests/EditMode/      ルール・ベット・セッション・セーブのテスト（60件）
+│   ├── Runtime/         Vector.Runtime（Unity 側）
+│   │   ├── App/         GameContext / Log / Background / GuardedRoutine
+│   │   ├── Persistence/ PlayerProfile / ProfileService / ProfileCodec / FileProfileStorage
+│   │   ├── Audio/       Sfx / SfxSynth（効果音は実行時に合成）
+│   │   ├── UI/          Foundation（Theme・Fonts・Art・Tween・Ui）/ Widgets（Dialog・Toast・Help・Settings）
+│   │   ├── Table/       TableScene / TableDirector / RoundPresenter / BettingInput / TableFx / Seats / Views
+│   │   └── Lobby/       LobbyScene / SeatCard
+│   └── Editor/          Vector.Editor（日本語フォントの焼き込みツール）
+├── Tests/EditMode/      ルール・ベット・セッション・セーブ・フォント網羅のテスト（62件）
 ├── Scenes/              Lobby / Table（どちらも起点コンポーネントを1つ置くだけ）
-└── Fonts/               Anton / Oswald（SIL Open Font License）
+└── Fonts/               Anton / Oswald / BIZ UDGothic（SIL Open Font License）
 Tools/
 ├── Simulator/           配当表の検証ツール（.NET、Core のソースを共有）
 └── CoreTests/           Unity なしで Core のテストを実行（CI 用）
@@ -141,7 +144,7 @@ Tools/
 
 | 原則 | 具体例 |
 |---|---|
-| **単一責任 (S)** | ルール（`RoundEngine`）・ベット操作（`TableSession`）・進行（`TableDirector`）・画面配置（`TableView`）・演出（`TableFx`）・文言（`Labels`）を分離 |
+| **単一責任 (S)** | ルール（`RoundEngine`）・ベット操作（`TableSession`）・進行（`TableDirector`）・結果表示（`RoundPresenter`）・画面配置（`TableView`）・演出（`TableFx`）・文言（`Labels`）を分離 |
 | **開放閉鎖 (O)** / **リスコフ (L)** | 席の判断は `IPlayerSeat`（`HumanSeat` / `AiSeat`）、ディーラーは `IDealerPolicy`、保存先は `IProfileStorage` で差し替え可能 |
 | **インターフェース分離 (I)** | 各インターフェースはメソッド1〜3個の最小構成 |
 | **依存性逆転 (D)** | `RoundEngine` は乱数・ディーラー方針を抽象で受け取り、組み立ては `TableScene`（コンポジションルート）だけが行う |
@@ -167,10 +170,15 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（60件）
+# Unity: Window > General > Test Runner > EditMode（62件）
 # Unity なし（Core のみ・47件）
 dotnet test Tools/CoreTests
 ```
+
+### 日本語フォント
+
+画面の日本語は、同梱の BIZ UDGothic から「ゲームで使う文字だけ」を焼き込んだ静的フォントで表示します（端末のフォントに依存しないので Android でも同じ見た目）。
+文言を追加・変更したら、Unity のメニュー **Vector / Rebuild Japanese Font** を実行してください。焼き込み漏れはテスト（`JapaneseFontCoverageTests`）が検出します。
 
 ### 配当の検証
 
@@ -235,4 +243,4 @@ dotnet run -c Release -- main 24000 advisor 1 1:1      # 配当を変えて試�
 ## 📄 ライセンス
 
 All rights reserved.
-同梱フォント Anton / Oswald は SIL Open Font License 1.1（[`Assets/Vector/Fonts`](Assets/Vector/Fonts) のライセンス文書を参照）。
+同梱フォント Anton / Oswald / BIZ UDGothic は SIL Open Font License 1.1（[`Assets/Vector/Fonts`](Assets/Vector/Fonts) のライセンス文書を参照）。

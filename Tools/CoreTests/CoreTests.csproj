@@ -11,9 +11,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Assets/Vector/Scripts/Core/**/*.cs" LinkBase="Core" />
-    <!-- セーブデータのテストは UnityEngine (JsonUtility) に依存するため Unity でのみ実行する -->
+    <!-- セーブデータ (JsonUtility) と日本語フォント (AssetDatabase) のテストは Unity でのみ実行する -->
     <Compile Include="../../Assets/Vector/Tests/EditMode/*.cs"
-             Exclude="../../Assets/Vector/Tests/EditMode/PersistenceTests.cs;../../Assets/Vector/Tests/EditMode/MemoryProfileStorage.cs"
+             Exclude="../../Assets/Vector/Tests/EditMode/PersistenceTests.cs;../../Assets/Vector/Tests/EditMode/MemoryProfileStorage.cs;../../Assets/Vector/Tests/EditMode/JapaneseFontCoverageTests.cs"
              LinkBase="Tests" />
   </ItemGroup>
   <ItemGroup>

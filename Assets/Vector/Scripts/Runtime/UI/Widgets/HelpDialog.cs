@@ -15,7 +15,7 @@ namespace Vector.Game.UI.Widgets
             var size = content.sizeDelta;
 
             var heading = Ui.Text(content, "Heading", "", Fonts.Label, 32, Theme.GoldBright, new Vector2(0, size.y / 2 - 24), new Vector2(size.x, 44));
-            var body = Ui.Paragraph(content, "Body", "", 25, Theme.Ivory, new Vector2(0, -10), new Vector2(size.x - 80, size.y - 120));
+            var body = Ui.Paragraph(content, "Body", "", 23, Theme.Ivory, new Vector2(0, -10), new Vector2(size.x - 80, size.y - 120));
             body.richText = true;
             var indicator = Ui.Text(content, "Page", "", Fonts.Label, 22, Theme.Muted, new Vector2(0, -size.y / 2 + 26), new Vector2(200, 30));
 

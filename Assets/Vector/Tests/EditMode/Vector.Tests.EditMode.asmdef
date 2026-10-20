@@ -4,6 +4,8 @@
     "references": [
         "Vector.Core",
         "Vector.Runtime",
+        "Vector.Editor",
+        "Unity.TextMeshPro",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

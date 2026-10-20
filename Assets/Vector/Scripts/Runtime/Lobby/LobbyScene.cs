@@ -45,7 +45,7 @@ namespace Vector.Game.Lobby
                 $"MIN {Labels.Money(rules.MinBet)}  ·  MAX {Labels.Money(rules.MaxBet)}  ·  ALL LINES {rules.MainPays}",
                 "TAKE A SEAT", Theme.Gold, () => Sit(GameMode.Player));
             SeatCard.Create(root, new Vector2(340, -120), "AUDIENCE",
-                "AIプレイヤーとディーラーの勝負に賭ける（バックベット）",
+                "AIプレイヤーとディーラーの勝負に賭ける",
                 $"PLAYER {rules.BackPlayerPays}  ·  DEALER {rules.BackDealerPays}  ·  TIE {rules.BackTiePays}",
                 "WATCH & BET", Theme.PlayerBlue, () => Sit(GameMode.Audience));
             BuildFooter();
