@@ -145,6 +145,22 @@ namespace Vector.Core
             return Result;
         }
 
+        /// <summary>
+        /// 進行中のラウンドを無効にする（障害時の救済）。返金すべき賭け金を返す。
+        /// 進行中でなければ何もせず 0 を返すので、二重に返金されることはない。
+        /// </summary>
+        public long Abort()
+        {
+            if (Phase == RoundPhase.Betting || Phase == RoundPhase.Complete)
+                return 0;
+            long stake = Bets.Total;
+            Board.Clear();
+            hand.Clear();
+            Result = null;
+            Phase = RoundPhase.Complete;
+            return stake;
+        }
+
         void Require(RoundPhase phase)
         {
             if (Phase != phase)

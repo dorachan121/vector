@@ -7,13 +7,6 @@ namespace Vector.Tests
 {
     public class RoundEngineTests
     {
-        /// <summary>常に番号が最小の空きマスに置くテスト用ディーラー。</summary>
-        sealed class FirstEmptyCellDealer : IDealerPolicy
-        {
-            public int ChooseCell(int[] values, int cardValue, LineFamily playerFamily, IReadOnlyList<int> playerHand)
-                => Array.IndexOf(values, 0);
-        }
-
         static RoundEngine NewEngine(ulong seed = 11)
             => new RoundEngine(TableRules.Standard, new Shoe(6, new SeededRandom(seed)), new FirstEmptyCellDealer());
 
