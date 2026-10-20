@@ -18,6 +18,9 @@ namespace Vector.Game.UI
             return amount.ToString();
         }
 
+        /// <summary>カードの表記（例: K♠）。</summary>
+        public static string CardName(Card card) => card.RankLabel + "♠♥♦♣"[(int)card.Suit];
+
         public static string Family(LineFamily family)
         {
             switch (family)

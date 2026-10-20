@@ -106,6 +106,8 @@ namespace Vector.Game.UI
             tmp.alignment = align;
             tmp.text = text;
             tmp.raycastTarget = false;
+            // 文字の下端がまっすぐな字形（5 など）で、SDF の縁のぼかしが描画範囲で切れて細い線に見えるのを防ぐ
+            tmp.extraPadding = true;
             tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.overflowMode = TextOverflowModes.Overflow;
             return tmp;

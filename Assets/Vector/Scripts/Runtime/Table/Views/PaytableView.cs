@@ -67,7 +67,7 @@ namespace Vector.Game.Table
 
         void Note(string text)
         {
-            Ui.Text(body, "Note", text, Fonts.Body, 15, Theme.Muted, new Vector2(0, cursor - 2), new Vector2(width, 22));
+            Ui.Text(body, "Note", text, Fonts.Body, 16, Theme.Muted, new Vector2(0, cursor - 2), new Vector2(width, 22));
             cursor -= 26;
         }
 

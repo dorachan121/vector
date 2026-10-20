@@ -95,6 +95,7 @@
 - **キャッシャー** — 手持ちがミニマムを下回ったら遊戯用チップを $10,000 まで補充
 - **スマートフォン** — 横向き固定、ノッチ・パンチホールを避けるセーフエリア対応
 - **中断ラウンドの返金** — 配札後にアプリが落ちた場合、次回起動時にそのラウンドの賭け金を返金
+- **リアリティチェック** — 30分ごとにプレイ時間とそのセッションの収支を知らせ、ロビーに戻るか続けるかを選べる
 
 ---
 
@@ -122,7 +123,7 @@ Assets/Vector/
 │   │   ├── Poker/       PokerHand / PokerEvaluator
 │   │   ├── Betting/     TableRules / Odds / BetLayout / Settlement / Bankroll …
 │   │   ├── Round/       RoundEngine / RoundResult / Scoreboard …
-│   │   ├── Session/     TableSession（ベット操作・引き落とし・払い戻し）
+│   │   ├── Session/     TableSession（ベット操作・引き落とし・払い戻し）/ RealityCheck
 │   │   └── Strategy/    IDealerPolicy / HouseWay / PlayerAdvisor / GreedyPolicy / Playout …
 │   ├── Runtime/         Vector.Runtime（Unity 側）
 │   │   ├── App/         GameContext / Log / Background / GuardedRoutine
@@ -132,9 +133,9 @@ Assets/Vector/
 │   │   ├── Table/       TableScene / TableDirector / RoundPresenter / BettingInput / TableFx / Seats / Views
 │   │   └── Lobby/       LobbyScene / SeatCard
 │   └── Editor/          Vector.Editor（日本語フォントの焼き込みツール）
-├── Tests/EditMode/      ルール・ベット・セッション・セーブ・フォント網羅のテスト（62件）
+├── Tests/EditMode/      ルール・ベット・セッション・セーブ・フォント網羅・リアリティチェックのテスト（65件）
 ├── Scenes/              Lobby / Table（どちらも起点コンポーネントを1つ置くだけ）
-└── Fonts/               Anton / Oswald / BIZ UDGothic（SIL Open Font License）
+└── Fonts/               Anton / Oswald / BIZ UDPGothic（SIL Open Font License）
 Tools/
 ├── Simulator/           配当表の検証ツール（.NET、Core のソースを共有）
 └── CoreTests/           Unity なしで Core のテストを実行（CI 用）
@@ -170,14 +171,14 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（62件）
-# Unity なし（Core のみ・47件）
+# Unity: Window > General > Test Runner > EditMode（65件）
+# Unity なし（Core のみ・50件）
 dotnet test Tools/CoreTests
 ```
 
 ### 日本語フォント
 
-画面の日本語は、同梱の BIZ UDGothic から「ゲームで使う文字だけ」を焼き込んだ静的フォントで表示します（端末のフォントに依存しないので Android でも同じ見た目）。
+画面の日本語は、同梱の BIZ UDPGothic から「ゲームで使う文字だけ」を焼き込んだ静的フォントで表示します（端末のフォントに依存しないので Android でも同じ見た目）。
 文言を追加・変更したら、Unity のメニュー **Vector / Rebuild Japanese Font** を実行してください。焼き込み漏れはテスト（`JapaneseFontCoverageTests`）が検出します。
 
 ### 配当の検証
@@ -243,4 +244,4 @@ dotnet run -c Release -- main 24000 advisor 1 1:1      # 配当を変えて試�
 ## 📄 ライセンス
 
 All rights reserved.
-同梱フォント Anton / Oswald / BIZ UDGothic は SIL Open Font License 1.1（[`Assets/Vector/Fonts`](Assets/Vector/Fonts) のライセンス文書を参照）。
+同梱フォント Anton / Oswald / BIZ UDPGothic は SIL Open Font License 1.1（[`Assets/Vector/Fonts`](Assets/Vector/Fonts) のライセンス文書を参照）。

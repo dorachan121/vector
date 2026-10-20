@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5d71440146351454f8cf84ed0d9ecdfc
+guid: 51ae7dc2bbd26b6469a30272e8cf0405
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - BIZ UDGothic
+  - BIZ UDPGothic
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

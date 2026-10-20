@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,8 +23,6 @@ namespace Vector.Game.UI.Widgets
 
         /// <summary>本文の下の自由に使える領域（設定画面などのコントロールを置く）。</summary>
         public RectTransform Content { get; private set; }
-
-        public event Action Closed;
 
         /// <summary>ダイアログが1つでも開いていれば true（その間はテーブルの持ち時間やショートカットを止める）。</summary>
         public static bool IsAnyOpen => open.Count > 0;
@@ -79,13 +78,17 @@ namespace Vector.Game.UI.Widgets
             return this;
         }
 
+        /// <summary>閉じられるまで待つ（コルーチンから yield return で使う）。</summary>
+        public IEnumerator WaitUntilClosed()
+        {
+            while (this != null)
+                yield return null;
+        }
+
         public void Close()
         {
-            if (this == null)
-                return;
-            Closed?.Invoke();
-            Closed = null;
-            Destroy(gameObject);
+            if (this != null)
+                Destroy(gameObject);
         }
 
         void Update()

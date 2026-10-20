@@ -62,6 +62,9 @@ sysinfo.txt
 *.unitypackage
 *.app
 
+# Android ビルド時に Gradle / CMake が作る一時フォルダ
+/.utmp/
+
 # Crashlytics generated file
 crashlytics-build.properties
 

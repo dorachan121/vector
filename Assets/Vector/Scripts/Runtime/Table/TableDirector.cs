@@ -19,6 +19,9 @@ namespace Vector.Game.Table
         const int MaxConsecutiveFaults = 3;
         const float ResultSeconds = 2.8f;
 
+        /// <summary>リアリティチェック（プレイ時間と収支のお知らせ）を出す間隔。</summary>
+        static readonly TimeSpan RealityCheckInterval = TimeSpan.FromMinutes(30);
+
         TableSession session;
         TableView view;
         TableFx fx;
@@ -26,6 +29,7 @@ namespace Vector.Game.Table
         ProfileService profiles;
         BettingInput betting;
         IPlayerSeat seat;
+        RealityCheck realityCheck;
 
         TableRules Rules => session.Rules;
         RoundEngine Round => session.Round;
@@ -39,6 +43,7 @@ namespace Vector.Game.Table
             fx = new TableFx(view);
             presenter = new RoundPresenter(view, fx);
             betting = new BettingInput(session, view, fx);
+            realityCheck = new RealityCheck(RealityCheckInterval, session.Balance, DateTime.UtcNow);
             seat = session.Mode == GameMode.Player
                 ? new HumanSeat(view, advisor, Rules, () => profiles.Profile.settings.showStrategy, () => Paused)
                 : (IPlayerSeat)new AiSeat(view, advisor);
@@ -94,6 +99,8 @@ namespace Vector.Game.Table
             RefreshTableInfo();
             while (session.IsBroke)
                 yield return OfferReload();
+            if (realityCheck.IsDue(DateTime.UtcNow))
+                yield return ShowRealityCheck();
 
             view.ShowBettingControls(true);
             view.Hud.SetLobbyEnabled(true);
@@ -135,25 +142,37 @@ namespace Vector.Game.Table
             Sfx.Play(SfxKind.Shuffle);
             view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
             yield return Tween.Wait(1.1f);
-            view.Toast.Show($"新しいシュー #{Round.Shoe.ShoeNumber}  ·  バーンカード {Round.Shoe.BurnedCard}");
+            view.Toast.Show($"新しいシュー #{Round.Shoe.ShoeNumber}  ·  バーンカード {Labels.CardName(Round.Shoe.BurnedCard)}");
         }
 
         IEnumerator OfferReload()
         {
-            bool closed = false;
-            var dialog = Dialog.Open(view.Overlay, "OUT OF CHIPS",
+            yield return Dialog.Open(view.Overlay, "OUT OF CHIPS",
                     $"手持ちのチップがテーブルミニマム（{Labels.Money(Rules.MinBet)}）を下回りました。\n" +
                     $"遊戯用チップを {Labels.Money(PlayerProfile.StartingBalance)} まで補充できます。", new Vector2(820, 420))
                 .AddButton("LOBBY", GoToLobby)
                 .AddButton("RELOAD", () =>
                 {
-                    session.Deposit(profiles.Reload(Rules.MinBet));
+                    long added = profiles.Reload(Rules.MinBet);
+                    session.Deposit(added);
+                    realityCheck.RecordDeposit(added);
                     view.Hud.SetBalance(session.Available, true);
                     Sfx.Play(SfxKind.ChipsCollect);
-                }, true);
-            dialog.Closed += () => closed = true;
-            while (!closed)
-                yield return null;
+                }, true)
+                .WaitUntilClosed();
+        }
+
+        /// <summary>責任あるゲーミングのため、一定時間ごとにプレイ時間とこのセッションの収支を知らせる。</summary>
+        IEnumerator ShowRealityCheck()
+        {
+            var elapsed = realityCheck.Elapsed(DateTime.UtcNow);
+            yield return Dialog.Open(view.Overlay, "REALITY CHECK",
+                    $"プレイ時間 {(int)elapsed.TotalHours}時間{elapsed.Minutes}分　このセッションの収支 {Labels.SignedMoney(realityCheck.Net(session.Balance))}\n" +
+                    "休憩をはさみながら、無理のない範囲でお楽しみください。", new Vector2(860, 400))
+                .AddButton("LOBBY", GoToLobby)
+                .AddButton("CONTINUE", null, true)
+                .WaitUntilClosed();
+            realityCheck.Acknowledge(DateTime.UtcNow);
         }
 
         // ------------------------------------------------------------------
