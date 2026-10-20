@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "vector.sln"
+    "dotnet.defaultSolution": "vector.slnx"
 }
