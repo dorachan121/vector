@@ -75,8 +75,7 @@ namespace Vector.Game.Lobby
                     var glow = Ui.Image(content, "TodayGlow", Art.Glow, Palette.GoldLight.WithAlpha(0.6f), position, new Vector2(220, 280));
                     Pulse.Add(glow, 0.06f, 2f);
                 }
-                var cell = Ui.Plate(content, "Day" + (day + 1), position, new Vector2(132, 200), last ? Palette.GoldDark : Palette.Violet, 20, today || last);
-                var rt = (RectTransform)cell.transform.parent;
+                var rt = Ui.Card(content, "Day" + (day + 1), position, new Vector2(132, 200), last ? Palette.GoldDark : Palette.Violet, 20, today || last);
                 Ui.Text(rt, "Label", $"DAY {day + 1}", Fonts.Label, 22, last ? Palette.GoldLight : Palette.Ivory, new Vector2(0, 72), new Vector2(120, 28));
                 var reward = LoginBonus.RewardFor(day);
                 var shown = RewardDisplay.From(reward)[0];
@@ -97,8 +96,7 @@ namespace Vector.Game.Lobby
 
         void BuildMission(int index, DailyMissionDef mission, float y)
         {
-            var body = Ui.Plate(content, "Mission" + index, new Vector2(0, y), CardSize, Palette.PanelTop, 24, false);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(content, "Mission" + index, new Vector2(0, y), CardSize, Palette.PanelTop, 24, false);
             float left = -CardSize.x / 2;
             bool done = Daily.IsDone(index), claimed = Daily.IsClaimed(index);
             Ui.Sliced(rt, "IconBox", Chrome.Gloss, done ? Palette.Emerald : Palette.VioletBright, new Vector2(left + 80, 0), new Vector2(116, 116), 26);
@@ -133,8 +131,7 @@ namespace Vector.Game.Lobby
         void BuildBonus(float y)
         {
             var size = new Vector2(1000, 204);
-            var body = Ui.Plate(content, "Bonus", new Vector2(0, y), size, Palette.GoldDark, 26);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(content, "Bonus", new Vector2(0, y), size, Palette.GoldDark, 26);
             var rays = Ui.Image(rt, "Rays", Chrome.Rays(14), Palette.GoldLight.WithAlpha(0.2f), new Vector2(-380, 0), Vector2.one * 300);
             Spin.Add(rays, 10f);
             var gift = Ui.Icon(rt, "Gift", IconKind.Gift, Palette.GoldLight, new Vector2(-380, 0), 120);

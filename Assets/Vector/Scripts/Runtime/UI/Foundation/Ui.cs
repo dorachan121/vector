@@ -226,6 +226,10 @@ namespace Vector.Game.UI
             return body;
         }
 
+        /// <summary>立体的なプレート（<see cref="Plate"/>）を置き、その土台（中身を置く親）を返す。</summary>
+        public static RectTransform Card(Transform parent, string name, Vector2 position, Vector2 size, Color color, float radius = 24, bool frame = true, bool raycast = false)
+            => (RectTransform)Plate(parent, name, position, size, color, radius, frame, raycast).transform.parent;
+
         /// <summary>見出しのリボン（左右に切れ込みのある帯）と、その上の文字。</summary>
         public static TextMeshProUGUI Ribbon(Transform parent, string name, string text, Vector2 position, float width, Color color, float fontSize = 34)
         {

@@ -15,8 +15,7 @@ namespace Vector.Game.Lobby
 
         public static TileButton Create(Transform parent, string name, Vector2 position, Vector2 size, Color color, Action onClick)
         {
-            var body = Ui.Plate(parent, name, position, size, color, 26, true, true);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(parent, name, position, size, color, 26, true, true);
             var tile = rt.gameObject.AddComponent<TileButton>();
             tile.onClick = onClick;
             tile.Content = rt;

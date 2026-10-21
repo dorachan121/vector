@@ -69,8 +69,7 @@ namespace Vector.Game.Lobby
         {
             var state = story.State;
             var size = new Vector2(1000, 150);
-            var body = Ui.Plate(content, "Comps", new Vector2(0, 560), size, Theme.Hex("123D57"), 26);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(content, "Comps", new Vector2(0, 560), size, Theme.Hex("123D57"), 26);
             var jewel = Ui.Image(rt, "Jewel", Chrome.Jewel, Palette.Cyan, new Vector2(-410, 0), Vector2.one * 110);
             Float.Add(jewel.rectTransform, 5f, 1.4f);
             Ui.Text(rt, "Label", "COMP POINTS", Fonts.Label, 22, Palette.Muted, new Vector2(-150, 36), new Vector2(400, 28), TextAlignmentOptions.Left);
@@ -84,8 +83,7 @@ namespace Vector.Game.Lobby
         void BuildItem(ItemDef item, float y)
         {
             var state = story.State;
-            var body = Ui.Plate(content, "Item", new Vector2(0, y), CardSize, Palette.PanelTop, 22, false);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(content, "Item", new Vector2(0, y), CardSize, Palette.PanelTop, 22, false);
             float left = -CardSize.x / 2;
             bool voucher = item.ChipValue > 0;
             Ui.Image(rt, "Glow", Art.Glow, Palette.GoldLight.WithAlpha(0.3f), new Vector2(left + 76, 0), Vector2.one * 150);
@@ -112,8 +110,7 @@ namespace Vector.Game.Lobby
         void BuildReload(float y)
         {
             var size = new Vector2(1000, 150);
-            var body = Ui.Plate(content, "Reload", new Vector2(0, y), size, Theme.Hex("0E5E4A"), 24, false);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(content, "Reload", new Vector2(0, y), size, Theme.Hex("0E5E4A"), 24, false);
             Ui.Icon(rt, "Icon", IconKind.Plus, Palette.Emerald, new Vector2(-424, 0), 70);
             Ui.Text(rt, "Title", "CHIP RELOAD", Fonts.Label, 30, Palette.Ivory, new Vector2(-120, 36), new Vector2(500, 36), TextAlignmentOptions.Left);
             Ui.Paragraph(rt, "Text", $"手持ちが {Labels.Money(tableMinimum)} 未満になったら、遊戯用チップを {Labels.Money(PlayerProfile.StartingBalance)} まで補充できます。",
@@ -130,8 +127,7 @@ namespace Vector.Game.Lobby
                 var spec = Floors.Of(floors[i]).Master;
                 var position = new Vector2((i % 4 - 1.5f) * 250, -404 - i / 4 * 206);
                 bool owned = story.State.Count(spec.Trophy) > 0;
-                var body = Ui.Plate(content, "Trophy", position, new Vector2(232, 190), owned ? Palette.VioletBright : Palette.NightDeep, 22, owned);
-                var rt = (RectTransform)body.transform.parent;
+                var rt = Ui.Card(content, "Trophy", position, new Vector2(232, 190), owned ? Palette.VioletBright : Palette.NightDeep, 22, owned);
                 if (owned)
                 {
                     Ui.Image(rt, "Glow", Art.Glow, Palette.GoldLight.WithAlpha(0.45f), new Vector2(0, 26), Vector2.one * 150);

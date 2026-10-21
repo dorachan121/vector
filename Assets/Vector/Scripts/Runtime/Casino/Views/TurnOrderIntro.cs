@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using Vector.Game.Audio;
 using Vector.Game.UI;
@@ -92,8 +91,7 @@ namespace Vector.Game.Casino
         /// <summary>1人ぶんの札（色の地・顔・名前）。</summary>
         static RectTransform Plate(RectTransform parent, TurnSeat seat, Vector2 position)
         {
-            var body = Ui.Plate(parent, "Seat" + seat.Name, position, PlateSize, Color.Lerp(seat.Color, Palette.NightDeep, 0.35f), 30);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(parent, "Seat" + seat.Name, position, PlateSize, Color.Lerp(seat.Color, Palette.NightDeep, 0.35f), 30);
             Ui.Image(rt, "Glow", Art.Glow, seat.Color.WithAlpha(0.6f), new Vector2(0, 40), new Vector2(320, 320));
             var window = Ui.Clip(rt, "Face", new Vector2(0, 34), new Vector2(PlateSize.x - 30, PlateSize.y - 110));
             if (seat.Look.HasValue)

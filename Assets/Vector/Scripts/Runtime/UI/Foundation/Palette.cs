@@ -34,6 +34,5 @@ namespace Vector.Game.UI
 
         /// <summary>カードやダイアログの地（上が明るい縦グラデーションの両端）。</summary>
         public static readonly Color PanelTop = Theme.Hex("2B1763");
-        public static readonly Color PanelBottom = Theme.Hex("140A33");
     }
 }

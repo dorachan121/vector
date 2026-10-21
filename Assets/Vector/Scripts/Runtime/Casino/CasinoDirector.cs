@@ -21,7 +21,7 @@ namespace Vector.Game.Casino
     {
         const int MaxConsecutiveFaults = 3;
 
-        /// <summary>この倍以上の勝ちは大勝ちの効果音にする。</summary>
+        /// <summary>この倍以上の勝ちは大勝ち（効果音と演出）にする。</summary>
         const long BigWinMultiple = 5;
 
         /// <summary>リアリティチェック（プレイ時間と収支のお知らせ）を出す間隔。</summary>
@@ -289,7 +289,7 @@ namespace Vector.Game.Casino
         protected IEnumerator Settle(IRoundOutcome outcome, IReadOnlyList<SpotResult> bets)
         {
             Record(outcome);
-            PlayResultSound(outcome);
+            CelebrateResult(outcome);
             yield return PayOut(bets);
             View.Hud.SetBalance(Session.Balance, true);
         }
@@ -334,16 +334,27 @@ namespace Vector.Game.Casino
                 target.SetAmount(0);
         }
 
+        /// <summary>結果の効果音と、賭け金の <see cref="BigWinMultiple"/> 倍以上勝ったときの大勝ちの演出。</summary>
+        protected void CelebrateResult(IRoundOutcome outcome)
+        {
+            PlayResultSound(outcome);
+            if (IsBigWin(outcome))
+                BigWinBanner.Show(View.Overlay, outcome.TotalReturn - outcome.TotalStake);
+        }
+
+        /// <summary>結果の効果音だけ（独自の勝ちの演出を持つゲーム用）。</summary>
         protected static void PlayResultSound(IRoundOutcome outcome)
         {
             long net = outcome.TotalReturn - outcome.TotalStake;
             if (net > 0)
-                Sfx.Play(net >= outcome.TotalStake * BigWinMultiple ? SfxKind.BigWin : SfxKind.Win);
+                Sfx.Play(IsBigWin(outcome) ? SfxKind.BigWin : SfxKind.Win);
             else if (net < 0)
                 Sfx.Play(SfxKind.Lose);
             else
                 Sfx.Play(SfxKind.Push);
         }
+
+        static bool IsBigWin(IRoundOutcome outcome) => outcome.TotalReturn - outcome.TotalStake >= Math.Max(1, outcome.TotalStake * BigWinMultiple);
 
         // ------------------------------------------------------------------
         // 障害時の復旧

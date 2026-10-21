@@ -29,6 +29,9 @@ namespace Vector.Game.World
         TextMeshProUGUI body;
         TextMeshProUGUI next;
         CanvasGroup group;
+
+        /// <summary>いま立ち絵を出している話し手（同じ人が続けて話すあいだは描き直さない）。</summary>
+        string portraitOf;
         bool advance;
         int chosen = -1;
 
@@ -85,6 +88,10 @@ namespace Vector.Game.World
             nameplate.SetActive(!string.IsNullOrEmpty(name));
             speaker.text = name;
             title.text = role;
+            string portrait = look.HasValue ? name : null;
+            if (portrait == portraitOf)
+                return;
+            portraitOf = portrait;
             foreach (Transform child in portraitSlot)
                 Destroy(child.gameObject);
             if (look.HasValue)

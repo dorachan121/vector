@@ -12,8 +12,7 @@ namespace Vector.Game.Lobby
 
         public static RectTransform Create(Transform parent, Vector2 position, GameEntry entry, params (string label, Action onClick)[] buttons)
         {
-            var body = Ui.Plate(parent, "Game" + entry.Title, position, Size, Palette.PanelTop, 28);
-            var rt = (RectTransform)body.transform.parent;
+            var rt = Ui.Card(parent, "Game" + entry.Title, position, Size, Palette.PanelTop, 28);
 
             // 絵の区画: ゲームの色の地・光・ゆっくり回る光の放射・紋章
             var art = new Vector2(Size.x - 28, 212);
