@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
@@ -117,7 +116,7 @@ namespace Vector.Game.Casino
                 {
                     Log.Error("エラーが続いたためロビーに戻ります。");
                     ChallengeFlow.CancelAfterFault();
-                    SceneManager.LoadScene(GameContext.ReturnScene);
+                    SceneFlow.Load(GameContext.ReturnScene);
                     yield break;
                 }
             }
@@ -373,7 +372,7 @@ namespace Vector.Game.Casino
             if (Challenge != null)
                 ChallengeFlow.ConfirmForfeit(View.Overlay, Challenge);
             else
-                SceneManager.LoadScene(GameContext.ReturnScene);
+                SceneFlow.Load(GameContext.ReturnScene);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Vector.Game.UI.Widgets
 
         public static Dialog Open(Transform root, string title, string body, Vector2 size)
         {
-            var shade = Ui.Image(root, "Dialog", null, new Color(0, 0, 0, 0.7f), Vector2.zero, Vector2.zero, true);
+            var shade = Ui.Image(root, "Dialog", null, new Color(0.03f, 0.01f, 0.08f, 0.8f), Vector2.zero, Vector2.zero, true);
             var shadeRect = shade.rectTransform;
             shadeRect.anchorMin = Vector2.zero;
             shadeRect.anchorMax = Vector2.one;
@@ -39,13 +39,16 @@ namespace Vector.Game.UI.Widgets
             dialog.size = size;
             open.Add(dialog);
 
-            dialog.panel = Ui.Panel(shadeRect, "Panel", Vector2.zero, size, new Color(0.05f, 0.08f, 0.07f, 0.98f), 24, true).rectTransform;
-            Ui.Outline(dialog.panel, "Outline", Vector2.zero, size, Theme.Gold.WithAlpha(0.8f), 24);
-            Ui.Text(dialog.panel, "Title", title, Fonts.Label, 38, Theme.Gold, new Vector2(0, size.y / 2 - 44), new Vector2(size.x - 60, 50));
+            var body0 = Ui.Plate(shadeRect, "Panel", Vector2.zero, size, Palette.PanelTop, 28, true, true);
+            dialog.panel = (RectTransform)body0.transform.parent;
+            Ui.Image(dialog.panel, "Glow", Art.Glow, Palette.Haze.WithAlpha(0.22f), new Vector2(0, size.y / 2 - 60), new Vector2(size.x * 0.9f, 220));
+            if (!string.IsNullOrEmpty(title))
+                Ui.Ribbon(dialog.panel, "Title", title, new Vector2(0, size.y / 2 - 2), Mathf.Min(size.x * 0.8f, 640), Palette.Ruby, 32);
+            Ui.IconButton(dialog.panel, "Close", IconKind.Close, new Vector2(size.x / 2 - 34, size.y / 2 - 34), 50, new Color(1, 1, 1, 0.1f), dialog.Close);
             float bodyHeight = 0;
             if (!string.IsNullOrEmpty(body))
             {
-                var text = Ui.Paragraph(dialog.panel, "Body", body, 24, Theme.Ivory, Vector2.zero, new Vector2(size.x - 80, 10), TMPro.TextAlignmentOptions.Top);
+                var text = Ui.Paragraph(dialog.panel, "Body", body, 24, Palette.Ivory, Vector2.zero, new Vector2(size.x - 80, 10), TMPro.TextAlignmentOptions.Top);
                 bodyHeight = text.GetPreferredValues(body, size.x - 80, 0).y + 10;
                 text.rectTransform.sizeDelta = new Vector2(size.x - 80, bodyHeight);
                 text.rectTransform.anchoredPosition = new Vector2(0, size.y / 2 - 84 - bodyHeight / 2);
@@ -64,8 +67,8 @@ namespace Vector.Game.UI.Widgets
 
         public Dialog AddButton(string label, Action onClick, bool primary = false)
         {
-            var color = primary ? Theme.Gold : new Color(1, 1, 1, 0.1f);
-            var button = Ui.Button(panel, "Button" + label, label, Vector2.zero, new Vector2(240, ButtonHeight), color, primary ? Theme.Ink : Theme.Ivory, () =>
+            var color = primary ? Palette.Gold : new Color(1, 1, 1, 0.1f);
+            var button = Ui.Button(panel, "Button" + label, label, Vector2.zero, new Vector2(240, ButtonHeight), color, primary ? Palette.Ink : Palette.Ivory, () =>
             {
                 Close();
                 onClick?.Invoke();

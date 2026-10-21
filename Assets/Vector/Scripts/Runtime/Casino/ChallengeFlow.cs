@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
@@ -44,7 +43,7 @@ namespace Vector.Game.Casino
                 {
                     run.Abandon();
                     Resolve(run);
-                    SceneManager.LoadScene(SceneNames.World);
+                    SceneFlow.Load(SceneNames.World);
                 });
         }
 
@@ -60,7 +59,7 @@ namespace Vector.Game.Casino
             yield return Dialog.Open(overlay, won ? "CHALLENGE CLEARED" : "CHALLENGE FAILED", body, new Vector2(820, 380))
                 .AddButton("RETURN", null, true)
                 .WaitUntilClosed();
-            SceneManager.LoadScene(SceneNames.World);
+            SceneFlow.Load(SceneNames.World);
         }
 
         /// <summary>障害が続いてテーブルを離れるとき、決着していない挑戦は無効にして参加費を返す。</summary>

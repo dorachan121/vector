@@ -1,7 +1,8 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Vector.Core;
+using static Vector.Game.UI.Sdf;
+using static Vector.Game.UI.SpriteFactory;
 
 namespace Vector.Game.UI
 {
@@ -11,8 +12,6 @@ namespace Vector.Game.UI
     /// </summary>
     public static class Art
     {
-        static readonly Dictionary<string, Sprite> cache = new Dictionary<string, Sprite>();
-
         // ------------------------------------------------------------------
         // 基本図形
         // ------------------------------------------------------------------
@@ -80,23 +79,35 @@ namespace Vector.Game.UI
         // 背景・テーブル
         // ------------------------------------------------------------------
 
-        /// <summary>画面全体の背景。中央がわずかに明るい漆黒のビネット。</summary>
+        /// <summary>
+        /// 画面全体の背景。夜のカジノの藍紫に、上からの柔らかな光、菱形の格子柄、周辺の減光を重ねる。
+        /// </summary>
         public static Sprite Backdrop => Cached("backdrop", () =>
         {
-            const int w = 320, h = 180;
+            const int w = 480, h = 270;
             var tex = NewTexture(w, h);
             var px = new Color32[w * h];
-            var inner = Theme.Hex("1B2420");
-            var outer = Theme.Backdrop;
+            var glow = Palette.VioletBright;
+            var mid = Palette.Violet;
+            var edge = Palette.NightDeep;
+            var motif = Palette.Haze;
             for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
             {
                 float u = (x + 0.5f) / w * 2 - 1;
                 float v = (y + 0.5f) / h * 2 - 1;
-                float r = Mathf.Sqrt(u * u * 0.8f + v * v * 1.2f);
-                float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(r / 1.25f));
-                var c = Color.Lerp(inner, outer, t);
-                c *= 1 + (Hash(x, y) - 0.5f) * 0.04f;
+                // 上の中央から差す光
+                float r = Mathf.Sqrt(u * u * 0.7f + (v - 0.55f) * (v - 0.55f) * 1.4f);
+                var c = Color.Lerp(glow, mid, Smooth(0f, 0.9f, r));
+                c = Color.Lerp(c, edge, Smooth(0.6f, 1.9f, r));
+                // 菱形の格子（細い線）
+                float a = (x + y) / 18f, b = (x - y) / 18f;
+                float line = Mathf.Min(Mathf.Abs(a - Mathf.Round(a)), Mathf.Abs(b - Mathf.Round(b))) * 18f;
+                c = Color.Lerp(c, motif, Mathf.Clamp01(1.1f - line) * 0.07f);
+                // 周辺の減光と細かなノイズ
+                float vignette = Smooth(0.75f, 1.6f, Mathf.Sqrt(u * u + v * v));
+                c = Color.Lerp(c, edge, vignette * 0.85f);
+                c *= 1 + (Hash(x, y) - 0.5f) * 0.035f;
                 c.a = 1;
                 px[y * w + x] = c;
             }
@@ -421,142 +432,5 @@ namespace Vector.Game.UI
 
         /// <summary>髪（円の上側）。顔の円に重ねて使う。</summary>
         public static Sprite HairCap => Cached("haircap", () => Disc(128, (x, y) => Mathf.Max(SdCircle(x, y, 0, 0, 0.96f), -(y + 0.12f))));
-
-        // ------------------------------------------------------------------
-        // 補助
-        // ------------------------------------------------------------------
-
-        static Sprite Cached(string key, Func<Sprite> create)
-        {
-            if (cache.TryGetValue(key, out var sprite) && sprite != null)
-                return sprite;
-            sprite = create();
-            sprite.name = key;
-            cache[key] = sprite;
-            return sprite;
-        }
-
-        static Texture2D NewTexture(int w, int h)
-        {
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false)
-            {
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear,
-                hideFlags = HideFlags.DontSave,
-            };
-            return tex;
-        }
-
-        static Sprite Finish(Texture2D tex, Color32[] px, FilterMode filter = FilterMode.Bilinear)
-        {
-            tex.filterMode = filter;
-            tex.SetPixels32(px);
-            tex.Apply(false, true);
-            var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
-            sprite.hideFlags = HideFlags.DontSave;
-            return sprite;
-        }
-
-        static Sprite SlicedSprite(Texture2D tex, Color32[] px, int border)
-        {
-            tex.SetPixels32(px);
-            tex.Apply(false, true);
-            var sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0,
-                SpriteMeshType.FullRect, new Vector4(border, border, border, border));
-            sprite.hideFlags = HideFlags.DontSave;
-            return sprite;
-        }
-
-        /// <summary>正規化座標 [-1, 1] の距離関数から正方形のスプライトを作る。</summary>
-        static Sprite Disc(int size, Func<float, float, float> sdf)
-        {
-            var tex = NewTexture(size, size);
-            var px = new Color32[size * size];
-            float scale = size / 2f;
-            for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
-            {
-                float u = (x + 0.5f) / scale - 1;
-                float v = (y + 0.5f) / scale - 1;
-                float d = sdf(u, v) * scale;
-                px[y * size + x] = new Color32(255, 255, 255, Alpha(d));
-            }
-            return Finish(tex, px);
-        }
-
-        static byte Alpha(float distance) => (byte)(Mathf.Clamp01(0.5f - distance) * 255f);
-
-        static float Hash(int x, int y)
-        {
-            unchecked
-            {
-                uint h = (uint)(x * 374761393 + y * 668265263);
-                h = (h ^ (h >> 13)) * 1274126177u;
-                h ^= h >> 16;
-                return (h & 0xFFFFFF) / (float)0xFFFFFF;
-            }
-        }
-
-        static float SdCircle(float x, float y, float cx, float cy, float r)
-        {
-            float dx = x - cx, dy = y - cy;
-            return Mathf.Sqrt(dx * dx + dy * dy) - r;
-        }
-
-        static float SdRoundBox(float x, float y, float hw, float hh, float r)
-        {
-            float qx = Mathf.Abs(x) - hw + r;
-            float qy = Mathf.Abs(y) - hh + r;
-            float ox = Mathf.Max(qx, 0), oy = Mathf.Max(qy, 0);
-            return Mathf.Sqrt(ox * ox + oy * oy) + Mathf.Min(Mathf.Max(qx, qy), 0) - r;
-        }
-
-        static float SdRhombus(float x, float y, float hw, float hh)
-        {
-            float ax = Mathf.Abs(x), ay = Mathf.Abs(y);
-            float k = hw * hh / Mathf.Sqrt(hw * hw + hh * hh);
-            return (ax / hw + ay / hh - 1f) * k;
-        }
-
-        /// <summary>正 n 角形（apothem は中心から辺までの距離）。</summary>
-        static float SdPolygon(float x, float y, int n, float apothem)
-        {
-            float sector = Mathf.PI * 2 / n;
-            float a = Mathf.Repeat(Mathf.Atan2(y, x) + Mathf.PI / 2, sector) - sector / 2;
-            return Mathf.Sqrt(x * x + y * y) * Mathf.Cos(a) - apothem;
-        }
-
-        /// <summary>n 芒星（inner / outer は谷と先端の半径）。距離は近似だが、縁のアンチエイリアスには十分。</summary>
-        static float SdStar(float x, float y, int n, float inner, float outer)
-        {
-            float sector = Mathf.PI * 2 / n;
-            float a = Mathf.Abs(Mathf.Repeat(Mathf.Atan2(y, x) + Mathf.PI / 2, sector) - sector / 2) / (sector / 2);
-            float radius = Mathf.Lerp(outer, inner, a);
-            return (Mathf.Sqrt(x * x + y * y) - radius) * 0.7f;
-        }
-
-        static float SdTriangle(float px, float py, float ax, float ay, float bx, float by, float cx, float cy)
-        {
-            // Inigo Quilez の三角形の距離関数
-            float e0x = bx - ax, e0y = by - ay;
-            float e1x = cx - bx, e1y = cy - by;
-            float e2x = ax - cx, e2y = ay - cy;
-            float v0x = px - ax, v0y = py - ay;
-            float v1x = px - bx, v1y = py - by;
-            float v2x = px - cx, v2y = py - cy;
-            float t0 = Mathf.Clamp01((v0x * e0x + v0y * e0y) / (e0x * e0x + e0y * e0y));
-            float t1 = Mathf.Clamp01((v1x * e1x + v1y * e1y) / (e1x * e1x + e1y * e1y));
-            float t2 = Mathf.Clamp01((v2x * e2x + v2y * e2y) / (e2x * e2x + e2y * e2y));
-            float pq0x = v0x - e0x * t0, pq0y = v0y - e0y * t0;
-            float pq1x = v1x - e1x * t1, pq1y = v1y - e1y * t1;
-            float pq2x = v2x - e2x * t2, pq2y = v2y - e2y * t2;
-            float s = Mathf.Sign(e0x * e2y - e0y * e2x);
-            float d0 = pq0x * pq0x + pq0y * pq0y, s0 = s * (v0x * e0y - v0y * e0x);
-            float d1 = pq1x * pq1x + pq1y * pq1y, s1 = s * (v1x * e1y - v1y * e1x);
-            float d2 = pq2x * pq2x + pq2y * pq2y, s2 = s * (v2x * e2y - v2y * e2x);
-            float d = Mathf.Min(d0, Mathf.Min(d1, d2));
-            float sg = Mathf.Min(s0, Mathf.Min(s1, s2));
-            return -Mathf.Sqrt(d) * Mathf.Sign(sg);
-        }
     }
 }

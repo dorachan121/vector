@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Vector.Core;
 using Vector.Game.Audio;
 using Vector.Game.Persistence;
@@ -146,10 +145,10 @@ namespace Vector.Game.Lobby
         void Sit(string scene)
         {
             GameContext.ReturnScene = SceneNames.Lobby;
-            SceneManager.LoadScene(scene);
+            SceneFlow.Load(scene);
         }
 
-        void OpenStory() => SceneManager.LoadScene(SceneNames.World);
+        void OpenStory() => SceneFlow.Load(SceneNames.World);
 
         /// <summary>Esc（Android の戻るボタン）で終了の確認を出す。</summary>
         void Update()

@@ -19,9 +19,11 @@ namespace Vector.Game.UI.Widgets
             toast.group = Ui.Group(rt.gameObject);
             toast.group.blocksRaycasts = false;
             toast.group.alpha = 0;
-            Ui.Panel(rt, "Plate", Vector2.zero, ToastSize, new Color(0.04f, 0.04f, 0.05f, 0.92f), 26);
-            Ui.Outline(rt, "Outline", Vector2.zero, ToastSize, Theme.Gold.WithAlpha(0.6f), 26);
-            toast.text = Ui.Text(rt, "Text", "", Fonts.Body, 22, Theme.Ivory, Vector2.zero, ToastSize - new Vector2(30, 0));
+            Ui.Shadow(rt, "Shadow", new Vector2(0, -4), ToastSize, ToastSize.y / 2, 0.6f);
+            Ui.Sliced(rt, "Plate", Chrome.Shade, Palette.VioletBright.WithAlpha(0.96f), Vector2.zero, ToastSize, ToastSize.y / 2);
+            Ui.Sliced(rt, "Rim", Chrome.Rim, Palette.GoldMid.WithAlpha(0.9f), Vector2.zero, ToastSize, ToastSize.y / 2);
+            Ui.Image(rt, "Spark", Chrome.Sparkle, Palette.GoldLight, new Vector2(-ToastSize.x / 2 + 30, 0), new Vector2(40, 40));
+            toast.text = Ui.Text(rt, "Text", "", Fonts.Body, 22, Palette.Ivory, new Vector2(10, 0), ToastSize - new Vector2(70, 0));
             return toast;
         }
 
@@ -31,7 +33,9 @@ namespace Vector.Game.UI.Widgets
                 return;
             transform.SetAsLastSibling();
             text.text = message;
-            text.color = color ?? Theme.Ivory;
+            text.color = color ?? Palette.Ivory;
+            transform.localScale = Vector3.one * 0.9f;
+            Tween.Scale(transform, Vector3.one, 0.3f, Ease.OutBack);
             Tween.Fade(group, 1f, 0.15f, Ease.OutQuad, () => Tween.Fade(group, 0f, 0.4f, Ease.OutQuad, null, VisibleSeconds));
         }
     }

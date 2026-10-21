@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
@@ -325,7 +324,7 @@ namespace Vector.Game.World
         void Leave(string scene)
         {
             SavePosition();
-            SceneManager.LoadScene(scene);
+            SceneFlow.Load(scene);
         }
 
         void SavePosition()
