@@ -1,41 +1,35 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Vector.Core.Rpg;
 using Vector.Game.Story;
 using Vector.Game.UI;
-using Vector.Game.UI.Widgets;
-using Vector.Game.World;
 
 namespace Vector.Game.Lobby
 {
-    /// <summary>ストーリーのタブ。最上階で待つオーナー、建物の各フロアの進み具合（上の階ほど上）、カジノへ入るボタン。</summary>
+    /// <summary>
+    /// ストーリー。カジノの塔を下から登っていく地図（上の階ほど上）。各フロアの主の顔の札と進み具合、いま目指すフロアの印。
+    /// フロアを押すと詳しい案内を出し、そこからフロアへ入れる。
+    /// </summary>
     public sealed class StoryTab : IHomeTab
     {
-        static readonly Vector2 RowSize = new Vector2(1000, 102);
-        const float RowSpacing = 114;
-        const float TopRow = 140;
+        const float TopY = 548;
+        const float Step = 180;
+        const float Zig = 200;
 
-        sealed class Row
+        readonly StoryProgress story;
+        readonly HomeNavigator nav;
+        readonly Transform popups;
+        readonly List<FloorNode> nodes = new List<FloorNode>();
+        RectTransform marker;
+
+        StoryTab(Transform parent, StoryProgress story, HomeNavigator nav, Transform popups)
         {
-            public FloorId Floor;
-            public Image Body;
-            public Image Tag;
-            public TextMeshProUGUI Status;
-            public Image StatusIcon;
-        }
-
-        readonly RpgSession session;
-        readonly List<Row> rows = new List<Row>();
-        Meter progress;
-        TextMeshProUGUI progressText;
-
-        StoryTab(Transform parent, RpgSession session)
-        {
-            this.session = session;
+            this.story = story;
+            this.nav = nav;
+            this.popups = popups;
             Root = Ui.Stretch(parent, "StoryTab");
             Body = HomeLayout.Top(Root);
+            Controls = HomeLayout.Bottom(Root);
         }
 
         public RectTransform Root { get; }
@@ -43,91 +37,108 @@ namespace Vector.Game.Lobby
         /// <summary>中身の土台（上端に寄せる）。</summary>
         RectTransform Body { get; }
 
-        public static StoryTab Create(Transform parent, RpgSession session, HomeNavigator nav)
+        /// <summary>カジノへ入るボタン（下端に寄せる）。</summary>
+        RectTransform Controls { get; }
+
+        /// <param name="popups">フロアの案内を開く画面。</param>
+        public static StoryTab Create(Transform parent, StoryProgress story, HomeNavigator nav, Transform popups)
         {
-            var tab = new StoryTab(parent, session);
-            tab.BuildIntro();
-            for (int i = 0; i < FloorOrder.TopDown.Length; i++)
-                tab.rows.Add(tab.BuildRow(FloorOrder.TopDown[i], TopRow - i * RowSpacing));
-            var enter = Ui.Button(tab.Body, "Enter", "ENTER THE CASINO", new Vector2(0, -690), new Vector2(680, 112), Palette.Gold, Palette.Ink, nav.EnterStory, 42, 30);
-            Pulse.Add(enter, 0.025f, 2.2f);
+            var tab = new StoryTab(parent, story, nav, popups);
+            tab.BuildTower();
+            var floors = FloorOrder.TopDown;
+            var points = new Vector2[floors.Length];
+            for (int i = 0; i < floors.Length; i++)
+                points[i] = new Vector2(i == 0 ? 0 : (i % 2 == 1 ? Zig : -Zig), TopY - i * Step);
+            tab.BuildPath(points);
+            for (int i = 0; i < floors.Length; i++)
+            {
+                var floor = floors[i];
+                int side = points[i].x > 0 ? -1 : 1;
+                tab.nodes.Add(FloorNode.Create(tab.Body, floor, points[i], side, () => tab.Open(floor)));
+            }
+            // 揺れるのは中身だけにして、置き場所（marker）は Refresh で動かせるようにする
+            tab.marker = Ui.Rect(tab.Body, "Marker", Vector2.zero, new Vector2(90, 90));
+            var pin = Ui.Rect(tab.marker, "Pin", Vector2.zero, new Vector2(90, 90));
+            Ui.Icon(pin, "Pin", IconKind.Story, Palette.Ruby, Vector2.zero, 84);
+            Ui.Icon(pin, "Dot", IconKind.Star, Palette.GoldLight, new Vector2(0, 10), 30);
+            Float.Add(pin, 12f, 2.4f);
+            PageTitle.Create(tab.Body, 728, "STORY", "最上階のオーナーへ挑め");
+            var enter = Ui.Button(tab.Controls, "Enter", "カジノへ入る", new Vector2(0, -640), new Vector2(680, 124), Palette.Gold, Palette.Ink, nav.EnterStory, 44, 62);
+            enter.Label.font = Fonts.Body;
+            Pulse.Add(enter, 0.025f, 2f);
             return tab;
-        }
-
-        void BuildIntro()
-        {
-            Ui.Ribbon(Body, "Title", "STORY MODE", new Vector2(0, 706), 560, Palette.Ruby, 36);
-            var rays = Ui.Image(Body, "Rays", Chrome.Rays(18), Palette.Gold.WithAlpha(0.16f), new Vector2(300, 430), Vector2.one * 640);
-            Spin.Add(rays, 5f);
-            PortraitView.Create(Body, "Owner", Cast.Of("zero").Look, new Vector2(300, 420), 470);
-            Ui.Ribbon(Body, "OwnerName", "OWNER  ZERO", new Vector2(300, 240), 380, Palette.Violet, 26);
-            float left = -470;
-            var head = Ui.Headline(Body, "Lead", "THE OWNER AWAITS", Fonts.Display, 50, new Vector2(left + 260, 560), new Vector2(520, 60), TextAlignmentOptions.Left);
-            head.characterSpacing = 2;
-            Ui.Paragraph(Body, "Pitch", "最上階のオーナー、ゼロに挑むには、\n各フロアの主に勝って上を目指すこと。\nカジノの中を歩き、人と話し、腕を磨こう。", 24, Palette.Ivory, new Vector2(left + 260, 430), new Vector2(520, 150));
-            Ui.Text(Body, "ProgressLabel", "FLOOR MASTERS", Fonts.Label, 22, Palette.Muted, new Vector2(left + 260, 318), new Vector2(520, 28), TextAlignmentOptions.Left);
-            progress = Meter.Create(Body, "Progress", new Vector2(left + 230, 284), new Vector2(460, 28), Palette.Gold);
-            progressText = Ui.Text(Body, "ProgressText", "", Fonts.Display, 30, Palette.GoldLight, new Vector2(left + 500, 284), new Vector2(80, 36));
-        }
-
-        Row BuildRow(FloorId floor, float y)
-        {
-            var row = new Row { Floor = floor };
-            row.Body = Ui.Plate(Body, "Floor" + floor, new Vector2(0, y), RowSize, Palette.PanelTop, 22, false);
-            var rt = (RectTransform)row.Body.transform.parent;
-            float left = -RowSize.x / 2;
-            row.Tag = Ui.Sliced(rt, "Tag", Chrome.Gloss, Palette.Violet, new Vector2(left + 66, 0), new Vector2(96, 76), 20);
-            Ui.Text(rt, "Level", StoryNames.FloorLevel(floor), Fonts.Display, 36, Palette.Ivory, new Vector2(left + 66, 1), new Vector2(96, 44));
-            Ui.Text(rt, "Name", StoryNames.FloorTitle(floor), Fonts.Label, 30, Palette.Ivory, new Vector2(left + 340, 18), new Vector2(420, 36), TextAlignmentOptions.Left);
-            var master = Floors.Of(floor).Master;
-            Ui.Text(rt, "Master", $"{StoryNames.FloorJapanese(floor)}  ·  主 {StoryNames.Person(master.Master)}  ·  {GameCatalog.Of(master.Game).Title}",
-                Fonts.Body, 19, Palette.Muted, new Vector2(left + 340, -20), new Vector2(420, 26), TextAlignmentOptions.Left);
-            row.StatusIcon = Ui.Icon(rt, "StatusIcon", IconKind.Lock, Palette.Muted, new Vector2(RowSize.x / 2 - 220, 0), 40);
-            row.Status = Ui.Text(rt, "Status", "", Fonts.Label, 26, Palette.Muted, new Vector2(RowSize.x / 2 - 110, 0), new Vector2(180, 34), TextAlignmentOptions.Left);
-            return row;
         }
 
         public void Refresh()
         {
-            int cleared = 0;
-            foreach (var row in rows)
+            var session = story.Session;
+            FloorNode next = null;
+            foreach (var node in nodes)
             {
-                var status = session.StatusOf(row.Floor);
-                if (status == FloorStatus.Cleared)
-                    cleared++;
-                Paint(row, status, Floors.Of(row.Floor).Master.RequiredLevel);
+                var status = session.StatusOf(node.Floor);
+                node.Paint(status, Floors.Of(node.Floor).Master.RequiredLevel);
             }
-            progress.SetFraction(cleared / (float)rows.Count, false);
-            progressText.text = $"{cleared}/{rows.Count}";
+            foreach (var floor in FloorOrder.BottomUp)
+            {
+                if (session.StatusOf(floor) != FloorStatus.Cleared)
+                {
+                    next = nodes.Find(n => n.Floor == floor);
+                    break;
+                }
+            }
+            marker.gameObject.SetActive(next != null);
+            if (next != null)
+                marker.anchoredPosition = next.Position + new Vector2(0, FloorNode.FaceSize / 2 + 36);
         }
 
-        static void Paint(Row row, FloorStatus status, int requiredLevel)
+        /// <summary>塔の絵（夜空の中のビル・窓の灯り・屋上の王冠）。</summary>
+        void BuildTower()
         {
-            switch (status)
+            Ui.Image(Body, "Sky", Chrome.Gradient(Theme.Hex("2A1060"), Palette.NightDeep.WithAlpha(0f)), Color.white, new Vector2(0, 100), new Vector2(Ui.Portrait.x * 3, 1500));
+            var tower = new Vector2(0, -20);
+            Ui.Image(Body, "Glow", Art.Glow, Palette.Magenta.WithAlpha(0.22f), tower, new Vector2(1000, 1500));
+            Ui.Panel(Body, "Tower", tower, new Vector2(620, 1260), Theme.Hex("1E0C44").WithAlpha(0.9f), 40);
+            Ui.Outline(Body, "TowerRim", tower, new Vector2(620, 1260), Palette.GoldMid.WithAlpha(0.5f), 40);
+            for (int row = 0; row < 14; row++)
             {
-                case FloorStatus.Cleared:
-                    Set(row, Palette.PanelTop, Palette.Emerald, IconKind.Check, Palette.Emerald, "CLEARED");
-                    break;
-                case FloorStatus.Ready:
-                    Set(row, Palette.VioletBright, Palette.Gold, IconKind.Crown, Palette.GoldLight, "CHALLENGE");
-                    break;
-                case FloorStatus.Open:
-                    Set(row, Palette.Violet, Palette.VioletBright, IconKind.Star, Palette.Ivory, $"Lv {requiredLevel}");
-                    break;
-                default:
-                    Set(row, Palette.NightDeep, Palette.Slate, IconKind.Lock, Palette.Muted, "LOCKED");
-                    break;
+                for (int col = 0; col < 6; col++)
+                {
+                    bool lit = (row * 7 + col * 3) % 5 != 0;
+                    Ui.Panel(Body, "Window", tower + new Vector2((col - 2.5f) * 80, 560 - row * 86), new Vector2(36, 46),
+                        lit ? Palette.GoldLight.WithAlpha(0.18f) : Palette.Violet.WithAlpha(0.25f), 6);
+                }
+            }
+            var crown = Ui.Icon(Body, "Crown", IconKind.Crown, Palette.Gold, new Vector2(0, TopY + 120), 120);
+            Float.Add(crown.rectTransform, 6f, 1.2f);
+        }
+
+        /// <summary>フロアどうしをつなぐ点線の道。</summary>
+        void BuildPath(Vector2[] points)
+        {
+            for (int i = 0; i + 1 < points.Length; i++)
+            {
+                var from = points[i];
+                var to = points[i + 1];
+                int dots = 7;
+                for (int d = 1; d < dots; d++)
+                    Ui.Image(Body, "Path", Art.Circle, Palette.GoldLight.WithAlpha(0.7f), Vector2.Lerp(from, to, d / (float)dots), Vector2.one * 14);
             }
         }
 
-        static void Set(Row row, Color body, Color tag, IconKind icon, Color text, string status)
+        void Open(FloorId floor)
         {
-            row.Body.color = body;
-            row.Tag.color = tag;
-            row.StatusIcon.sprite = Icons.Of(icon);
-            row.StatusIcon.color = text;
-            row.Status.color = text;
-            row.Status.text = status;
+            var status = story.Session.StatusOf(floor);
+            FloorDetailPopup.Show(popups, floor, status, () => Enter(floor));
+        }
+
+        /// <summary>そのフロアのエレベーターの前（出発地点）から始める。</summary>
+        void Enter(FloorId floor)
+        {
+            var state = story.State;
+            state.floor = (int)floor;
+            state.x = state.y = -1;
+            story.Save();
+            nav.EnterStory();
         }
     }
 }

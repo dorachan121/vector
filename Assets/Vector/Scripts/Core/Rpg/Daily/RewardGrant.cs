@@ -13,6 +13,16 @@ namespace Vector.Core.Rpg
         /// <summary>経験値で上がったレベルの数（<see cref="ApplyTo"/> が記録する）。</summary>
         public int LevelsGained;
 
+        /// <summary>2つの報酬を合わせたもの（まとめて受け取ったときの表示用）。アイテムは先にあるほうを残す。</summary>
+        public RewardGrant Plus(RewardGrant other) => new RewardGrant
+        {
+            Chips = Chips + other.Chips,
+            Comps = Comps + other.Comps,
+            Xp = Xp + other.Xp,
+            Item = Item ?? other.Item,
+            LevelsGained = LevelsGained + other.LevelsGained,
+        };
+
         /// <summary>報酬を状態と所持金に加える。加えた内容（上がったレベルの数を含む）の写しを返す。</summary>
         public RewardGrant ApplyTo(RpgState state, IChipAccount chips)
         {

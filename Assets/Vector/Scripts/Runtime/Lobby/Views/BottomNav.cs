@@ -9,10 +9,13 @@ using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.Lobby
 {
-    /// <summary>ホーム画面の下のタブ（HOME / GAMES / STORY / MISSIONS / SHOP）。画面の下端に付く。選んだタブは金色に光り、知らせがあればバッジを出す。</summary>
+    /// <summary>
+    /// ホーム画面の下のタブ（ホーム・ストーリー・プレイ・ミッション・ショップ）。真ん中のプレイはバーから盛り上がった大きな金のボタン。
+    /// 選んだタブは光り、知らせがあればバッジを出す。画面の下端に付く。
+    /// </summary>
     public sealed class BottomNav
     {
-        public const float Height = 164f;
+        public const float Height = 168f;
 
         sealed class Tab
         {
@@ -25,11 +28,11 @@ namespace Vector.Game.Lobby
 
         static readonly (HomeTabId id, IconKind icon, string label)[] Items =
         {
-            (HomeTabId.Home, IconKind.Home, "HOME"),
-            (HomeTabId.Games, IconKind.Games, "GAMES"),
-            (HomeTabId.Story, IconKind.Story, "STORY"),
-            (HomeTabId.Missions, IconKind.Missions, "MISSIONS"),
-            (HomeTabId.Shop, IconKind.Shop, "SHOP"),
+            (HomeTabId.Home, IconKind.Home, "ホーム"),
+            (HomeTabId.Story, IconKind.Story, "ストーリー"),
+            (HomeTabId.Play, IconKind.Play, "プレイ"),
+            (HomeTabId.Missions, IconKind.Missions, "ミッション"),
+            (HomeTabId.Shop, IconKind.Shop, "ショップ"),
         };
 
         readonly List<Tab> tabs = new List<Tab>();
@@ -42,32 +45,58 @@ namespace Vector.Game.Lobby
             float w = Ui.Portrait.x;
             var rt = Ui.Edge(parent, "Nav", false, w, Height);
             // 帯は横に長めに敷き、縦長の画面を横に広げた PC のウィンドウでも途切れないようにする
-            Ui.Shadow(rt, "Shadow", new Vector2(0, 8), new Vector2(w * 3, Height), 20, 0.6f);
-            Ui.Image(rt, "Bar", Chrome.Gradient(Palette.Violet, Palette.NightDeep), Color.white, Vector2.zero, new Vector2(w * 3, Height), true);
-            Ui.Image(rt, "Edge", null, Palette.GoldMid.WithAlpha(0.8f), new Vector2(0, Height / 2 - 1.5f), new Vector2(w * 3, 3));
-            Ui.Image(rt, "EdgeGlow", Art.Glow, Palette.Gold.WithAlpha(0.25f), new Vector2(0, Height / 2), new Vector2(w * 0.9f, 44));
+            Ui.Shadow(rt, "Shadow", new Vector2(0, 10), new Vector2(w * 3, Height), 20, 0.7f);
+            Ui.Image(rt, "Bar", Chrome.Gradient(Theme.Hex("2B1460"), Palette.NightDeep), Color.white, Vector2.zero, new Vector2(w * 3, Height), true);
+            Ui.Image(rt, "Edge", null, Palette.GoldMid, new Vector2(0, Height / 2 - 2), new Vector2(w * 3, 4));
+            Ui.Image(rt, "EdgeGlow", Art.Glow, Palette.Gold.WithAlpha(0.3f), new Vector2(0, Height / 2), new Vector2(w, 50));
 
             float spacing = w / Items.Length;
             for (int i = 0; i < Items.Length; i++)
             {
                 var (id, icon, label) = Items[i];
                 float x = (i - (Items.Length - 1) / 2f) * spacing;
-                var hit = Ui.Image(rt, "Tab" + id, null, new Color(1, 1, 1, 0.001f), new Vector2(x, 0), new Vector2(spacing - 8, Height - 16), true);
+                var tab = id == HomeTabId.Play ? Center(rt, x, icon, label) : Side(rt, x, spacing, icon, label);
+                tab.Id = id;
+                var hit = Ui.Image(rt, "Tab" + id, null, new Color(1, 1, 1, 0.001f), new Vector2(x, id == HomeTabId.Play ? 30 : 0), new Vector2(spacing - 6, id == HomeTabId.Play ? Height + 60 : Height - 12), true);
                 hit.gameObject.AddComponent<ClickTarget>().Clicked += () =>
                 {
                     Sfx.Play(SfxKind.Button);
                     nav.Selected?.Invoke(id);
                 };
-                var button = hit.rectTransform;
-                var tab = new Tab { Id = id };
-                tab.Highlight = Ui.Sliced(button, "Highlight", Chrome.Gloss, Palette.VioletBright, new Vector2(0, -2), new Vector2(spacing - 24, Height - 36), 26);
-                tab.Icon = Ui.Icon(button, "Icon", icon, Palette.Muted, new Vector2(0, 18), 64);
-                tab.Label = Ui.Text(button, "Name", label, Fonts.Label, 24, Palette.Muted, new Vector2(0, -42), new Vector2(spacing, 30));
-                tab.Badge = Badge.Create(button, new Vector2(52, 46), 36);
                 tab.Badge.SetCount(0);
                 nav.tabs.Add(tab);
             }
             return nav;
+        }
+
+        static Tab Side(RectTransform rt, float x, float spacing, IconKind icon, string label)
+        {
+            var tab = new Tab();
+            tab.Highlight = Ui.Image(rt, "Glow", Art.Glow, Palette.GoldLight.WithAlpha(0.35f), new Vector2(x, 10), new Vector2(spacing, Height));
+            tab.Icon = Ui.Icon(rt, "Icon", icon, Palette.Muted, new Vector2(x, 20), 66);
+            tab.Label = Ui.Text(rt, "Name", label, Fonts.Body, 24, Palette.Muted, new Vector2(x, -44), new Vector2(spacing, 32));
+            tab.Badge = Badge.Create(rt, new Vector2(x + 44, 52), 38);
+            return tab;
+        }
+
+        /// <summary>真ん中の盛り上がったボタン（金の円・回る光・プレイのアイコン）。</summary>
+        static Tab Center(RectTransform rt, float x, IconKind icon, string label)
+        {
+            var tab = new Tab();
+            var at = new Vector2(x, 42);
+            const float size = 196;
+            var rays = Ui.Image(rt, "Rays", Chrome.Rays(12), Palette.GoldLight.WithAlpha(0.35f), at, Vector2.one * 320);
+            Spin.Add(rays, 12f);
+            tab.Highlight = rays;
+            Ui.Shadow(rt, "CenterShadow", at + new Vector2(0, -8), Vector2.one * size, size / 2, 0.7f);
+            Ui.Sliced(rt, "CenterRing", Chrome.Gloss, Theme.Hex("2B1460"), at, Vector2.one * (size + 22), (size + 22) / 2);
+            Ui.Sliced(rt, "CenterFace", Chrome.Gloss, Palette.Gold, at, Vector2.one * size, size / 2);
+            Ui.Sliced(rt, "CenterShine", Chrome.Shine, Color.white, at, Vector2.one * size, size / 2);
+            Ui.Sliced(rt, "CenterRim", Chrome.Rim, Palette.GoldLight, at, Vector2.one * size, size / 2);
+            tab.Icon = Ui.Icon(rt, "CenterIcon", icon, Palette.Ink, at + new Vector2(8, 14), 84);
+            tab.Label = Ui.Text(rt, "CenterName", label, Fonts.Body, 28, Palette.Ink, at + new Vector2(0, -54), new Vector2(180, 36));
+            tab.Badge = Badge.Create(rt, at + new Vector2(70, 70), 40);
+            return tab;
         }
 
         public void SetActive(HomeTabId id)
@@ -75,10 +104,15 @@ namespace Vector.Game.Lobby
             foreach (var tab in tabs)
             {
                 bool on = tab.Id == id;
+                if (tab.Id == HomeTabId.Play)
+                {
+                    tab.Highlight.color = Palette.GoldLight.WithAlpha(on ? 0.6f : 0.3f);
+                    continue;
+                }
                 tab.Highlight.enabled = on;
-                tab.Icon.color = on ? Palette.Gold : Palette.Muted;
+                tab.Icon.color = on ? Palette.GoldLight : Palette.Muted;
                 tab.Label.color = on ? Palette.GoldLight : Palette.Muted;
-                tab.Icon.rectTransform.localScale = Vector3.one * (on ? 1.12f : 1f);
+                tab.Icon.rectTransform.localScale = Vector3.one * (on ? 1.14f : 1f);
             }
         }
 

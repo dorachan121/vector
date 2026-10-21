@@ -176,6 +176,23 @@ namespace Vector.Game.UI
             return new Color(Mathf.Min(1, l), Mathf.Min(1, l), Mathf.Min(1, l), Coverage(shape * 60f));
         }));
 
+        /// <summary>上が半円のアーチ（奥の壁の窓や柱の間）。下ほど少し暗い。縦横比 1:2 のまま使う。</summary>
+        public static Sprite Arch => Cached("chrome.arch", () => Paint(128, 256, (x, y) =>
+        {
+            float body = SdRoundBox(x - 64, y - 96, 62, 96, 0);
+            float top = SdCircle(x, y, 64, 192, 62);
+            float l = Mathf.Lerp(0.7f, 1f, y / 256f);
+            return new Color(l, l, l, Coverage(Mathf.Min(body, top)));
+        }));
+
+        /// <summary>手前が広く奥が狭い台形（遠近のついた絨毯や床の光）。</summary>
+        public static Sprite Trapezoid => Cached("chrome.trapezoid", () => Paint(256, 256, (x, y) =>
+        {
+            float half = Mathf.Lerp(127f, 40f, y / 256f);
+            float d = Mathf.Abs(x - 128) - half;
+            return new Color(1, 1, 1, Coverage(Mathf.Max(d, Mathf.Abs(y - 128) - 127)));
+        }));
+
         /// <summary>紙吹雪の1片（角の丸い小さな長方形）。</summary>
         public static Sprite Confetti => Cached("chrome.confetti", () => Paint(24, 36, (x, y) =>
             new Color(1, 1, 1, Coverage(SdRoundBox(x - 12, y - 18, 11, 17, 4)))));

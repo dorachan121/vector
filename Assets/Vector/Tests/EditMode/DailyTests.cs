@@ -85,11 +85,16 @@ namespace Vector.Tests
                 Assert.IsTrue(daily.IsDone(i), $"{missions[i].Kind} {missions[i].Target}");
             Assert.AreEqual(3, daily.Claimable);
             Assert.IsNull(daily.ClaimBonus(), "達成ボーナスは3つ受け取ってから");
+            var total = new RewardGrant();
+            long comps = session.State.comps;
             for (int i = 0; i < missions.Count; i++)
             {
-                Assert.IsNotNull(daily.Claim(i));
+                var grant = daily.Claim(i);
+                Assert.IsNotNull(grant);
+                total = total.Plus(grant);
                 Assert.IsNull(daily.Claim(i), "二重に受け取れない");
             }
+            Assert.AreEqual(comps + total.Comps, session.State.comps, "まとめた報酬は受け取った合計と一致する");
             Assert.AreEqual(1, daily.Claimable);
             long before = chips.Balance;
             Assert.IsNotNull(daily.ClaimBonus());

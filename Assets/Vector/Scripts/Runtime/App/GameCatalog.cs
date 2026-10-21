@@ -40,36 +40,42 @@ namespace Vector.Game
                 {
                     Id = GameId.Vector, Title = "VECTOR", Rtp = "96.8%", Genre = "CARD LINES", Scene = SceneNames.Table, Accent = Theme.Gold,
                     Pitch = "3×3 にカードを置き、選んだラインの合計でディーラーと勝負",
+                    Features = new[] { "先攻・後攻", "戦略ヒント", "観戦ベット" },
                     Terms = $"{Labels.Money(vector.MinBet)}–{Labels.Money(vector.MaxBet)}  ·  ALL LINES {vector.MainPays}",
                 },
                 new GameEntry
                 {
                     Id = GameId.Crown, Title = "CROWN DICE", Rtp = "96.85%", Genre = "DICE DUEL", Scene = SceneNames.Crown, Accent = Theme.Hex("7FB2FF"),
                     Pitch = "5個のダイスを振り直して、後から振るディーラーに勝つ。王冠の目は 6 より強い",
+                    Features = new[] { "先攻・後攻", "最善手ヒント" },
                     Terms = $"{Labels.Money(crown.MinBet)}–{Labels.Money(crown.MaxBet)}  ·  ANTE {crown.WinPays}  ·  CROWN YACHT +{crown.CrownYachtBonus}",
                 },
                 new GameEntry
                 {
                     Id = GameId.Colosseum, Title = "COLOSSEUM", Rtp = "96.71%", Genre = "CARD BATTLE", Scene = SceneNames.Colosseum, Accent = Theme.DealerRed,
                     Pitch = "獣の次の一撃を見て、斬るか受けるか。体力を削り合う1対1の決闘",
+                    Features = new[] { "先攻・後攻", "最善手ヒント" },
                     Terms = $"{Labels.Money(battle.MinBet)}–{Labels.Money(battle.MaxBet)}  ·  WIN {battle.WinPays}  ·  HP {battle.Setup.PlayerHp} vs {battle.Setup.BeastHp}",
                 },
                 new GameEntry
                 {
                     Id = GameId.Derby, Title = "DERBY", Rtp = "≤97%", Genre = "CARD RACING", Scene = SceneNames.Derby, Accent = Theme.TieGreen,
                     Pitch = "トランプで走る四神のレース。厳密な確率から出した固定オッズで単勝・馬単",
+                    Features = new[] { "固定オッズ", "ライブ確率" },
                     Terms = $"WIN {Labels.Money(derby.WinMinBet)}–{Labels.Money(derby.WinMaxBet)}  ·  EXACTA {Labels.Money(derby.ExactaMinBet)}–{Labels.Money(derby.ExactaMaxBet)}",
                 },
                 new GameEntry
                 {
                     Id = GameId.Alchemia, Title = "ALCHEMIA", Rtp = "96.9%", Genre = "MERGE SLOT", Scene = SceneNames.Alchemia, Accent = Theme.Hex("C79BFF"),
                     Pitch = "同じ元素が3つで融合して位が上がる。連鎖の果てに賢者の石を",
+                    Features = new[] { "連鎖", $"最大 {alchemia.MaxWinMultiple:N0}倍" },
                     Terms = $"BET {Labels.Money(alchemia.MinFor(AlchemiaRules.Spin))}–{Labels.Money(alchemia.MaxFor(AlchemiaRules.Spin))}  ·  MAX WIN {alchemia.MaxWinMultiple:N0}x",
                 },
                 new GameEntry
                 {
                     Id = GameId.Delve, Title = "DELVE", Rtp = "96.75%+", Genre = "DUNGEON DIVE", Scene = SceneNames.Delve, Accent = Theme.Hex("FF9A3C"),
                     Pitch = "扉を選んで迷宮を潜る。どこで引き返しても RTP は同じ、違うのは宝の大きさ",
+                    Features = new[] { "引き際", "RTP 一定" },
                     Terms = $"{Labels.Money(delve.MinBet)}–{Labels.Money(delve.MaxBet)}  ·  B{delve.Depths} x{delve.MultiplierHundredths(delve.Depths) / 100.0:N2}",
                 },
             };

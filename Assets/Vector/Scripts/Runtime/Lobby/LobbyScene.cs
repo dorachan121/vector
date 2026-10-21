@@ -9,8 +9,8 @@ using Vector.Game.UI.Widgets;
 namespace Vector.Game.Lobby
 {
     /// <summary>
-    /// ホーム画面（縦向き）の起点。上部のヘッダー・下のタブ・5つのタブの画面を組み立て、起動して最初の1回だけタイトルを出す。
-    /// タイトルが明けたら、読み込み時のお知らせと今日のログインボーナスを出す。
+    /// ホーム画面（縦向き）の起点。カジノのロビーの背景・上部のヘッダー・下のタブ・5つのタブの画面を組み立て、
+    /// 起動して最初の1回だけタイトルを出す。タイトルが明けたら、読み込み時のお知らせと今日のログインボーナスを出す。
     /// </summary>
     public sealed class LobbyScene : MonoBehaviour
     {
@@ -18,6 +18,7 @@ namespace Vector.Game.Lobby
         ProfileService profiles;
         StoryProgress story;
         RectTransform root;
+        RectTransform backdrop;
         HomeHeader header;
         BottomNav nav;
         Toast toast;
@@ -42,16 +43,16 @@ namespace Vector.Game.Lobby
         void Build()
         {
             root = Ui.CreateScreen("Lobby", ScreenShape.Portrait);
-            Ui.Image(root, "Glow", Art.Glow, Palette.Haze.WithAlpha(0.35f), new Vector2(0, 200), new Vector2(1400, 1600));
+            backdrop = HomeBackdrop.Create(root);
             var navigator = new HomeNavigator(SelectTab, () => Refresh(true));
+            var menus = new HomeMenus(() => NoticePopup.Show(root), ShowLoginCalendar, ShowMenu);
             var area = Ui.Between(root, "Tabs", HomeHeader.Height, BottomNav.Height, Ui.Portrait.x);
-            tabs[HomeTabId.Home] = HomeTab.Create(area, story.Session, navigator);
-            tabs[HomeTabId.Games] = GamesTab.Create(area, navigator);
-            tabs[HomeTabId.Story] = StoryTab.Create(area, story.Session, navigator);
+            tabs[HomeTabId.Home] = HomeTab.Create(area, story.Session, navigator, menus);
+            tabs[HomeTabId.Story] = StoryTab.Create(area, story, navigator, root);
+            tabs[HomeTabId.Play] = PlayTab.Create(area, navigator);
             tabs[HomeTabId.Missions] = MissionsTab.Create(area, story, navigator, root);
             tabs[HomeTabId.Shop] = ShopTab.Create(area, story, profiles, GameContext.Rules.MinBet, navigator);
-            header = HomeHeader.Create(root, () => SelectTab(HomeTabId.Shop), () => HelpDialog.Open(root, LobbyHelp.Pages()),
-                () => SettingsDialog.Open(root, profiles, GameContext.ApplySettings));
+            header = HomeHeader.Create(root, () => SelectTab(HomeTabId.Shop));
             nav = BottomNav.Create(root);
             nav.Selected += SelectTab;
             toast = Toast.Create(root, new Vector2(0, 560));
@@ -60,6 +61,8 @@ namespace Vector.Game.Lobby
         void SelectTab(HomeTabId id)
         {
             current = id;
+            // ロビーの背景はホームだけ。ほかのタブは暗い地に中身を見せる
+            backdrop.gameObject.SetActive(id == HomeTabId.Home);
             foreach (var pair in tabs)
                 pair.Value.Root.gameObject.SetActive(pair.Key == id);
             nav.SetActive(id);
@@ -92,9 +95,21 @@ namespace Vector.Game.Lobby
                 return;
             story.Save();
             Refresh(true);
-            int day = story.Session.Daily.ClaimedThisCycle;
-            RewardPopup.Show(root, "LOGIN BONUS", RewardDisplay.Message($"{day}日目のログインボーナスです。今日もごゆっくりどうぞ。", grant, story.State.level), RewardDisplay.From(grant));
+            LoginBonusPopup.Show(root, story.Session.Daily.ClaimedThisCycle, grant, story.State.level, null);
         }
+
+        /// <summary>ホームの「ログボ」: 今の巡の暦を見せる（受け取りは来場時に済んでいる）。</summary>
+        void ShowLoginCalendar()
+        {
+            var dialog = Dialog.Open(root, "LOGIN BONUS", null, new Vector2(960, 800));
+            float top = dialog.Content.sizeDelta.y / 2;
+            LoginCalendar.Create(dialog.Content, new Vector2(0, top - 290), story.Session.Daily.ClaimedThisCycle, false);
+            Ui.Text(dialog.Content, "Note", "1日1回、ホームに来たときに受け取れます。休んでもリセットされません。", Fonts.Body, 22, Palette.Muted, new Vector2(0, top - 580), new Vector2(900, 30));
+            dialog.AddButton("閉じる", null, true);
+        }
+
+        void ShowMenu() => MenuPopup.Show(root, () => HelpDialog.Open(root, LobbyHelp.Pages()),
+            () => SettingsDialog.Open(root, profiles, GameContext.ApplySettings), () => TitleSplash.Show(root, null));
 
         void ShowLoadNotice()
         {
