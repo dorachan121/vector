@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Vector.Core;
 
 namespace Vector.Game.Casino
@@ -19,8 +20,8 @@ namespace Vector.Game.Casino
         /// <summary>勝負に入った（引き落とした）ことを記録する。</summary>
         void RecordDeal(long balanceAfterDebit, long stake);
 
-        /// <summary>精算結果を記録する。</summary>
-        void RecordSettlement(long balance, IRoundOutcome outcome);
+        /// <summary>精算結果を記録する。tags はそのラウンドの出来事（クエストの条件用、RoundTags）。</summary>
+        void RecordSettlement(long balance, IRoundOutcome outcome, IReadOnlyCollection<string> tags);
 
         /// <summary>障害で無効にした勝負の返金後の手持ちを記録する。</summary>
         void RecordVoid(long balance);

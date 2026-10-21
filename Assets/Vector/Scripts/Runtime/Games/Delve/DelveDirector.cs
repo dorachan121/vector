@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Vector.Core;
 using Vector.Core.Delve;
+using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
 using Vector.Game.Table;
@@ -47,6 +48,17 @@ namespace Vector.Game.Delve
         protected override IReadOnlyList<(string title, string body)> HelpPages => DelveHelp.Pages(rules);
 
         void Update() => view?.PollKeys(choosing, choosing && engine.CanCashOut);
+
+        protected override IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome)
+        {
+            var result = (DelveResult)outcome;
+            var tags = new List<string>();
+            if (!result.Busted && result.ClearedDepth >= 5)
+                tags.Add(RoundTags.DelveDeepReturn);
+            if (!result.Busted && result.ClearedDepth >= rules.Depths)
+                tags.Add(RoundTags.DelveLegend);
+            return tags;
+        }
 
         protected override IEnumerator PlayRound(BetBoard inPlay)
         {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Vector.Core;
 using Vector.Core.Colosseum;
+using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
 using Vector.Game.Table;
@@ -22,13 +23,21 @@ namespace Vector.Game.Colosseum
         BattleSolver solver;
         ColosseumView view;
         BattleAction? chosen;
+        BattleSetup? opponent;
+        string beastTitle;
+        BattleExchange lastExchange;
 
-        public void Begin(BattleRules rules, BattleEngine engine, BattleSolver solver, ColosseumView view, WagerSession session, ITableWallet wallet)
+        /// <param name="opponent">挑戦で戦う特別な相手（null なら通常の獣）。solver はその相手の最善戦略にすること。</param>
+        public void Begin(BattleRules rules, BattleEngine engine, BattleSolver solver, ColosseumView view, WagerSession session, ITableWallet wallet,
+            BattleSetup? opponent = null, string beastTitle = "ARENA BEAST")
         {
             this.rules = rules;
             this.engine = engine;
             this.solver = solver;
             this.view = view;
+            this.opponent = opponent;
+            this.beastTitle = beastTitle;
+            view.Reset(opponent ?? rules.Setup, beastTitle);
             view.ActionChosen += a => chosen = a;
             Begin(view.Casino, session, wallet);
         }
@@ -44,11 +53,19 @@ namespace Vector.Game.Colosseum
 
         void Update() => view?.PollKeys();
 
+        protected override IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome)
+        {
+            var result = (BattleResult)outcome;
+            return result.Winner == RoundWinner.Player && lastExchange.Critical && lastExchange.BeastDefeated
+                ? new[] { RoundTags.ColosseumCriticalFinish }
+                : new string[0];
+        }
+
         protected override IEnumerator PlayRound(BetBoard inPlay)
         {
             engine.BeginBetting();
-            engine.Deal(inPlay);
-            view.Reset(engine.Setup);
+            engine.Deal(inPlay, opponent);
+            view.Reset(engine.Setup, beastTitle);
             View.Hud.SetInfo($"BATTLE {engine.RoundNumber}");
             View.Status.Show("FIGHT!", "獣の予告を見て、斬るか受けるかを選んでください");
             yield return Tween.Wait(0.4f);
@@ -59,6 +76,7 @@ namespace Vector.Game.Colosseum
                 BattleAction action = default;
                 yield return ChooseAction(a => action = a);
                 var exchange = engine.Act(action);
+                lastExchange = exchange;
                 yield return view.PlayExchange(exchange, engine.Setup);
             }
 
@@ -105,7 +123,7 @@ namespace Vector.Game.Colosseum
 
         protected override IEnumerator ResetTable()
         {
-            yield return view.Clear(engine.Setup);
+            yield return view.Clear(opponent ?? rules.Setup);
         }
     }
 }

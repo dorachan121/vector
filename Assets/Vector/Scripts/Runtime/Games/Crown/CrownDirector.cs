@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vector.Core;
 using Vector.Core.Crown;
+using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
 using Vector.Game.Table;
@@ -55,6 +56,17 @@ namespace Vector.Game.Crown
             => CrownHelp.Pages(rules, optimalReturn.Status == TaskStatus.RanToCompletion ? optimalReturn.Result : (double?)null);
 
         void Update() => view?.PollKeys();
+
+        protected override IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome)
+        {
+            var result = (CrownResult)outcome;
+            var tags = new List<string>();
+            if (result.PlayerRank.Kind == DiceHandKind.Yacht)
+                tags.Add(RoundTags.CrownYacht);
+            if (result.CrownYachtBonus)
+                tags.Add(RoundTags.CrownCrownYacht);
+            return tags;
+        }
 
         protected override IEnumerator PlayRound(BetBoard inPlay)
         {

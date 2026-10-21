@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vector.Core;
+using Vector.Core.Rpg;
 using Vector.Game.Audio;
+using Vector.Game.Casino;
 using Vector.Game.Persistence;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
@@ -27,19 +30,25 @@ namespace Vector.Game.Table
         TableFx fx;
         RoundPresenter presenter;
         ProfileService profiles;
+        ITableWallet wallet;
         BettingInput betting;
         IPlayerSeat seat;
         RealityCheck realityCheck;
+        bool leaving;
 
         TableRules Rules => session.Rules;
         RoundEngine Round => session.Round;
         static bool Paused => Dialog.IsAnyOpen;
 
-        public void Begin(TableSession session, TableView view, ProfileService profiles, PlayerAdvisor advisor)
+        /// <summary>フロアの主の挑戦中なら、その挑戦。</summary>
+        ChallengeRun Challenge => (wallet as ChallengeWallet)?.Run;
+
+        public void Begin(TableSession session, TableView view, ProfileService profiles, ITableWallet wallet, PlayerAdvisor advisor)
         {
             this.session = session;
             this.view = view;
             this.profiles = profiles;
+            this.wallet = wallet;
             fx = new TableFx(view);
             presenter = new RoundPresenter(view, fx);
             betting = new BettingInput(session, view, fx);
@@ -52,13 +61,15 @@ namespace Vector.Game.Table
             view.Hud.HelpClicked += () => HelpDialog.Open(view.Overlay, Rules);
             view.Hud.SettingsClicked += () => SettingsDialog.Open(view.Overlay, profiles, GameContext.ApplySettings);
             betting.End();
+            if (Challenge != null)
+                ChallengeFlow.ShowHud(view.Hud, Challenge);
             StartCoroutine(MainLoop());
         }
 
         IEnumerator MainLoop()
         {
             int consecutiveFaults = 0;
-            while (true)
+            while (!leaving)
             {
                 Exception fault = null;
                 yield return GuardedRoutine.Run(PlayRound(), e => fault = e);
@@ -79,6 +90,17 @@ namespace Vector.Game.Table
 
         IEnumerator PlayRound()
         {
+            var challenge = Challenge;
+            if (challenge != null)
+            {
+                challenge.CheckBroke(Rules.MinBet);
+                if (challenge.IsOver)
+                {
+                    leaving = true;
+                    yield return ChallengeFlow.Finish(view.Overlay, challenge);
+                    yield break;
+                }
+            }
             yield return Betting();
             yield return Deal();
             yield return ChooseFamily();
@@ -148,13 +170,20 @@ namespace Vector.Game.Table
 
         IEnumerator OfferReload()
         {
+            if (!wallet.CanReload)
+            {
+                yield return Dialog.Open(view.Overlay, "OUT OF CHIPS", "手持ちのチップがミニマムを下回りました。", new Vector2(760, 340))
+                    .AddButton("LEAVE", GoToLobby, true)
+                    .WaitUntilClosed();
+                yield break;
+            }
             yield return Dialog.Open(view.Overlay, "OUT OF CHIPS",
                     $"手持ちのチップがテーブルミニマム（{Labels.Money(Rules.MinBet)}）を下回りました。\n" +
                     $"遊戯用チップを {Labels.Money(PlayerProfile.StartingBalance)} まで補充できます。", new Vector2(820, 420))
                 .AddButton("LOBBY", GoToLobby)
                 .AddButton("RELOAD", () =>
                 {
-                    long added = profiles.Reload(Rules.MinBet);
+                    long added = wallet.Reload(Rules.MinBet);
                     session.Deposit(added);
                     realityCheck.RecordDeposit(added);
                     view.Hud.SetBalance(session.Available, true);
@@ -185,7 +214,7 @@ namespace Vector.Game.Table
             KeepScreenOn(true);
             long stake = session.Bets.Total;
             session.Deal();
-            profiles.RecordDeal(session.Balance, stake);
+            wallet.RecordDeal(session.Balance, stake);
             betting.End();
             view.ShowBettingControls(false);
             view.Hud.SetBalance(session.Balance, true);
@@ -243,7 +272,11 @@ namespace Vector.Game.Table
         IEnumerator Showdown()
         {
             var result = session.Settle();
-            profiles.RecordSettlement(session.Balance, result, GameId.Vector);
+            wallet.RecordSettlement(session.Balance, result, TagsFor(result));
+            if (wallet is ProfileWallet profile)
+                ChallengeFlow.AnnounceReport(view.Toast, profile.LastReport);
+            else if (Challenge != null)
+                ChallengeFlow.ShowHud(view.Hud, Challenge);
             yield return presenter.ShowResult(result, Round.Bets[BetSpot.Bonus] > 0);
 
             view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
@@ -265,7 +298,7 @@ namespace Vector.Game.Table
         {
             Log.Exception(fault);
             long refund = session.VoidRound();
-            profiles.RecordVoid(session.Balance);
+            wallet.RecordVoid(session.Balance);
             betting.End();
             view.Picker.Hide();
             view.Status.HideTimer();
@@ -306,8 +339,26 @@ namespace Vector.Game.Table
         void GoToLobby()
         {
             // ベット受付中だけ離席できる。置いたチップはまだ引き落としていないのでそのまま手元に戻る。
-            if (Round.Phase == RoundPhase.Betting || Round.Phase == RoundPhase.Complete)
+            if (leaving || (Round.Phase != RoundPhase.Betting && Round.Phase != RoundPhase.Complete))
+                return;
+            if (Challenge != null)
+                ChallengeFlow.ConfirmForfeit(view.Overlay, Challenge);
+            else
                 SceneManager.LoadScene(GameContext.ReturnScene);
+        }
+
+        /// <summary>精算したラウンドの出来事（クエストの条件用）。</summary>
+        static IReadOnlyCollection<string> TagsFor(RoundResult result)
+        {
+            var tags = new List<string>();
+            if (result.Winner == RoundWinner.Player && result.PlayerFamily == LineFamily.Slash)
+                tags.Add(RoundTags.VectorSlashWin);
+            foreach (var bet in result.Bets)
+            {
+                if (bet.Spot == BetSpot.Bonus && bet.Outcome == BetOutcome.Win)
+                    tags.Add(RoundTags.VectorBonus);
+            }
+            return tags;
         }
     }
 }

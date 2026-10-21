@@ -1,4 +1,5 @@
 using System;
+using Vector.Core.Rpg;
 
 namespace Vector.Game.Persistence
 {
@@ -9,7 +10,8 @@ namespace Vector.Game.Persistence
     [Serializable]
     public sealed class PlayerProfile
     {
-        public const int CurrentVersion = 1;
+        /// <summary>2: ストーリーモード（rpg）とゲームごとの成績を追加。1 のデータはそのまま読める（足りない値は初期値）。</summary>
+        public const int CurrentVersion = 2;
 
         /// <summary>初回とリロード時に受け取るチップ。</summary>
         public const long StartingBalance = 10_000;
@@ -26,6 +28,9 @@ namespace Vector.Game.Persistence
         public ProfileStats stats = new ProfileStats();
         public ProfileSettings settings = new ProfileSettings();
 
+        /// <summary>ストーリーモードの進み具合。</summary>
+        public RpgState rpg = new RpgState();
+
         public void Sanitize()
         {
             version = CurrentVersion;
@@ -33,8 +38,10 @@ namespace Vector.Game.Persistence
             pendingStake = Clamp(pendingStake);
             stats ??= new ProfileStats();
             settings ??= new ProfileSettings();
+            rpg ??= new RpgState();
             stats.Sanitize();
             settings.Sanitize();
+            rpg.Sanitize();
         }
 
         internal static long Clamp(long value) => Math.Min(Math.Max(value, 0), MaxBalance);

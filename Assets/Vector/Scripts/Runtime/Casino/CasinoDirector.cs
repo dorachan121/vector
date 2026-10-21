@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vector.Core;
+using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Table;
 using Vector.Game.UI;
@@ -26,9 +27,12 @@ namespace Vector.Game.Casino
         /// <summary>リアリティチェック（プレイ時間と収支のお知らせ）を出す間隔。</summary>
         static readonly TimeSpan RealityCheckInterval = TimeSpan.FromMinutes(30);
 
+        static readonly string[] NoTags = new string[0];
+
         WagerInput betting;
         RealityCheck realityCheck;
         bool settled;
+        bool leaving;
 
         protected CasinoView View { get; private set; }
         protected WagerSession Session { get; private set; }
@@ -73,6 +77,12 @@ namespace Vector.Game.Casino
             yield break;
         }
 
+        /// <summary>精算したラウンドの出来事（クエストの条件用、RoundTags）。</summary>
+        protected virtual IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome) => NoTags;
+
+        /// <summary>フロアの主の挑戦中なら、その挑戦。</summary>
+        protected ChallengeRun Challenge => (Wallet as ChallengeWallet)?.Run;
+
         /// <summary>派生クラスが画面と賭け金の管理を組み立ててから呼ぶ。</summary>
         protected void Begin(CasinoView view, WagerSession session, ITableWallet wallet)
         {
@@ -86,13 +96,15 @@ namespace Vector.Game.Casino
             view.Hud.SettingsClicked += () => SettingsDialog.Open(view.Overlay, GameContext.Profiles, GameContext.ApplySettings);
             betting.End();
             view.Hud.SetBalance(session.Balance, false);
+            if (Challenge != null)
+                ChallengeFlow.ShowHud(view.Hud, Challenge);
             StartCoroutine(MainLoop());
         }
 
         IEnumerator MainLoop()
         {
             int consecutiveFaults = 0;
-            while (true)
+            while (!leaving)
             {
                 Exception fault = null;
                 yield return GuardedRoutine.Run(Round(), e => fault = e);
@@ -113,6 +125,17 @@ namespace Vector.Game.Casino
 
         IEnumerator Round()
         {
+            var challenge = Challenge;
+            if (challenge != null)
+            {
+                challenge.CheckBroke(TableMinimum);
+                if (challenge.IsOver)
+                {
+                    leaving = true;
+                    yield return ChallengeFlow.Finish(View.Overlay, challenge);
+                    yield break;
+                }
+            }
             yield return BeforeBetting();
             yield return Betting();
 
@@ -234,8 +257,12 @@ namespace Vector.Game.Casino
             if (settled)
                 throw new InvalidOperationException("この勝負はもう精算しています。");
             Session.Settle(outcome.TotalReturn);
-            Wallet.RecordSettlement(Session.Balance, outcome);
+            Wallet.RecordSettlement(Session.Balance, outcome, TagsFor(outcome));
             settled = true;
+            if (Wallet is ProfileWallet profile)
+                ChallengeFlow.AnnounceReport(View.Toast, profile.LastReport);
+            else if (Challenge != null)
+                ChallengeFlow.ShowHud(View.Hud, Challenge);
         }
 
         /// <summary>精算して記録し、チップの払い戻しを演出する。</summary>
@@ -341,7 +368,11 @@ namespace Vector.Game.Casino
         protected void GoToLobby()
         {
             // ベット受付中だけ離席できる。置いたチップはまだ引き落としていないのでそのまま手元に戻る。
-            if (!InRound)
+            if (InRound || leaving)
+                return;
+            if (Challenge != null)
+                ChallengeFlow.ConfirmForfeit(View.Overlay, Challenge);
+            else
                 SceneManager.LoadScene(GameContext.ReturnScene);
         }
     }

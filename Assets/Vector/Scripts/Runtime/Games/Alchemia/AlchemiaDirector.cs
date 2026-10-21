@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Vector.Core;
 using Vector.Core.Alchemia;
+using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
 using Vector.Game.UI;
@@ -49,6 +50,20 @@ namespace Vector.Game.Alchemia
         long Bet => rules.BetLevels[betIndex];
 
         void Update() => view?.PollKeys();
+
+        protected override IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome)
+        {
+            var result = (SpinResult)outcome;
+            var tags = new List<string>();
+            int highest = result.HighestTierCreated;
+            if (highest >= 4)
+                tags.Add(RoundTags.AlchemiaRelic);
+            if (highest >= Symbol.MaxTier)
+                tags.Add(RoundTags.AlchemiaStone);
+            if (result.HasTransmutation)
+                tags.Add(RoundTags.AlchemiaTransmutation);
+            return tags;
+        }
 
         void StepBet(int delta)
         {

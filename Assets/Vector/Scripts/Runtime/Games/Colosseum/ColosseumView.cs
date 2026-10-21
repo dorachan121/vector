@@ -316,6 +316,8 @@ namespace Vector.Game.Colosseum
             Reset(setup, beastName.text);
         }
 
+        public string BeastTitle => beastName.text;
+
         CardView DealCard(Card card, Vector2 target)
         {
             var view = CardView.Create(Casino.Stage, "Card " + card, DeckPos);

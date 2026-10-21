@@ -1,7 +1,9 @@
 using UnityEngine;
 using Vector.Core;
 using Vector.Game.Audio;
+using Vector.Core.Rpg;
 using Vector.Game.Persistence;
+using Vector.Game.Story;
 using Vector.Game.UI;
 
 namespace Vector.Game
@@ -16,6 +18,7 @@ namespace Vector.Game
         const float FastDealSpeed = 1.8f;
 
         static ProfileService profiles;
+        static StoryProgress story;
 
         public static ProfileService Profiles
         {
@@ -33,6 +36,15 @@ namespace Vector.Game
 
         public static TableRules Rules => TableRules.Standard;
 
+        /// <summary>ストーリーモードの進み具合（プレイヤーデータと同じ保存先）。</summary>
+        public static StoryProgress Story => story ??= new StoryProgress(Profiles);
+
+        /// <summary>フロアの主の挑戦の最中なら、その挑戦（テーブルはこれを手持ちにする）。</summary>
+        public static ChallengeRun Challenge { get; set; }
+
+        /// <summary>テーブルから戻ってきた挑戦の結果（フロアのシーンが受け取って片付ける）。</summary>
+        public static ChallengeRun ChallengeResult { get; set; }
+
         /// <summary>ロビーで選んだ席。テーブルシーンはこれを見てモードを決める。</summary>
         public static GameMode SelectedMode { get; set; } = GameMode.Player;
 
@@ -43,8 +55,11 @@ namespace Vector.Game
         static void ResetStatics()
         {
             profiles = null;
+            story = null;
             SelectedMode = GameMode.Player;
             ReturnScene = SceneNames.Lobby;
+            Challenge = null;
+            ChallengeResult = null;
         }
 
         public static void ApplySettings()

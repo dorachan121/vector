@@ -15,10 +15,9 @@ namespace Vector.Game.Crown
         void Start()
         {
             Ui.EnsureEventSystem();
-            var profiles = GameContext.Profiles;
             var rules = CrownRules.Standard;
             var engine = new CrownEngine(rules, new CryptoRandom());
-            var wallet = new ProfileWallet(profiles, GameId.Crown);
+            var wallet = ChallengeFlow.WalletFor(GameId.Crown, rules.MinBet);
             var session = new WagerSession(rules, new Bankroll(wallet.Balance));
             var view = CrownView.Build(rules);
             gameObject.AddComponent<CrownDirector>().Begin(rules, engine, new CrownAdvisor(rules), view, session, wallet);

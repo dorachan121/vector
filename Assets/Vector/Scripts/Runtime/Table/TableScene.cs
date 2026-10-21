@@ -1,5 +1,6 @@
 using UnityEngine;
 using Vector.Core;
+using Vector.Game.Casino;
 using Vector.Game.UI;
 
 namespace Vector.Game.Table
@@ -22,11 +23,12 @@ namespace Vector.Game.Table
             var shoe = new Shoe(rules.DeckCount, random);
             var house = new HouseWay(new SeededRandom(Seed(random)), rules.HouseWayPlayouts);
             var round = new RoundEngine(rules, shoe, house);
-            var session = new TableSession(rules, new Bankroll(profiles.Profile.balance), round, mode);
+            var wallet = ChallengeFlow.WalletFor(GameId.Vector, rules.MinBet);
+            var session = new TableSession(rules, new Bankroll(wallet.Balance), round, mode);
             var advisor = new PlayerAdvisor(new SeededRandom(Seed(random)), rules);
 
             var view = TableView.Build(mode, rules);
-            gameObject.AddComponent<TableDirector>().Begin(session, view, profiles, advisor);
+            gameObject.AddComponent<TableDirector>().Begin(session, view, profiles, wallet, advisor);
         }
 
         static ulong Seed(IRandomSource random) => ((ulong)(uint)random.Next(int.MaxValue) << 32) | (uint)random.Next(int.MaxValue);

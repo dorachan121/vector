@@ -14,10 +14,9 @@ namespace Vector.Game.Derby
         void Start()
         {
             Ui.EnsureEventSystem();
-            var profiles = GameContext.Profiles;
             var rules = DerbyRules.Standard;
             var engine = new DerbyEngine(rules, new CryptoRandom());
-            var wallet = new ProfileWallet(profiles, GameId.Derby);
+            var wallet = ChallengeFlow.WalletFor(GameId.Derby, rules.ExactaMinBet);
             var session = new WagerSession(engine.Limits, new Bankroll(wallet.Balance));
             var view = DerbyView.Build(rules);
             gameObject.AddComponent<DerbyDirector>().Begin(rules, engine, view, session, wallet);

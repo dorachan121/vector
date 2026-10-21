@@ -14,10 +14,9 @@ namespace Vector.Game.Alchemia
         void Start()
         {
             Ui.EnsureEventSystem();
-            var profiles = GameContext.Profiles;
             var rules = AlchemiaRules.Standard;
             var engine = new AlchemiaEngine(rules, new CryptoRandom());
-            var wallet = new ProfileWallet(profiles, GameId.Alchemia);
+            var wallet = ChallengeFlow.WalletFor(GameId.Alchemia, rules.BetLevels[0]);
             var session = new WagerSession(rules, new Bankroll(wallet.Balance));
             var view = AlchemiaView.Build(rules);
             gameObject.AddComponent<AlchemiaDirector>().Begin(rules, engine, view, session, wallet);

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Vector.Core;
 using Vector.Core.Derby;
+using Vector.Core.Rpg;
 using Vector.Game.Casino;
 using Vector.Game.UI;
 
@@ -34,6 +35,22 @@ namespace Vector.Game.Derby
         protected override string BettingHint => "オッズ表のマスにチップを置いて START";
         protected override string SpotName(int spot) => DerbyLabels.Ticket(spot);
         protected override IReadOnlyList<(string title, string body)> HelpPages => DerbyHelp.Pages(rules);
+
+        protected override IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome)
+        {
+            var result = (RaceResult)outcome;
+            var tags = new List<string>();
+            foreach (var bet in result.Bets)
+            {
+                if (bet.Outcome != BetOutcome.Win)
+                    continue;
+                if (DerbyTickets.IsExacta(bet.Spot) && !tags.Contains(RoundTags.DerbyExacta))
+                    tags.Add(RoundTags.DerbyExacta);
+                if (result.Card.OddsTenths(bet.Spot) >= 100 && !tags.Contains(RoundTags.DerbyLongshot))
+                    tags.Add(RoundTags.DerbyLongshot);
+            }
+            return tags;
+        }
 
         protected override IEnumerator BeforeBetting()
         {

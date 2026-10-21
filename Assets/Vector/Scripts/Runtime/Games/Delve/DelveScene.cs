@@ -14,11 +14,10 @@ namespace Vector.Game.Delve
         void Start()
         {
             Ui.EnsureEventSystem();
-            var profiles = GameContext.Profiles;
             var rules = DelveRules.Standard;
             var random = new CryptoRandom();
             var engine = new DelveEngine(rules, random);
-            var wallet = new ProfileWallet(profiles, GameId.Delve);
+            var wallet = ChallengeFlow.WalletFor(GameId.Delve, rules.MinBet);
             var session = new WagerSession(rules, new Bankroll(wallet.Balance));
             var view = DelveView.Build(rules);
             view.LayoutDoors(rules.Floors[0].Doors);
