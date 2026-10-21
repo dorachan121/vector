@@ -33,6 +33,9 @@ namespace Vector.EditorTools
         /// </summary>
         public static void EnsureUpToDate()
         {
+            // プレイ中に作り直すと、画面が使っているフォントが消えて文字が豆腐になる。プレイを終えた後の再読み込みで確かめる
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                return;
             string characters = UiCharacterSet.Collect();
             if (File.Exists(StampPath) && File.ReadAllText(StampPath, Encoding.UTF8) == characters)
                 return;
