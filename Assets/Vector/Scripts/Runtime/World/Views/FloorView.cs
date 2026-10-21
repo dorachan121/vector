@@ -147,6 +147,9 @@ namespace Vector.Game.World
                 case GameId.Orbit:
                     DrawOrrery(center, Mathf.Min(size.x, size.y) - 16);
                     return;
+                case GameId.Harpoon:
+                    DrawTank(center, size - new Vector2(16, 16));
+                    return;
             }
             var felt = floor.Id == FloorId.Penthouse
                 ? Art.TableIn(Theme.Hex("3A0E16"), Theme.Hex("12040A"))
@@ -180,6 +183,24 @@ namespace Vector.Game.World
             }
             var sun = Ui.Image(Objects, "Sun", Art.Circle, Palette.Gold, center, Vector2.one * 22);
             Pulse.Add(sun, 0.08f, 1.6f);
+        }
+
+        /// <summary>HARPOON の卓（魚の泳ぐ水槽と、縁に据えたモリの発射台）。</summary>
+        void DrawTank(Vector2 center, Vector2 size)
+        {
+            Ui.Panel(Objects, "Shadow", center + new Vector2(4, -6), size, new Color(0, 0, 0, 0.4f), 20);
+            Ui.Image(Objects, "Water", Chrome.Gradient(Theme.Hex("3FA9C9"), theme.FeltEdge), Color.white, center, size);
+            Ui.Outline(Objects, "Rim", center, size, theme.Trim.WithAlpha(0.8f), 20);
+            var fish = new[] { Core.Harpoon.Quarry.Clownfish, Core.Harpoon.Quarry.Sardine, Core.Harpoon.Quarry.Puffer };
+            for (int i = 0; i < fish.Length; i++)
+            {
+                var spec = Harpoon.SwimSpec.Of(fish[i]);
+                var swimmer = Ui.Image(Objects, "Fish", Harpoon.MarineArt.Of(fish[i]), Color.white,
+                    center + new Vector2((i - 1) * size.x * 0.28f, size.y * (0.22f - 0.2f * i)), spec.Size * 0.42f);
+                Float.Add(swimmer.rectTransform, 6f, 1.2f + i * 0.3f);
+            }
+            var gun = Ui.Image(Objects, "Harpoon", Harpoon.MarineArt.Harpoon, Palette.GoldLight, center + new Vector2(0, -size.y / 2 + 14), new Vector2(70, 15));
+            gun.rectTransform.localEulerAngles = new Vector3(0, 0, 70);
         }
 
         void DrawBar(List<(int x, int y)> group)

@@ -60,8 +60,8 @@ namespace Vector.Game.Harpoon
                 tags.Add(RoundTags.HarpoonBigCatch);
             if (result.Quarry == Quarry.Leviathan)
                 tags.Add(RoundTags.HarpoonLeviathan);
-            if (result.Quarry == Quarry.Jellyfish && result.Multiple >= 200)
-                tags.Add(RoundTags.HarpoonJellyJackpot);
+            if (result.Quarry == Quarry.Jellyfish)
+                tags.Add(RoundTags.HarpoonJelly);
             return tags;
         }
 

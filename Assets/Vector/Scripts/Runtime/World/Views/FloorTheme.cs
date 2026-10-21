@@ -46,6 +46,8 @@ namespace Vector.Game.World
                     return new FloorTheme("24184C", "7B5BD6", "33236A", "6A1B5E", "0E0A22", "C79BFF", "7A3FD0", Alchemia.AlchemiaView.Felt, Alchemia.AlchemiaView.FeltEdge);
                 case FloorId.Undervault:
                     return new FloorTheme("2E2A26", "4E473F", "3A342E", "4A2A1A", "121010", "8A7A60", "1E3A44", Delve.DelveView.Stone, Delve.DelveView.StoneEdge);
+                case FloorId.Aquarium:
+                    return new FloorTheme("0B2A3E", "1E6E8C", "0F3A52", "14506E", "041018", "34C6E0", "17608F", Harpoon.HarpoonView.Water, Harpoon.HarpoonView.Deep);
                 case FloorId.Observatory:
                     return new FloorTheme("10163A", "3E5AA8", "1A2458", "2A1A5E", "05060F", "7FE3FF", "1E4E8C", Orbit.OrbitView.SkyCenter, Orbit.OrbitView.SkyEdge);
                 default:

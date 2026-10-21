@@ -55,7 +55,9 @@ namespace Vector.Game.Lobby
             for (int i = 0; i < floors.Length; i++)
             {
                 var floor = floors[i];
-                int side = points[i].x > 0 ? -1 : 1;
+                // 札の説明は道の内側に出す。中央の最上階は、すぐ下のフロアと反対側に出して重ならないようにする
+                float from = i == 0 && points.Length > 1 ? points[1].x : points[i].x;
+                int side = from > 0 ? -1 : 1;
                 tab.nodes.Add(FloorNode.Create(tab.Body, floor, points[i], side, () => tab.Open(floor)));
             }
             // 揺れるのは中身だけにして、置き場所（marker）は Refresh で動かせるようにする

@@ -29,5 +29,8 @@ namespace Vector.Core.Rpg
 
         /// <summary>6F 天文台（ORBIT）。</summary>
         Observatory,
+
+        /// <summary>B2 深海水族館（HARPOON）。</summary>
+        Aquarium,
     }
 }

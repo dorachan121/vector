@@ -7,6 +7,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Harpoon;
 using Vector.Core.Orbit;
 using Vector.Core.Rpg;
 
@@ -60,6 +61,7 @@ namespace Vector.Simulator
             readonly AlchemiaEngine alchemia;
             readonly DelveEngine delve;
             readonly OrbitEngine orbit;
+            readonly HarpoonEngine harpoon;
 
             public Bot(ChallengeSpec spec, SeededRandom random)
             {
@@ -75,6 +77,7 @@ namespace Vector.Simulator
                 alchemia = new AlchemiaEngine(AlchemiaRules.Standard, random);
                 delve = new DelveEngine(DelveRules.Standard, random);
                 orbit = new OrbitEngine(OrbitRules.Standard, random);
+                harpoon = new HarpoonEngine(HarpoonRules.Standard, random);
             }
 
             public bool Play()
@@ -99,6 +102,7 @@ namespace Vector.Simulator
                     case GameId.Derby: return DerbyRules.Standard.ExactaMinBet;
                     case GameId.Alchemia: return AlchemiaRules.Standard.BetLevels[0];
                     case GameId.Orbit: return OrbitRules.Standard.MinBet;
+                    case GameId.Harpoon: return HarpoonRules.Standard.BetLevels[0];
                     default: return 10;
                 }
             }
@@ -122,6 +126,8 @@ namespace Vector.Simulator
                     }
                     case GameId.Orbit:
                         return OrbitBet(stack, remaining).stake;
+                    case GameId.Harpoon:
+                        return HarpoonShot(stack, remaining).stake;
                     case GameId.Delve:
                     case GameId.Derby:
                         return Math.Min(stack, DelveRules.Standard.MaxBet);
@@ -142,6 +148,7 @@ namespace Vector.Simulator
                     case GameId.Derby: return PlayDerby(stake, stack + remaining);
                     case GameId.Alchemia: return PlayAlchemia(stake);
                     case GameId.Orbit: return PlayOrbit(stack, remaining);
+                    case GameId.Harpoon: return PlayHarpoon(stack, remaining);
                     default: return PlayDelve(stake, stack + remaining);
                 }
             }
@@ -262,6 +269,41 @@ namespace Vector.Simulator
                     orbit.BeginBetting();
                 orbit.Spin(bets);
                 return orbit.Settle().TotalReturn;
+            }
+
+            /// <summary>
+            /// 捕まえれば目標に届く獲物のうち最も捕まえやすいものと、届く最小の BET の段階。
+            /// 倍率の決まっている獲物は番号の順に倍率が大きい（金のクラゲは倍率が読めないので狙わない）。
+            /// </summary>
+            static (int quarry, long stake) HarpoonShot(long stack, long remaining)
+            {
+                var rules = HarpoonRules.Standard;
+                for (int q = 0; q < Quarry.Count; q++)
+                {
+                    if (rules.IsMystery(q))
+                        continue;
+                    long net = rules.MinMultiple(q) - 1;
+                    foreach (long level in rules.BetLevels)
+                    {
+                        if (level <= stack && level * net >= remaining)
+                            return (q, level);
+                    }
+                }
+                long most = rules.BetLevels[0];
+                foreach (long level in rules.BetLevels)
+                {
+                    if (level <= stack)
+                        most = level;
+                }
+                return (Quarry.Leviathan, most);
+            }
+
+            long PlayHarpoon(long stack, long remaining)
+            {
+                var (quarry, stake) = HarpoonShot(stack, remaining);
+                var bets = new BetBoard();
+                bets.Add(quarry, stake);
+                return harpoon.Fire(bets).TotalReturn;
             }
 
             /// <summary>目標に届く最も浅い深さまで潜って引き返す。</summary>

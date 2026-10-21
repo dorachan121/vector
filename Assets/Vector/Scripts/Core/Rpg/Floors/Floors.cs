@@ -219,9 +219,43 @@ namespace Vector.Core.Rpg
             },
             new FloorDef
             {
+                Id = FloorId.Aquarium,
+                Game = GameId.Harpoon,
+                UnlockedBy = "moss",
+                People = new Dictionary<char, string> { { 'a', "coral" }, { 'b', "finn" }, { 'c', "pearl" }, { 'M', "nemo" } },
+                Map = new TileMap(new[]
+                {
+                    "############",
+                    "#E..~~~~..C#",
+                    "#...~~~~...#",
+                    "#.a........#",
+                    "#.TT....TT.#",
+                    "#.TT.b..TT.#",
+                    "#..........#",
+                    "#~~..,,..~~#",
+                    "#~~.,M,,.~~#",
+                    "#~~..,,..~~#",
+                    "#..........#",
+                    "#.TT....TT.#",
+                    "#.TT..c.TT.#",
+                    "#...~~~~...#",
+                    "#P..~~~~..P#",
+                    "#..........#",
+                    "#....@.....#",
+                    "############",
+                }),
+                Master = new ChallengeSpec
+                {
+                    Master = "nemo", Floor = FloorId.Aquarium, Game = GameId.Harpoon, RequiredLevel = 12,
+                    EntryFee = 850, Stack = 1000, Target = 2500, Rounds = 30, Prize = 10000, XpReward = 750,
+                    Trophy = ItemCatalog.TrophyAquarium,
+                },
+            },
+            new FloorDef
+            {
                 Id = FloorId.Observatory,
                 Game = GameId.Orbit,
-                UnlockedBy = "moss",
+                UnlockedBy = "nemo",
                 People = new Dictionary<char, string> { { 'a', "luna" }, { 'b', "orion" }, { 'c', "tess" }, { 'M', "stella" } },
                 Map = new TileMap(new[]
                 {
@@ -246,7 +280,7 @@ namespace Vector.Core.Rpg
                 }),
                 Master = new ChallengeSpec
                 {
-                    Master = "stella", Floor = FloorId.Observatory, Game = GameId.Orbit, RequiredLevel = 12,
+                    Master = "stella", Floor = FloorId.Observatory, Game = GameId.Orbit, RequiredLevel = 13,
                     EntryFee = 900, Stack = 1000, Target = 3000, Rounds = 8, Prize = 12000, XpReward = 800,
                     Trophy = ItemCatalog.TrophyObservatory,
                 },
@@ -280,7 +314,7 @@ namespace Vector.Core.Rpg
                 }),
                 Master = new ChallengeSpec
                 {
-                    Master = "zero", Floor = FloorId.Penthouse, Game = GameId.Colosseum, RequiredLevel = 13,
+                    Master = "zero", Floor = FloorId.Penthouse, Game = GameId.Colosseum, RequiredLevel = 14,
                     EntryFee = 1000, Stack = 1000, Target = 2000, Rounds = 1, Prize = 30000, XpReward = 1500,
                     Trophy = ItemCatalog.BlackCard,
                     Opponent = new BattleSetup(30, 44, 3),
