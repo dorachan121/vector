@@ -3,6 +3,7 @@ using System.Globalization;
 using Vector.Core;
 using Vector.Core.Colosseum;
 using Vector.Core.Crown;
+using Vector.Core.Delve;
 using Vector.Core.Derby;
 
 namespace Vector.Simulator
@@ -15,6 +16,7 @@ namespace Vector.Simulator
     /// dotnet run -c Release -- crown [rounds] [advisor|greedy|random] [seed] [crownYachtBonus=5:1]
     /// dotnet run -c Release -- colosseum [rounds] [advisor|greedy|random] [seed] [playerHp:beastHp=30:42]
     /// dotnet run -c Release -- derby [races] [seed] [targetReturn=0.97]
+    /// dotnet run -c Release -- delve [dives] [seed] [targetReturn=0.97]
     /// </code>
     /// </summary>
     static class Program
@@ -56,6 +58,12 @@ namespace Vector.Simulator
                         DerbySimulation.Run(
                             args.Length > 3 ? new DerbyRules(double.Parse(args[3])) : DerbyRules.Standard,
                             races: args.Length > 1 ? int.Parse(args[1]) : 100_000,
+                            seed: args.Length > 2 ? ulong.Parse(args[2]) : 20261021UL);
+                        return 0;
+                    case "delve":
+                        DelveSimulation.Run(
+                            args.Length > 3 ? new DelveRules(double.Parse(args[3])) : DelveRules.Standard,
+                            rounds: args.Length > 1 ? int.Parse(args[1]) : 2_000_000,
                             seed: args.Length > 2 ? ulong.Parse(args[2]) : 20261021UL);
                         return 0;
                     default:
