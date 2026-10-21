@@ -97,7 +97,7 @@ namespace Vector.Game.Casino
             }
             else if (report.CompletedDailies.Count > 0)
             {
-                toast.Show("デイリーミッション達成！（ホームの MISSIONS で報酬を受け取れます）", Theme.GoldBright);
+                toast.Show("デイリーミッション達成！（ホームの「ミッション」で報酬を受け取れます）", Theme.GoldBright);
                 Sfx.Play(SfxKind.Sparkle);
             }
         }

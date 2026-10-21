@@ -13,13 +13,13 @@ namespace Vector.Game.Lobby
         {
             var lines = new List<string> { Greeting(now.Hour) + "VECTOR CASINO RESORT へようこそ。" };
             if (session.Daily.Claimable > 0)
-                lines.Add("達成したミッションの報酬が受け取れますよ。MISSIONS をのぞいてみてください。");
+                lines.Add("達成したミッションの報酬が受け取れますよ。下の「ミッション」をのぞいてみてください。");
             foreach (var floor in FloorOrder.BottomUp)
             {
                 if (session.StatusOf(floor) == FloorStatus.Ready)
                 {
                     var master = Floors.Of(floor).Master.Master;
-                    lines.Add($"{StoryNames.FloorJapanese(floor)}の主、{StoryNames.Person(master)}に挑めるようになりました。STORY からどうぞ。");
+                    lines.Add($"{StoryNames.FloorJapanese(floor)}の主、{StoryNames.Person(master)}に挑めるようになりました。下の「ストーリー」からどうぞ。");
                     break;
                 }
             }

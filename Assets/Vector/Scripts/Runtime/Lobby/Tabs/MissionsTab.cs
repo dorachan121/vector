@@ -105,7 +105,8 @@ namespace Vector.Game.Lobby
             Ui.Sliced(rt, "IconBox", Chrome.Gloss, done ? Palette.Emerald : Palette.VioletBright, new Vector2(left + 84, 0), new Vector2(124, 124), 28);
             Ui.Icon(rt, "Icon", IconOf(mission.Kind), Palette.Ivory, new Vector2(left + 84, 0), 70);
 
-            const float infoX = -96, infoWidth = 540;
+            // 左のアイコン（右端 -354）に文字と目盛りが重ならない位置から始める
+            const float infoX = -86, infoWidth = 520;
             Ui.Text(rt, "Text", MissionText.Describe(mission), Fonts.Body, 28, Palette.Ivory, new Vector2(infoX, 48), new Vector2(infoWidth, 38), TextAlignmentOptions.Left);
             long progress = Daily.ProgressOf(index);
             Meter.Create(rt, "Meter", new Vector2(infoX - 74, 2), new Vector2(infoWidth - 148, 26), done ? Palette.Emerald : Palette.Gold)

@@ -74,7 +74,7 @@ namespace Vector.Game.Lobby
                     BuildItem(item, TilePosition(slot++));
             }
             BuildReload(TilePosition(slot));
-            Ui.Text(content, "Note", "景品とチップはすべて遊戯用です。現金・景品とは交換できません。", Fonts.Body, 21, Palette.Muted, new Vector2(0, -722), new Vector2(1000, 30));
+            Ui.Text(content, "Note", "景品とチップはすべて遊戯用です。現金・景品とは交換できません。", Fonts.Body, 21, Palette.Muted, new Vector2(0, -676), new Vector2(1000, 30));
         }
 
         static Vector2 TilePosition(int slot) => new Vector2((slot % 2 - 0.5f) * (TileSize.x + 24), 140 - slot / 2 * (TileSize.y + 22));

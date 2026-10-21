@@ -13,8 +13,15 @@ namespace Vector.Game.UI
         const float HoverScale = 1.03f;
         const float PressScale = 0.96f;
 
+        /// <summary>
+        /// 無効時の文字色。背景が暗くなるので、濃い文字（金のボタンの黒など）のままだと読めない。
+        /// 押せなくても値段などは読めるよう、明るい灰色にする。
+        /// </summary>
+        static readonly Color DisabledLabel = new Color(0.8f, 0.78f, 0.74f, 0.6f);
+
         Image background;
         TextMeshProUGUI label;
+        Color enabledLabel;
         Color baseColor;
         Action onClick;
         bool interactable = true;
@@ -30,7 +37,11 @@ namespace Vector.Game.UI
             {
                 if (interactable == value)
                     return;
+                // 無効にする直前の文字色を覚えておき、有効に戻すときに戻す
+                if (!value)
+                    enabledLabel = label.color;
                 interactable = value;
+                label.color = value ? enabledLabel : DisabledLabel;
                 Refresh();
             }
         }
@@ -56,13 +67,16 @@ namespace Vector.Game.UI
         {
             var c = baseColor;
             if (!interactable)
+            {
+                // 暗い（半透明の）ボタンは暗くしても見た目が変わらないので、透明度も下げて押せないことを示す
                 c = Color.Lerp(c, new Color(0.15f, 0.15f, 0.15f, c.a), 0.65f);
+                c.a *= 0.6f;
+            }
             else if (pressed)
                 c = Color.Lerp(c, Color.black, 0.2f);
             else if (hovered)
                 c = Color.Lerp(c, Color.white, 0.15f);
             background.color = c;
-            label.alpha = interactable ? 1f : 0.45f;
             float scale = !interactable ? 1f : pressed ? PressScale : hovered ? HoverScale : 1f;
             transform.localScale = Vector3.one * scale;
         }
