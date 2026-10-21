@@ -7,14 +7,15 @@ using Vector.Game.UI;
 namespace Vector.Game.World
 {
     /// <summary>
-    /// フロアの見取り図を描く（床・壁・テーブル・エレベーター・キャッシャー・装飾）。1マスは 80px で、22×12 マスが画面に収まる。
+    /// フロアの見取り図を描く（床・壁・テーブル・エレベーター・キャッシャー・装飾）。1マスは 100px。
+    /// 縦画面では幅が収まらないので、<see cref="MapFollow"/> で主人公に合わせて横にずらす。
     /// </summary>
     public sealed class FloorView
     {
-        public const float TileSize = 80f;
+        public const float TileSize = 100f;
 
-        /// <summary>見取り図の中心の画面上の位置（上部のバーのぶん下げる）。</summary>
-        public static readonly Vector2 Center = new Vector2(0, -42);
+        /// <summary>見取り図の中心の画面上の位置（上部のバーと下のタッチパッドの間）。</summary>
+        public static readonly Vector2 Center = new Vector2(0, 90);
 
         readonly TileMap map;
         readonly FloorTheme theme;

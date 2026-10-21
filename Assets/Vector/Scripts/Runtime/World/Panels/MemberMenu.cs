@@ -14,7 +14,7 @@ namespace Vector.Game.World
     public static class MemberMenu
     {
         const string MutedTag = "<color=#A7B5AC>";
-        static readonly Vector2 PageSize = new Vector2(1100, 820);
+        static readonly Vector2 PageSize = new Vector2(1000, 1280);
 
         public static void Open(Transform root, StoryProgress story, ProfileService profiles, Action changed)
         {

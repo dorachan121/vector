@@ -14,7 +14,7 @@ namespace Vector.Game.World
         /// <summary>1マス進むのにかかる時間（秒）。</summary>
         public const float StepSeconds = 0.15f;
 
-        const float PersonSize = 72f;
+        const float PersonSize = 90f;
 
         readonly FloorView view;
         readonly TileMap map;

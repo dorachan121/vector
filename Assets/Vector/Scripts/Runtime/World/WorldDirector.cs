@@ -12,7 +12,7 @@ using Vector.Game.UI.Widgets;
 namespace Vector.Game.World
 {
     /// <summary>
-    /// フロアの進行役。主人公の移動（矢印キー・WASD・クリック）、人や物への話しかけ、エレベーター・キャッシャー・メニュー、
+    /// フロアの進行役。主人公の移動（タッチパッド・矢印キー・WASD・タップ）、人や物への話しかけ、エレベーター・キャッシャー・メニュー、
     /// テーブルへの着席と主の挑戦の開始・決着を扱う。会話や規則の判断はそれぞれの部品に任せる。
     /// </summary>
     public sealed class WorldDirector : MonoBehaviour
@@ -53,7 +53,7 @@ namespace Vector.Game.World
             this.profiles = profiles;
             this.screen = screen;
             conversation = new Conversation(story, screen.Dialogue, screen.Toast, StartChallenge);
-            screen.Hud.TitleClicked += () =>
+            screen.Hud.HomeClicked += () =>
             {
                 if (!busy)
                     Leave(SceneNames.Lobby);
@@ -86,7 +86,7 @@ namespace Vector.Game.World
             }
             else
             {
-                screen.Toast.Show("移動: 矢印キー・WASD・クリック　　話す・調べる: Space　　メニュー: Esc");
+                screen.Toast.Show("十字の矢印か、行きたい場所をタップして歩く　·　TALK で話す・調べる");
             }
         }
 
@@ -96,6 +96,8 @@ namespace Vector.Game.World
 
         void Update()
         {
+            // 話すボタンは会話の途中で押されても、次の話しかけに持ち越さない
+            bool talk = screen != null && screen.Pad.TakePress();
             if (busy || Dialog.IsAnyOpen || actors == null)
                 return;
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -105,13 +107,13 @@ namespace Vector.Game.World
             }
             if (Time.unscaledTime < nextStepTime)
                 return;
-            if (AnyKeyDown(InteractKeys))
+            if (talk || AnyKeyDown(InteractKeys))
             {
                 ClearRoute();
                 Interact(actors.FacingTile);
                 return;
             }
-            int facing = HeldDirection();
+            int facing = HeldDirection(screen.Pad);
             if (facing >= 0)
             {
                 ClearRoute();
@@ -140,14 +142,14 @@ namespace Vector.Game.World
             return false;
         }
 
-        static int HeldDirection()
+        static int HeldDirection(TouchPad pad)
         {
             foreach (var (key, facing) in MoveKeys)
             {
                 if (Input.GetKey(key))
                     return facing;
             }
-            return -1;
+            return pad.HeldDirection;
         }
 
         void OnMapClicked(Vector2 local)
@@ -248,8 +250,22 @@ namespace Vector.Game.World
         void Refresh()
         {
             screen.Hud.Refresh(State, profiles.Profile.balance);
+            screen.Hud.SetObjective(Objective());
             foreach (var id in actors.People)
                 actors.SetMark(id, conversation.MarkFor(id));
+        }
+
+        /// <summary>このフロアでの目標（主に挑めるか、あと何レベルか、制覇済みか）。</summary>
+        string Objective()
+        {
+            var master = floor.Master;
+            string name = StoryNames.Person(master.Master);
+            switch (story.Session.StatusOf(floor.Id))
+            {
+                case FloorStatus.Ready: return $"フロアの主 {name} に挑める！ 主に話しかけよう";
+                case FloorStatus.Open: return $"Lv {master.RequiredLevel} で主 {name} に挑める（いま Lv {State.level}）";
+                default: return floor.Id == FloorId.Penthouse ? "オーナーに勝った。VECTOR の頂点だ" : "このフロアは制覇した。エレベーターで次のフロアへ";
+            }
         }
 
         // ------------------------------------------------------------------
@@ -270,6 +286,7 @@ namespace Vector.Game.World
 
             var start = arrival ?? SavedTile();
             actors = new FloorActors(view, floor, start, arrival.HasValue ? Directions.Down : State.facing);
+            MapFollow.Attach(view.Root, screen.Stage, actors.Player.Rect);
             screen.Hud.SetFloor(id);
             Refresh();
         }

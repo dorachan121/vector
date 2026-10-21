@@ -11,20 +11,23 @@ using Vector.Game.UI.Widgets;
 namespace Vector.Game.World
 {
     /// <summary>
-    /// 画面下の会話の窓。話す人の顔と名前、1文字ずつ出る台詞、選択肢を出す。
-    /// クリック・Space・Enter で台詞を最後まで出し、もう一度で次へ進む。
+    /// 画面下の会話の窓。話す人の立ち絵と名札、1文字ずつ出る台詞、選択肢を出す。画面の下端に付く。
+    /// タップ・Space・Enter で台詞を最後まで出し、もう一度で次へ進む。
     /// </summary>
     public sealed class DialogueBox : MonoBehaviour, IPointerClickHandler
     {
-        static readonly Vector2 BoxSize = new Vector2(1640, 230);
+        static readonly Vector2 PanelSize = new Vector2(1020, 360);
+        static readonly Vector2 PanelCenter = new Vector2(0, -60);
         const float CharactersPerSecond = 48f;
 
         readonly List<CasinoButton> choices = new List<CasinoButton>();
+        RectTransform box;
+        RectTransform portraitSlot;
+        GameObject nameplate;
         TextMeshProUGUI speaker;
         TextMeshProUGUI title;
         TextMeshProUGUI body;
         TextMeshProUGUI next;
-        RectTransform portraitSlot;
         CanvasGroup group;
         bool advance;
         int chosen = -1;
@@ -34,19 +37,24 @@ namespace Vector.Game.World
             var shade = Ui.Image(parent, "Dialogue", null, new Color(0, 0, 0, 0.001f), Vector2.zero, Vector2.zero, true);
             shade.rectTransform.anchorMin = Vector2.zero;
             shade.rectTransform.anchorMax = Vector2.one;
-            var box = shade.gameObject.AddComponent<DialogueBox>();
-            box.group = Ui.Group(shade.gameObject);
-            var panel = Ui.Panel(shade.rectTransform, "Panel", new Vector2(0, -400), BoxSize, new Color(0.03f, 0.03f, 0.05f, 0.95f), 26);
-            Ui.Outline(panel.transform, "Outline", Vector2.zero, BoxSize, Theme.Gold.WithAlpha(0.8f), 26);
-            box.portraitSlot = Ui.Rect(panel.transform, "Portrait", new Vector2(-BoxSize.x / 2 + 120, 0), new Vector2(180, 180));
-            Ui.Image(box.portraitSlot, "Glow", Art.Glow, Theme.Gold.WithAlpha(0.2f), Vector2.zero, new Vector2(220, 220));
-            box.speaker = Ui.Text(panel.transform, "Speaker", "", Fonts.Body, 30, Theme.GoldBright, new Vector2(-BoxSize.x / 2 + 440, 80), new Vector2(400, 40), TextAlignmentOptions.Left);
-            box.title = Ui.Text(panel.transform, "Title", "", Fonts.Body, 18, Theme.Muted, new Vector2(-BoxSize.x / 2 + 640, 80), new Vector2(400, 30), TextAlignmentOptions.Left);
-            box.body = Ui.Paragraph(panel.transform, "Body", "", 28, Theme.Ivory, new Vector2(110, -18), new Vector2(BoxSize.x - 480, 150));
-            box.body.richText = true;
-            box.next = Ui.Text(panel.transform, "Next", "▼", Fonts.Body, 22, Theme.GoldBright, new Vector2(BoxSize.x / 2 - 40, -BoxSize.y / 2 + 28), new Vector2(40, 30));
+            var dialogue = shade.gameObject.AddComponent<DialogueBox>();
+            dialogue.group = Ui.Group(shade.gameObject);
+            var box = dialogue.box = Ui.Edge(shade.rectTransform, "Box", false, Ui.Portrait.x, 560);
+            Ui.Image(box, "Fade", Chrome.Gradient(Palette.NightDeep.WithAlpha(0f), Palette.NightDeep.WithAlpha(0.9f)), Color.white, new Vector2(0, -40), new Vector2(Ui.Portrait.x * 3, 640));
+            dialogue.portraitSlot = Ui.Rect(box, "Portrait", new Vector2(-300, 230), new Vector2(380, 470));
+
+            Ui.Plate(box, "Panel", PanelCenter, PanelSize, Palette.PanelTop, 30);
+            float left = -PanelSize.x / 2, top = PanelCenter.y + PanelSize.y / 2;
+            var plate = Ui.Plate(box, "Nameplate", new Vector2(left + 220, top), new Vector2(380, 70), Palette.Ruby, 22);
+            dialogue.nameplate = plate.transform.parent.gameObject;
+            dialogue.speaker = Ui.Text(plate.transform.parent, "Speaker", "", Fonts.Body, 32, Palette.Ivory, new Vector2(0, 1), new Vector2(360, 44));
+            Ui.Outline(dialogue.speaker, Palette.Ink, 0.2f);
+            dialogue.title = Ui.Text(box, "Title", "", Fonts.Body, 20, Palette.GoldLight, new Vector2(left + 600, top + 16), new Vector2(360, 30), TextAlignmentOptions.Left);
+            dialogue.body = Ui.Paragraph(box, "Body", "", 30, Palette.Ivory, PanelCenter + new Vector2(0, -24), PanelSize - new Vector2(80, 120));
+            dialogue.body.richText = true;
+            dialogue.next = Ui.Text(box, "Next", "▼", Fonts.Body, 26, Palette.GoldLight, PanelCenter + new Vector2(PanelSize.x / 2 - 44, -PanelSize.y / 2 + 34), new Vector2(40, 34));
             shade.gameObject.SetActive(false);
-            return box;
+            return dialogue;
         }
 
         public void OnPointerClick(PointerEventData e)
@@ -71,16 +79,19 @@ namespace Vector.Game.World
                 transform.SetAsLastSibling();
                 group.alpha = 0;
                 Tween.Fade(group, 1, 0.15f);
+                box.anchoredPosition = new Vector2(0, -40);
+                Tween.Move(box, Vector2.zero, 0.25f, Ease.OutCubic);
             }
+            nameplate.SetActive(!string.IsNullOrEmpty(name));
             speaker.text = name;
             title.text = role;
             foreach (Transform child in portraitSlot)
-            {
-                if (child.name != "Glow")
-                    Destroy(child.gameObject);
-            }
+                Destroy(child.gameObject);
             if (look.HasValue)
-                CharacterView.Create(portraitSlot, "Face", look.Value, 170, new Vector2(0, -10));
+            {
+                Ui.Image(portraitSlot, "Glow", Art.Glow, Palette.GoldLight.WithAlpha(0.3f), Vector2.zero, new Vector2(420, 420));
+                PortraitView.Create(portraitSlot, "Bust", look.Value, Vector2.zero, 470);
+            }
         }
 
         /// <summary>台詞を1つ出し、プレイヤーが読み進めるまで待つ。</summary>
@@ -96,18 +107,19 @@ namespace Vector.Game.World
             Sfx.Play(SfxKind.Button, 0.4f);
         }
 
-        /// <summary>台詞と選択肢を出し、選ばれた番号を done に渡す。</summary>
+        /// <summary>台詞と選択肢を出し、選ばれた番号を done に渡す。選択肢は会話の窓の右上に縦に並べる。</summary>
         public IEnumerator Choose(string name, string role, CharacterLook? look, string text, IReadOnlyList<string> options, Action<int> done)
         {
             Open(name, role, look);
             yield return Type(text);
             next.enabled = false;
             chosen = -1;
+            float bottom = PanelCenter.y + PanelSize.y / 2 + 70;
             for (int i = 0; i < options.Count; i++)
             {
                 int index = i;
-                var button = Ui.Button(transform, "Choice" + i, options[i], new Vector2(560, -236 + (options.Count - 1 - i) * 74), new Vector2(380, 64),
-                    i == 0 ? Theme.Gold : new Color(1, 1, 1, 0.12f), i == 0 ? Theme.Ink : Theme.Ivory, () => chosen = index, 24, 18);
+                var button = Ui.Button(box, "Choice" + i, options[i], new Vector2(250, bottom + (options.Count - 1 - i) * 96), new Vector2(460, 82),
+                    i == 0 ? Palette.Gold : new Color(1, 1, 1, 0.12f), i == 0 ? Palette.Ink : Palette.Ivory, () => chosen = index, 30, 22);
                 button.Label.font = Fonts.Body;
                 choices.Add(button);
             }

@@ -22,7 +22,7 @@ namespace Vector.Game.World
         {
             var state = story.State;
             string body = $"コンプ {state.comps:N0} pt  ·  所持金 {Labels.Money(profiles.Profile.balance)}\nコンプポイントは、テーブルで賭けた額に応じて貯まります。";
-            var dialog = Dialog.Open(root, "CASHIER", body, new Vector2(1080, 640));
+            var dialog = Dialog.Open(root, "CASHIER", body, new Vector2(1000, 700));
             void Reopen()
             {
                 dialog.Close();
