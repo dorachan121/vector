@@ -27,6 +27,9 @@ EditorBuildSettings:
     path: Assets/Vector/Scenes/Alchemia.unity
     guid: 663be2fb3856452a9ee756e989035d96
   - enabled: 1
+    path: Assets/Vector/Scenes/Orbit.unity
+    guid: 1c2f5051dd8f1e34fac4f35f86d69898
+  - enabled: 1
     path: Assets/Vector/Scenes/World.unity
     guid: 25dfa529604b421698df614041ebcec7
   m_configObjects: {}
