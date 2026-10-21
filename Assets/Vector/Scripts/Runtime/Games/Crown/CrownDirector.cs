@@ -115,7 +115,7 @@ namespace Vector.Game.Crown
             view.Flash(result.Winner == RoundWinner.Player ? "YOU WIN" : result.Winner == RoundWinner.Dealer ? "DEALER WINS" : "PUSH",
                 Theme.ColorFor(result.Winner));
             View.Status.Show(result.Winner == RoundWinner.Player ? "YOU WIN" : result.Winner == RoundWinner.Dealer ? "DEALER WINS" : "PUSH",
-                $"{CrownLabels.Rank(result.PlayerRank, crown)}  —  {CrownLabels.Rank(result.DealerRank, crown)}");
+                CrownLabels.Versus(result.PlayerRank, result.DealerRank, crown));
             yield return Settle(result, result.Bets);
             yield return Tween.Wait(ResultSeconds);
         }

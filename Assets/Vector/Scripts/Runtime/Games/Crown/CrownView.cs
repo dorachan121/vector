@@ -33,6 +33,7 @@ namespace Vector.Game.Crown
         readonly DieView[] dealer = new DieView[DiceRank.DiceCount];
         readonly System.Random jitter = new System.Random();
         DieView crown;
+        UnityEngine.UI.Image crownMark;
         TextMeshProUGUI crownNote;
         TextMeshProUGUI playerRank;
         TextMeshProUGUI dealerRank;
@@ -70,6 +71,8 @@ namespace Vector.Game.Crown
         void BuildDice(Transform stage)
         {
             crown = DieView.Create(stage, "CrownDie", new Vector2(0, 322), 84, Theme.Gold, Theme.Ink);
+            // 振る前の王冠のダイスは目がないので、王冠の印を出しておく
+            crownMark = Ui.Icon(stage, "CrownMark", IconKind.Crown, Theme.Ink.WithAlpha(0.7f), new Vector2(0, 322), 54);
             Ui.Text(stage, "CrownTitle", "CROWN", Fonts.Label, 22, Theme.GoldBright, new Vector2(-110, 322), new Vector2(120, 30));
             crownNote = Ui.Text(stage, "CrownNote", "", Fonts.Body, 18, Theme.Ivory.WithAlpha(0.85f), new Vector2(190, 322), new Vector2(260, 26), TextAlignmentOptions.Left);
 
@@ -126,7 +129,8 @@ namespace Vector.Game.Crown
         public void Reset()
         {
             crown.SetFace(0);
-            crownNote.text = "6 より強い目";
+            crownMark.enabled = true;
+            crownNote.text = "振った目が 6 より強くなる";
             for (int i = 0; i < DiceRank.DiceCount; i++)
             {
                 player[i].SetFace(0);
@@ -147,6 +151,7 @@ namespace Vector.Game.Crown
         public IEnumerator RollCrown(int face)
         {
             Sfx.Play(SfxKind.DiceRoll);
+            crownMark.enabled = false;
             crown.Roll(face, RollSeconds * 1.2f, jitter);
             yield return Tween.Wait(RollSeconds * 1.2f + 0.1f);
             crownNote.text = $"このラウンドは {face} が最強の目";

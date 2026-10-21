@@ -46,6 +46,21 @@ namespace Vector.Tests
         }
 
         [Test]
+        public void Rank_ExposesBothGroupsForTwoPairAndFullHouse()
+        {
+            var twoPair = Rank(3, 6, 6, 5, 5, 2);
+            Assert.AreEqual(6, twoPair.MainFace);
+            Assert.AreEqual(5, twoPair.SecondFace);
+            var crowned = Rank(3, 6, 6, 3, 3, 2);
+            Assert.AreEqual(3, crowned.MainFace, "王冠(3)のペアが上の組");
+            Assert.AreEqual(6, crowned.SecondFace);
+            var fullHouse = Rank(3, 2, 2, 2, 5, 5);
+            Assert.AreEqual(2, fullHouse.MainFace);
+            Assert.AreEqual(5, fullHouse.SecondFace);
+            Assert.AreEqual(0, Rank(3, 1, 1, 1, 5, 6).SecondFace, "スリーカードに2つ目の組はない");
+        }
+
+        [Test]
         public void Rank_TiesOnlyForIdenticalDice()
         {
             Assert.That(Rank(3, 1, 2, 2, 5, 6) == Rank(3, 6, 5, 2, 1, 2));

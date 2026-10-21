@@ -23,11 +23,15 @@ namespace Vector.Core.Crown
         /// <summary>組の中心になっている目（ヨット・フォー・スリー・フルハウスの3個、ペアの高い方）。役なしとストレートは 0。</summary>
         public readonly int MainFace;
 
-        DiceRank(DiceHandKind kind, int key, int mainFace)
+        /// <summary>2つ目の組の目（フルハウスのペア、ツーペアの低い方）。それ以外の役は 0。</summary>
+        public readonly int SecondFace;
+
+        DiceRank(DiceHandKind kind, int key, int mainFace, int secondFace)
         {
             Kind = kind;
             Key = key;
             MainFace = mainFace;
+            SecondFace = secondFace;
         }
 
         /// <summary>目の強さ。王冠の目は 7（どの目より強い）。</summary>
@@ -76,7 +80,7 @@ namespace Vector.Core.Crown
             else kind = DiceHandKind.NoHand;
 
             if (kind == DiceHandKind.Straight)
-                return new DiceRank(kind, (int)kind * TieBreakSpan + (counts[Faces - 1] > 0 ? 2 : 1), 0);
+                return new DiceRank(kind, (int)kind * TieBreakSpan + (counts[Faces - 1] > 0 ? 2 : 1), 0, 0);
 
             int tieBreak = 0;
             foreach (int face in groups)
@@ -84,7 +88,8 @@ namespace Vector.Core.Crown
             for (int n = groups.Count; n < DiceCount; n++)
                 tieBreak *= Base;
             int main = kind == DiceHandKind.NoHand ? 0 : groups[0];
-            return new DiceRank(kind, (int)kind * TieBreakSpan + tieBreak, main);
+            int secondFace = kind == DiceHandKind.FullHouse || kind == DiceHandKind.TwoPair ? groups[1] : 0;
+            return new DiceRank(kind, (int)kind * TieBreakSpan + tieBreak, main, secondFace);
         }
 
         /// <summary>王冠の目のヨット（ボーナス対象）。</summary>
