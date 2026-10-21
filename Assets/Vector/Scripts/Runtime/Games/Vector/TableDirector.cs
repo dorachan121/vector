@@ -5,6 +5,7 @@ using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
 using Vector.Game.UI;
+using Vector.Game.World;
 
 namespace Vector.Game.Table
 {
@@ -64,6 +65,7 @@ namespace Vector.Game.Table
         protected override IEnumerator PlayRound(BetBoard inPlay)
         {
             round.Deal(mode, inPlay);
+            yield return AnnounceTurnOrder(mode == GameMode.Player ? You : new TurnSeat("PLAYER", Theme.PlayerBlue, Cast.Player), Dealer);
             yield return Deal();
             yield return ChooseFamily();
             while (round.Phase != RoundPhase.Showdown)

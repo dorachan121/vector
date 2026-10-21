@@ -5,8 +5,10 @@ using UnityEngine;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
+using Vector.Game.Story;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
+using Vector.Game.World;
 
 namespace Vector.Game.Casino
 {
@@ -31,6 +33,7 @@ namespace Vector.Game.Casino
         RealityCheck realityCheck;
         bool settled;
         bool leaving;
+        bool turnOrderShown;
 
         protected CasinoView View { get; private set; }
         protected WagerSession Session { get; private set; }
@@ -80,6 +83,24 @@ namespace Vector.Game.Casino
 
         /// <summary>フロアの主の挑戦中なら、その挑戦。</summary>
         protected ChallengeRun Challenge => (Wallet as ChallengeWallet)?.Run;
+
+        /// <summary>先攻・後攻の演出に出す、この席のプレイヤー。</summary>
+        protected static TurnSeat You => new TurnSeat("YOU", Palette.Sapphire, Cast.Player);
+
+        /// <summary>先攻・後攻の演出に出すディーラー（主の挑戦中は、その主がディーラーを務める）。</summary>
+        protected TurnSeat Dealer => Challenge != null
+            ? new TurnSeat(StoryNames.Person(Challenge.Spec.Master), Palette.Ruby, Cast.Of(Challenge.Spec.Master).Look)
+            : new TurnSeat("DEALER", Palette.Ruby, Cast.Dealer);
+
+        /// <summary>
+        /// 先攻・後攻のあるゲームのラウンドの始まりに、順番をカジノ風の演出で見せる。テーブルの最初のラウンドは大きく、以降は短く。
+        /// </summary>
+        protected IEnumerator AnnounceTurnOrder(TurnSeat first, TurnSeat second)
+        {
+            View.Status.Show("TURN ORDER", $"先攻 {first.Name}  ·  後攻 {second.Name}");
+            yield return TurnOrderIntro.Play(View.Overlay, first, second, !turnOrderShown);
+            turnOrderShown = true;
+        }
 
         /// <summary>派生クラスが画面と賭け金の管理を組み立ててから呼ぶ。</summary>
         protected void Begin(CasinoView view, WagerSession session, ITableWallet wallet)

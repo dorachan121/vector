@@ -14,6 +14,9 @@ namespace Vector.Game.World
         /// <summary>主人公の見た目。</summary>
         public static CharacterLook Player => Look("F2C9A0", "2B1D14", "1D1D24", "E3C06E");
 
+        /// <summary>テーブルのディーラー（自由に座るテーブルの相手）の見た目。</summary>
+        public static CharacterLook Dealer => Look("EDC3A0", "7A4A26", "141418", "C4262E", eyes: "5B3A1E");
+
         public static CastMember Of(string id)
         {
             roles ??= Build();

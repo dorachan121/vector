@@ -74,6 +74,7 @@ namespace Vector.Game.Crown
             // 最善戦略はワーカースレッドで解いておく（王冠の目ごとに一度だけ）
             var strategy = Task.Run(() => advisor.For(crown));
             View.Hud.SetInfo($"ROUND {engine.RoundNumber}");
+            yield return AnnounceTurnOrder(You, Dealer);
 
             View.Status.Show("CROWN ROLL", "王冠のダイスが、このラウンドの最強の目を決めます");
             yield return view.RollCrown(crown);

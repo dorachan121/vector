@@ -66,6 +66,7 @@ namespace Vector.Game.Colosseum
             engine.Deal(inPlay, opponent);
             view.Reset(engine.Setup, beastTitle);
             View.Hud.SetInfo($"BATTLE {engine.RoundNumber}");
+            yield return AnnounceTurnOrder(You, new TurnSeat(beastTitle, Theme.DealerRed, Art.BeastHead));
             View.Status.Show("FIGHT!", "獣の予告を見て、斬るか受けるかを選んでください");
             yield return Tween.Wait(0.4f);
 
