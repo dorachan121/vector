@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Vector.Core
 {
     /// <summary>ラウンドの最終結果。</summary>
-    public sealed class RoundResult
+    public sealed class RoundResult : IRoundOutcome
     {
         public RoundResult(LineFamily playerFamily, LineFamily dealerFamily, int playerScore, int dealerScore,
             IReadOnlyList<Line> playerLines, IReadOnlyList<Line> dealerLines, PokerHand bonusHand, IReadOnlyList<BetResult> bets)

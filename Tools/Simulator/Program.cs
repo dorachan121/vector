@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Vector.Core;
+using Vector.Core.Crown;
 
 namespace Vector.Simulator
 {
@@ -9,6 +10,7 @@ namespace Vector.Simulator
     /// <code>
     /// dotnet run -c Release -- bonus
     /// dotnet run -c Release -- main [rounds] [advisor|greedy|random] [seed] [mainPays=1:1]
+    /// dotnet run -c Release -- crown [rounds] [advisor|greedy|random] [seed] [crownYachtBonus=5:1]
     /// </code>
     /// </summary>
     static class Program
@@ -29,6 +31,13 @@ namespace Vector.Simulator
                         MainGameSimulation.Run(
                             rules,
                             rounds: args.Length > 1 ? int.Parse(args[1]) : 24_000,
+                            strategy: args.Length > 2 ? ParseStrategy(args[2]) : PlayerStrategy.Advisor,
+                            seed: args.Length > 3 ? ulong.Parse(args[3]) : 20261021UL);
+                        return 0;
+                    case "crown":
+                        CrownSimulation.Run(
+                            args.Length > 4 ? new CrownRules(ParseOdds(args[4])) : CrownRules.Standard,
+                            rounds: args.Length > 1 ? int.Parse(args[1]) : 200_000,
                             strategy: args.Length > 2 ? ParseStrategy(args[2]) : PlayerStrategy.Advisor,
                             seed: args.Length > 3 ? ulong.Parse(args[3]) : 20261021UL);
                         return 0;
