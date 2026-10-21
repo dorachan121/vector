@@ -5,6 +5,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Hanabi;
 using Vector.Core.Harpoon;
 using Vector.Core.Orbit;
 using Vector.Core.Sugoroku;
@@ -40,6 +41,7 @@ namespace Vector.Game
             var orbit = OrbitRules.Standard;
             var harpoon = HarpoonRules.Standard;
             var sugoroku = SugorokuRules.Standard;
+            var hanabi = HanabiRules.Standard;
             return new List<GameEntry>
             {
                 new GameEntry
@@ -104,6 +106,13 @@ namespace Vector.Game
                     Pitch = "2つの目のどちらで進むかを選び、小判を拾いながら上りを目指す和の双六",
                     Features = new[] { "先を読む", "最善手ヒント" },
                     Terms = $"{Labels.Money(sugoroku.MinBet)}–{Labels.Money(sugoroku.MaxBet)}  ·  {sugoroku.Turns} ROLLS  ·  TOP x{sugoroku.PayFor(sugoroku.MaxTier) / 100}",
+                },
+                new GameEntry
+                {
+                    Id = GameId.Hanabi, Title = "HANABI", Rtp = $"{HanabiRules.ReturnPercent}%", Genre = "FIREWORK CRASH", Scene = SceneNames.Hanabi, Accent = Theme.Hex("FF6FAE"),
+                    Pitch = "昇るほど倍率が上がる打ち上げ花火。弾ける前に「開く」か、もっと待つか",
+                    Features = new[] { "引き際", $"最大 {hanabi.MaxHundredths / HanabiRules.One:N0}倍" },
+                    Terms = $"{Labels.Money(hanabi.MinBet)}–{Labels.Money(hanabi.MaxBet)}  ·  RTP {HanabiRules.ReturnPercent}% AT ANY CASH OUT",
                 },
             };
         }

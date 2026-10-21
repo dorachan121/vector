@@ -7,6 +7,7 @@ using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
 using Vector.Core.Harpoon;
+using Vector.Core.Hanabi;
 using Vector.Core.Orbit;
 using Vector.Core.Sugoroku;
 
@@ -25,6 +26,7 @@ namespace Vector.Simulator
     /// dotnet run -c Release -- orbit [spins] [seed]
     /// dotnet run -c Release -- harpoon [shots] [seed]
     /// dotnet run -c Release -- sugoroku [games] [seed] [pays=hundredths by tier]
+    /// dotnet run -c Release -- hanabi [launches] [seed]
     /// dotnet run -c Release -- challenge [trials] [seed]
     /// </code>
     /// </summary>
@@ -97,6 +99,12 @@ namespace Vector.Simulator
                         SugorokuSimulation.Run(
                             args.Length > 3 ? SugorokuSimulation.Parse(args[3]) : SugorokuRules.Standard,
                             games: args.Length > 1 ? int.Parse(args[1]) : 1_000_000,
+                            seed: args.Length > 2 ? ulong.Parse(args[2]) : 20261021UL);
+                        return 0;
+                    case "hanabi":
+                        HanabiSimulation.Run(
+                            HanabiRules.Standard,
+                            launches: args.Length > 1 ? int.Parse(args[1]) : 2_000_000,
                             seed: args.Length > 2 ? ulong.Parse(args[2]) : 20261021UL);
                         return 0;
                     case "challenge":

@@ -23,6 +23,7 @@ namespace Vector.Game.Lobby
                 case GameId.Orbit: Orbit(rt, s); break;
                 case GameId.Harpoon: Harpoon(rt, s); break;
                 case GameId.Sugoroku: Sugoroku(rt, s); break;
+                case GameId.Hanabi: Hanabi(rt, s); break;
                 case GameId.Delve: Delve(rt, s); break;
                 default: throw new System.ArgumentOutOfRangeException(nameof(game), game, "紋章のないゲームです。");
             }
@@ -129,6 +130,30 @@ namespace Vector.Game.Lobby
             }
             Ui.Image(rt, "Corona", Art.Glow, Palette.GoldMid.WithAlpha(0.85f), Vector2.zero, Vector2.one * 90 * s);
             Ui.Image(rt, "Sun", Art.Circle, Palette.Gold, Vector2.zero, Vector2.one * 36 * s);
+        }
+
+        /// <summary>打ち上げ花火: 夜空に開いた大輪と、昇っていく玉の光の筋。</summary>
+        static void Hanabi(RectTransform rt, float s)
+        {
+            var center = new Vector2(10, 30) * s;
+            Ui.Image(rt, "Glow", Art.Glow, Theme.Hex("FF6FAE").WithAlpha(0.55f), center, Vector2.one * 200 * s);
+            var colors = new[] { Theme.Hex("FF6FAE"), Palette.GoldLight, Palette.Cyan };
+            for (int ring = 0; ring < 3; ring++)
+            {
+                float radius = (78 - ring * 22) * s;
+                int count = 14 - ring * 3;
+                for (int i = 0; i < count; i++)
+                {
+                    float a = i * Mathf.PI * 2 / count + ring * 0.3f;
+                    var dir = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                    var spark = Ui.Image(rt, "Spark", null, colors[ring], center + dir * radius * 0.6f, new Vector2(radius * 0.7f, 5 * s));
+                    spark.rectTransform.localEulerAngles = new Vector3(0, 0, a * Mathf.Rad2Deg);
+                    Ui.Image(rt, "Tip", Art.Circle, colors[ring], center + dir * radius, Vector2.one * 9 * s);
+                }
+            }
+            Ui.Image(rt, "Core", Art.Circle, Color.white, center, Vector2.one * 16 * s);
+            Ui.Image(rt, "Trail", Chrome.Gradient(Palette.GoldLight.WithAlpha(0f), Palette.GoldLight), Color.white, new Vector2(-62, -66) * s, new Vector2(6, 70) * s);
+            Ui.Image(rt, "Shell", Art.Circle, Palette.GoldLight, new Vector2(-62, -28) * s, Vector2.one * 12 * s);
         }
 
         /// <summary>双六: 小判の載った道のマスと、2つのサイコロ。</summary>

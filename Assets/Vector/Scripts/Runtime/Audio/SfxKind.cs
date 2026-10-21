@@ -32,5 +32,11 @@ namespace Vector.Game.Audio
 
         /// <summary>水しぶきと泡。</summary>
         Splash,
+
+        /// <summary>花火の打ち上げ（昇っていく笛の音）。</summary>
+        Launch,
+
+        /// <summary>花火が開く「ドーン」とパチパチ。</summary>
+        Boom,
     }
 }

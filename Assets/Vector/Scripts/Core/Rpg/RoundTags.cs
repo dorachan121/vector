@@ -24,5 +24,8 @@ namespace Vector.Core.Rpg
         public const string SugorokuGoal = "sugoroku.goal";
         public const string SugorokuTreasure = "sugoroku.treasure";
         public const string SugorokuHighTier = "sugoroku.high_tier";
+        public const string HanabiBloom = "hanabi.bloom2";
+        public const string HanabiGrand = "hanabi.bloom10";
+        public const string HanabiClose = "hanabi.close";
     }
 }

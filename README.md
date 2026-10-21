@@ -1,8 +1,8 @@
-# VECTOR CASINO RESORT — 9つのオリジナルカジノゲームとカジノ RPG
+# VECTOR CASINO RESORT — 10のオリジナルカジノゲームとカジノ RPG
 
 [![Core](https://github.com/dorachan121/vector/actions/workflows/core.yml/badge.svg)](https://github.com/dorachan121/vector/actions/workflows/core.yml)
 
-**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、9つのオリジナルのカジノゲームと、
+**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、10のオリジナルのカジノゲームと、
 そのカジノの中を歩いてフロアの主たちに挑む **ストーリーモード（カジノ RPG）** を収録しています。
 
 どのゲームも、実際のカジノと同じ考え方で作っています。配当表は付属のシミュレーターで検証し（厳密に計算できるものは全列挙・動的計画法で求めた **厳密値**）、
@@ -27,6 +27,7 @@
 | **ORBIT** | 天球儀 × ルーレット | 3つの惑星が止まる位置と並び方に賭ける。37回に1回は彗星が横切る | **97.297%**（厳密・どの賭けも同じ） |
 | **HARPOON** | 狩り × リアルタイム | 泳ぐ獲物を選んでモリを撃つ。大物ほど逃げやすく、どれを狙っても同じ | **97.000%**（厳密・どの獲物も同じ） |
 | **SUGOROKU** | 双六 × 先読み | 2つの目のどちらで進むかを選び、小判を拾って8回以内に上りを目指す | **96.493%**（厳密・最善手） |
+| **HANABI** | 花火 × 引き際 | 昇るほど倍率が上がる花火を、弾ける前に「開く」。どこで開いても同じ | **97.000%**（厳密・上限） |
 
 「腕で RTP が変わる」スキルゲーム（VECTOR / CROWN DICE / COLOSSEUM / SUGOROKU）には、設定で ON にできる **戦略ヒント** があります。
 CROWN DICE・COLOSSEUM・SUGOROKU のヒントは、後ろ向き帰納・動的計画法で求めた **厳密な最善手** です。
@@ -263,6 +264,19 @@ CROWN DICE・COLOSSEUM・SUGOROKU のヒントは、後ろ向き帰納・動的�
 | 上がったときの配当 | x0 | x0.4 | x0.7 | x1 | x1.6 | x2.6 | x6 | **x25** |
 | 最善手でその段で上がる確率 | 4.82% | 13.06% | 19.54% | 18.18% | 13.11% | 6.75% | 2.19% | 0.31% |
 
+## 🎆 HANABI
+
+![HANABI](docs/images/hanabi.jpg)
+
+- 夜の川辺で打ち上げた花火の玉は、昇るほど倍率が上がる。**弾ける前に「開く」**を押せば、そのときの倍率で払い戻し（Space でも開ける）
+- 「自動で開く倍率」（x1.5〜x100）を決めておくと、その倍率に届いた瞬間に開く
+- 暴発点は打ち上げの瞬間に整数の乱数 r から `floor(97 × 1,000,000 ÷ (r + 1))` [百分の一倍] で決まるため、倍率 m まで昇る確率はほぼ 0.97 ÷ m。
+  **どの倍率で開いても RTP は 97.000% を超えない**（全ての乱数を数え上げて確かめる厳密値。x1.01 に届く前に弾けるのは 3.96%、上限は x1,000）
+
+| 開く倍率 | x1.5 | x2 | x3 | x5 | x10 | x100 |
+|---|---:|---:|---:|---:|---:|---:|
+| 開ける確率 | 64.67% | 48.50% | 32.33% | 19.40% | 9.70% | 0.97% |
+
 ---
 
 ## 🎰 カジノとしての仕様（全ゲーム共通）
@@ -301,14 +315,14 @@ Assets/Vector/
 │   │   │                     Wagering（BetBoard・IBetLimits・WagerCheck・WagerSession・SpotResult）/ ResponsibleGaming
 │   │   ├── Games/            ゲームごとのルール・エンジン・厳密解ソルバー
 │   │   │   ├── Vector/       Betting（TableRules・TableLimits）/ Board / Poker / Round / Strategy
-│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/ Sugoroku/
+│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/ Sugoroku/ Hanabi/
 │   │   └── Rpg/              ストーリーモードの規則: RpgSession / RpgState / Progress / Quests / Items / Floors / Challenges /
 │   │                         Daily（ログインボーナス・デイリーミッション）
 │   ├── Runtime/              Vector.Runtime（Unity 側）
 │   │   ├── App/              GameContext / GameCatalog / Startup / GuardedRoutine / Log
 │   │   ├── Casino/           全ゲーム共通のテーブル: CasinoDirector（進行のテンプレート）/ CasinoView / WagerInput /
 │   │   │                     財布（ProfileWallet・ChallengeWallet）/ ChallengeFlow / Views（チップ・HUD・ベットエリアなど）
-│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/ Sugoroku/
+│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/ Sugoroku/ Hanabi/
 │   │   ├── World/            ストーリーモードのフロア: WorldDirector / Conversation / FloorActors / Views / Cast / Panels
 │   │   ├── Story/            進み具合の保存（StoryProgress）・名前の表示（StoryNames）・フロアの並び・報酬の表示
 │   │   ├── Lobby/            ホーム（縦向き）: LobbyScene（組み立て）/ Tabs（ホーム・ストーリー・プレイ・ミッション・ショップ）/
@@ -318,8 +332,8 @@ Assets/Vector/
 │   │   └── UI/               Foundation（Ui・画面の形と向き・SceneFlow・Tween・Palette）/ Art（光沢・額縁・アイコン・立ち絵の部品）/
 │   │                         Effects（回転・脈動・紙吹雪・金貨）/ Widgets（Dialog・報酬・回転の案内・通貨・ゲージ・バッジ・サブタブ）
 │   └── Editor/               日本語フォントの焼き込み（文言が増えたら自動で作り直す）
-├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（147件）
-├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / Harpoon / Sugoroku / World（どれも起点コンポーネントを1つ置くだけ）
+├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（152件）
+├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / Harpoon / Sugoroku / Hanabi / World（どれも起点コンポーネントを1つ置くだけ）
 └── Fonts/                    Anton / Oswald / BIZ UDPGothic（SIL Open Font License）
 Tools/
 ├── Simulator/                配当表・挑戦の検証ツール（.NET、Core のソースを共有）
@@ -361,8 +375,8 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（147件）
-# Unity なし（Core のみ・132件）
+# Unity: Window > General > Test Runner > EditMode（152件）
+# Unity なし（Core のみ・137件）
 dotnet test Tools/CoreTests
 ```
 
@@ -386,6 +400,7 @@ dotnet run -c Release -- alchemia 120000000        # ALCHEMIA の RTP（1.2億�
 dotnet run -c Release -- orbit                     # ORBIT の賭け先ごとの厳密な RTP とシミュレーション
 dotnet run -c Release -- harpoon                   # HARPOON の獲物ごとの厳密な捕獲率・RTP とシミュレーション
 dotnet run -c Release -- sugoroku                  # SUGOROKU の最善手・打ち方ごとの厳密な RTP と段の分布
+dotnet run -c Release -- hanabi                    # HANABI の開く倍率ごとの厳密な確率・RTP とシミュレーション
 dotnet run -c Release -- challenge 2000            # ストーリーモードの挑戦の勝率
 ```
 

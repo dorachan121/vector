@@ -29,5 +29,8 @@ namespace Vector.Core
 
         /// <summary>2つのサイコロのどちらで進むかを選び、小判を集めて上がりを目指す双六。</summary>
         Sugoroku,
+
+        /// <summary>昇る花火が弾ける前に開く、引き際の打ち上げ花火。</summary>
+        Hanabi,
     }
 }

@@ -74,6 +74,21 @@ namespace Vector.Game.Audio
                 case SfxKind.Splash:
                     data = Mix(Swish(random, 0.26f, 1800f, 380f, 0.4f), Bubbles(random, 0.5f, 7));
                     break;
+                case SfxKind.Launch:
+                {
+                    // 音程が上がっていく笛（位相を積み上げて周波数をなめらかに変える）
+                    float phase = 0;
+                    data = Render(0.9f, (t, i) =>
+                    {
+                        phase += 2 * Mathf.PI * (700 + 1500 * t) / SampleRate;
+                        return Mathf.Sin(phase) * Mathf.Sin(Mathf.PI * Mathf.Clamp01(t / 0.9f)) * 0.16f;
+                    });
+                    break;
+                }
+                case SfxKind.Boom:
+                    data = Mix(Render(0.6f, (t, i) => (Sine(t, 60 - 30 * t) * 0.8f + (float)(random.NextDouble() * 2 - 1) * 0.5f) * Decay(t, 7) * 0.5f),
+                        Crackle(random, 0.9f));
+                    break;
                 default:
                     data = Render(0.18f, (t, i) => Math.Sign(Sine(t, 110)) * Decay(t, 14) * 0.18f);
                     break;
@@ -213,6 +228,20 @@ namespace Vector.Game.Audio
                     phase += 2 * Mathf.PI * baseHz * (1 + t * 25) / SampleRate;
                     data[start + i] += Mathf.Sin(phase) * Decay(t, 60) * 0.22f;
                 }
+            }
+            return data;
+        }
+
+        /// <summary>花火のあとのパチパチ。短いノイズの粒を散らす。</summary>
+        static float[] Crackle(System.Random random, float seconds)
+        {
+            var data = new float[Mathf.CeilToInt(seconds * SampleRate)];
+            for (int k = 0; k < 60; k++)
+            {
+                int start = (int)(data.Length * (0.15f + 0.8f * (float)random.NextDouble()));
+                float amp = 0.08f + (float)random.NextDouble() * 0.12f;
+                for (int i = 0; i < 300 && start + i < data.Length; i++)
+                    data[start + i] += (float)(random.NextDouble() * 2 - 1) * amp * Decay(i / (float)SampleRate, 600);
             }
             return data;
         }

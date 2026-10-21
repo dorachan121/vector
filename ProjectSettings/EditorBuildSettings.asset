@@ -36,6 +36,9 @@ EditorBuildSettings:
     path: Assets/Vector/Scenes/Sugoroku.unity
     guid: 33d4852de80cf65478bb9214fce0673c
   - enabled: 1
+    path: Assets/Vector/Scenes/Hanabi.unity
+    guid: 46716370f85aff24d8d7ca9c688a962c
+  - enabled: 1
     path: Assets/Vector/Scenes/World.unity
     guid: 25dfa529604b421698df614041ebcec7
   m_configObjects: {}
