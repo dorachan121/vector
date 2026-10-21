@@ -13,8 +13,8 @@ namespace Vector.Game.Lobby
     public sealed class StoryTab : IHomeTab
     {
         const float TopY = 548;
-        /// <summary>フロアの間隔。いちばん下の B1 の札が「カジノへ入る」ボタンに隠れない幅にする。</summary>
-        const float Step = 170;
+        /// <summary>いちばん下の B1 の札の高さ。「カジノへ入る」ボタンに隠れないところで止め、フロアの間隔はこの間で等分する。</summary>
+        const float BottomY = -472;
         const float Zig = 200;
 
         readonly StoryProgress story;
@@ -48,8 +48,9 @@ namespace Vector.Game.Lobby
             tab.BuildTower();
             var floors = FloorOrder.TopDown;
             var points = new Vector2[floors.Length];
+            float step = (TopY - BottomY) / (floors.Length - 1);
             for (int i = 0; i < floors.Length; i++)
-                points[i] = new Vector2(i == 0 ? 0 : (i % 2 == 1 ? Zig : -Zig), TopY - i * Step);
+                points[i] = new Vector2(i == 0 ? 0 : (i % 2 == 1 ? Zig : -Zig), TopY - i * step);
             tab.BuildPath(points);
             for (int i = 0; i < floors.Length; i++)
             {

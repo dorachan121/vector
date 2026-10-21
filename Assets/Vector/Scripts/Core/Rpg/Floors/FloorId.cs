@@ -1,6 +1,9 @@
 namespace Vector.Core.Rpg
 {
-    /// <summary>カジノリゾートのフロア（物語の順）。</summary>
+    /// <summary>
+    /// カジノリゾートのフロア。値は保存データ（いまいるフロア）に残るので、新しいフロアは末尾に足す。
+    /// 物語の順（主に勝つたびに開く順）は <see cref="Floors.All"/> の並び。
+    /// </summary>
     public enum FloorId : byte
     {
         /// <summary>1F グランドロビー（VECTOR）。</summary>
@@ -23,5 +26,8 @@ namespace Vector.Core.Rpg
 
         /// <summary>最上階ペントハウス（オーナーとの最後の勝負）。</summary>
         Penthouse,
+
+        /// <summary>6F 天文台（ORBIT）。</summary>
+        Observatory,
     }
 }

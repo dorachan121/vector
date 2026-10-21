@@ -144,6 +144,9 @@ namespace Vector.Game.World
                     Ui.Text(Objects, "Label", "DELVE", Fonts.Label, 18, Theme.GoldBright, center + new Vector2(0, -size.y / 2 + 12), new Vector2(160, 22));
                     return;
                 }
+                case GameId.Orbit:
+                    DrawOrrery(center, Mathf.Min(size.x, size.y) - 16);
+                    return;
             }
             var felt = floor.Id == FloorId.Penthouse
                 ? Art.TableIn(Theme.Hex("3A0E16"), Theme.Hex("12040A"))
@@ -155,6 +158,28 @@ namespace Vector.Game.World
             label.characterSpacing = 4;
             if (floor.Game == GameId.Derby)
                 Ui.Text(Objects, "Window", "BETTING WINDOW", Fonts.Label, 14, Theme.FeltPrint, center + new Vector2(0, -20), new Vector2(inset.x, 20));
+        }
+
+        /// <summary>天球儀の円卓（太陽のまわりを3つの惑星がゆっくり回る）。</summary>
+        void DrawOrrery(Vector2 center, float diameter)
+        {
+            Ui.Image(Objects, "Shadow", Art.Circle, new Color(0, 0, 0, 0.4f), center + new Vector2(4, -6), Vector2.one * diameter);
+            Ui.Image(Objects, "Table", Art.Circle, theme.FeltEdge, center, Vector2.one * diameter);
+            Ui.Image(Objects, "Felt", Art.Circle, theme.FeltCenter, center, Vector2.one * (diameter - 12));
+            Ui.Image(Objects, "Rim", Art.Ring(4f / diameter), theme.Trim.WithAlpha(0.7f), center, Vector2.one * diameter);
+            var colors = new[] { Orbit.OrbitLabels.InnerColor, Orbit.OrbitLabels.MiddleColor, Orbit.OrbitLabels.OuterColor };
+            for (int p = 0; p < colors.Length; p++)
+            {
+                float radius = diameter * (0.17f + 0.11f * p);
+                Ui.Image(Objects, "Orbit", Art.Ring(3f / (radius * 2)), colors[p].WithAlpha(0.5f), center, Vector2.one * radius * 2);
+                // 内側ほど速く回る
+                var arm = Ui.Rect(Objects, "Arm", center, Vector2.zero);
+                arm.localEulerAngles = new Vector3(0, 0, 90 + 130 * p);
+                Ui.Image(arm, "Planet", Art.Circle, colors[p], new Vector2(radius, 0), Vector2.one * (10 + 2 * p));
+                Spin.Add(arm, -36f / (p + 1));
+            }
+            var sun = Ui.Image(Objects, "Sun", Art.Circle, Palette.Gold, center, Vector2.one * 22);
+            Pulse.Add(sun, 0.08f, 1.6f);
         }
 
         void DrawBar(List<(int x, int y)> group)

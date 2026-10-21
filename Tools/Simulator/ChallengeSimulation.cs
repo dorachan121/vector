@@ -7,6 +7,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Orbit;
 using Vector.Core.Rpg;
 
 namespace Vector.Simulator
@@ -58,6 +59,7 @@ namespace Vector.Simulator
             readonly DerbyEngine derby;
             readonly AlchemiaEngine alchemia;
             readonly DelveEngine delve;
+            readonly OrbitEngine orbit;
 
             public Bot(ChallengeSpec spec, SeededRandom random)
             {
@@ -72,6 +74,7 @@ namespace Vector.Simulator
                 derby = new DerbyEngine(DerbyRules.Standard, random);
                 alchemia = new AlchemiaEngine(AlchemiaRules.Standard, random);
                 delve = new DelveEngine(DelveRules.Standard, random);
+                orbit = new OrbitEngine(OrbitRules.Standard, random);
             }
 
             public bool Play()
@@ -95,6 +98,7 @@ namespace Vector.Simulator
                 {
                     case GameId.Derby: return DerbyRules.Standard.ExactaMinBet;
                     case GameId.Alchemia: return AlchemiaRules.Standard.BetLevels[0];
+                    case GameId.Orbit: return OrbitRules.Standard.MinBet;
                     default: return 10;
                 }
             }
@@ -116,6 +120,8 @@ namespace Vector.Simulator
                         }
                         return best;
                     }
+                    case GameId.Orbit:
+                        return OrbitBet(stack, remaining).stake;
                     case GameId.Delve:
                     case GameId.Derby:
                         return Math.Min(stack, DelveRules.Standard.MaxBet);
@@ -135,6 +141,7 @@ namespace Vector.Simulator
                     case GameId.Colosseum: return PlayBattle(stake);
                     case GameId.Derby: return PlayDerby(stake, stack + remaining);
                     case GameId.Alchemia: return PlayAlchemia(stake);
+                    case GameId.Orbit: return PlayOrbit(stack, remaining);
                     default: return PlayDelve(stake, stack + remaining);
                 }
             }
@@ -223,6 +230,38 @@ namespace Vector.Simulator
                 var bets = new BetBoard();
                 bets.Add(AlchemiaRules.Spin, stake);
                 return alchemia.Spin(bets).TotalReturn;
+            }
+
+            /// <summary>当たりやすい順の ORBIT の賭け先（天地 1:1 → 方角 3:1 → 内惑星 5:1 → 合 → 彗星 → 直列）。</summary>
+            static readonly int[] OrbitLadder =
+            {
+                OrbitSpots.Half(0), OrbitSpots.Quadrant(0), OrbitSpots.Inner(0),
+                OrbitSpots.InnerConjunction, OrbitSpots.OuterConjunction, OrbitSpots.Comet, OrbitSpots.Alignment,
+            };
+
+            /// <summary>当たれば目標に届く賭け先のうち、最も当たりやすいものと賭け金。届くものが無ければ天地に全額。</summary>
+            static (int spot, long stake) OrbitBet(long stack, long remaining)
+            {
+                var rules = OrbitRules.Standard;
+                foreach (int spot in OrbitLadder)
+                {
+                    var odds = rules.PaysFor(spot);
+                    long stake = Math.Max(rules.MinBet, (remaining * odds.Per + odds.Win - 1) / odds.Win);
+                    if (stake <= stack && stake <= rules.MaxFor(spot))
+                        return (spot, stake);
+                }
+                return (OrbitLadder[0], Math.Min(stack, rules.MaxFor(OrbitLadder[0])));
+            }
+
+            long PlayOrbit(long stack, long remaining)
+            {
+                var (spot, stake) = OrbitBet(stack, remaining);
+                var bets = new BetBoard();
+                bets.Add(spot, stake);
+                if (orbit.Phase == OrbitPhase.Complete)
+                    orbit.BeginBetting();
+                orbit.Spin(bets);
+                return orbit.Settle().TotalReturn;
             }
 
             /// <summary>目標に届く最も浅い深さまで潜って引き返す。</summary>

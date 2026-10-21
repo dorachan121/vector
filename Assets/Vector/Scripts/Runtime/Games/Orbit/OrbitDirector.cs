@@ -42,7 +42,9 @@ namespace Vector.Game.Orbit
             {
                 if (bet.Outcome != BetOutcome.Win)
                     continue;
-                if (bet.Spot == OrbitSpots.Alignment)
+                if (bet.Spot == OrbitSpots.InnerConjunction || bet.Spot == OrbitSpots.OuterConjunction)
+                    tags.Add(RoundTags.OrbitConjunction);
+                else if (bet.Spot == OrbitSpots.Alignment)
                     tags.Add(RoundTags.OrbitAlignment);
                 else if (bet.Spot == OrbitSpots.Comet)
                     tags.Add(RoundTags.OrbitComet);

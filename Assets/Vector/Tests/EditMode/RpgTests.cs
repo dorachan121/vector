@@ -220,12 +220,12 @@ namespace Vector.Tests
         public void Floors_AreWellFormedAndReachable()
         {
             var floors = Floors.All;
-            Assert.AreEqual(Enum.GetValues(typeof(FloorId)).Length, floors.Count);
+            CollectionAssert.AreEquivalent(Enum.GetValues(typeof(FloorId)), floors.Select(f => f.Id), "どのフロアも1つずつ定義する");
             for (int i = 0; i < floors.Count; i++)
             {
                 var floor = floors[i];
                 var map = floor.Map;
-                Assert.AreEqual((FloorId)i, floor.Id);
+                Assert.AreSame(floor, Floors.Of(floor.Id));
                 Assert.AreEqual(12, map.Width, "縦画面の横幅に収まる");
                 Assert.AreEqual(18, map.Height);
                 CollectionAssert.AreEquivalent(map.People.Keys, floor.People.Keys, $"{floor.Id}: 見取り図の人と人の一覧が一致する");
@@ -321,6 +321,10 @@ namespace Vector.Tests
             Assert.AreEqual(1, state.quests[0].count);
             Assert.AreEqual(1, state.items.Count);
             Assert.AreEqual(ItemStack.MaxCount, state.items[0].count);
+
+            var observatory = new RpgState { floor = (int)FloorId.Observatory };
+            observatory.Sanitize();
+            Assert.AreEqual((int)FloorId.Observatory, observatory.floor, "末尾に足したフロアにいる保存データも、そのまま読める");
         }
 
         static HashSet<(int x, int y)> Reachable(TileMap map)

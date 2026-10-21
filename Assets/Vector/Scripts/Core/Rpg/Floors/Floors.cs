@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Vector.Core.Colosseum;
 
@@ -218,9 +219,43 @@ namespace Vector.Core.Rpg
             },
             new FloorDef
             {
+                Id = FloorId.Observatory,
+                Game = GameId.Orbit,
+                UnlockedBy = "moss",
+                People = new Dictionary<char, string> { { 'a', "luna" }, { 'b', "orion" }, { 'c', "tess" }, { 'M', "stella" } },
+                Map = new TileMap(new[]
+                {
+                    "############",
+                    "#E..P..P..C#",
+                    "#..........#",
+                    "#.TT..a.TT.#",
+                    "#.TT....TT.#",
+                    "#..........#",
+                    "#O..,,,,..O#",
+                    "#..,,,,,,..#",
+                    "#..,,M,,,b.#",
+                    "#..,,,,,,..#",
+                    "#O..,,,,..O#",
+                    "#..........#",
+                    "#.TT.~~.TT.#",
+                    "#.TT.~~.TT.#",
+                    "#....c.....#",
+                    "#P........P#",
+                    "#....@.....#",
+                    "############",
+                }),
+                Master = new ChallengeSpec
+                {
+                    Master = "stella", Floor = FloorId.Observatory, Game = GameId.Orbit, RequiredLevel = 12,
+                    EntryFee = 900, Stack = 1000, Target = 3000, Rounds = 8, Prize = 12000, XpReward = 800,
+                    Trophy = ItemCatalog.TrophyObservatory,
+                },
+            },
+            new FloorDef
+            {
                 Id = FloorId.Penthouse,
                 Game = GameId.Colosseum,
-                UnlockedBy = "moss",
+                UnlockedBy = "stella",
                 People = new Dictionary<char, string> { { 'a', "sebas" }, { 'M', "zero" } },
                 Map = new TileMap(new[]
                 {
@@ -253,9 +288,18 @@ namespace Vector.Core.Rpg
             },
         };
 
+        /// <summary>物語の順（1F から、主に勝つたびに次のフロアが開く）。</summary>
         public static IReadOnlyList<FloorDef> All => floors;
 
-        public static FloorDef Of(FloorId id) => floors[(int)id];
+        public static FloorDef Of(FloorId id)
+        {
+            foreach (var floor in floors)
+            {
+                if (floor.Id == id)
+                    return floor;
+            }
+            throw new ArgumentOutOfRangeException(nameof(id), id, "定義されていないフロアです。");
+        }
 
         /// <summary>主の id から、その主のいるフロア。</summary>
         public static FloorDef OfMaster(string master)

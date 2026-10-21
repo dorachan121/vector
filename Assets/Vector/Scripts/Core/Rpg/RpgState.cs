@@ -116,7 +116,7 @@ namespace Vector.Core.Rpg
             xp = Math.Min(Math.Max(0, xp), Progression.XpToNext(level));
             comps = Math.Min(Math.Max(0, comps), 1_000_000_000L);
             wagered = Math.Max(0, wagered);
-            if (floor < 0 || floor > (int)FloorId.Penthouse)
+            if (floor < 0 || floor >= Floors.All.Count)
                 floor = (int)FloorId.Lobby;
             facing = Math.Min(Math.Max(0, facing), 3);
             flags ??= new List<string>();

@@ -19,8 +19,8 @@ namespace Vector.Game.Orbit
         static readonly Vector2 CellSize = new Vector2(116, 80);
         static readonly Vector2 WideCellSize = new Vector2(180, 84);
         static readonly Vector2 OrreryCenter = new Vector2(-450, 20);
-        static readonly Color SkyCenter = Theme.Hex("1B2152");
-        static readonly Color SkyEdge = Theme.Hex("05060F");
+        public static readonly Color SkyCenter = Theme.Hex("1B2152");
+        public static readonly Color SkyEdge = Theme.Hex("05060F");
 
         readonly Dictionary<int, TicketView> tickets = new Dictionary<int, TicketView>();
         readonly List<string> history = new List<string>();
