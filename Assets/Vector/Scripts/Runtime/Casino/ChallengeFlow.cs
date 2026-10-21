@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using Vector.Core;
@@ -29,9 +28,12 @@ namespace Vector.Game.Casino
         public static void ShowHud(TableHud hud, ChallengeRun run)
         {
             string master = StoryNames.Person(run.Spec.Master);
+            // 決着した後は「次のラウンド」を出さない（手持ちが尽きて終わったときに ROUND 8 / 8 と出ていた）
+            string progress = run.IsOver
+                ? $"{run.RoundsPlayed} / {run.Spec.Rounds} ROUNDS  ·  {(run.State == ChallengeState.Won ? "達成" : "決着")}"
+                : $"ROUND {run.RoundsPlayed + 1} / {run.Spec.Rounds}  ·  あと {Labels.Money(run.Remaining)}";
             hud.SetChallenge($"VS {master}  ·  {Labels.Money(run.Bankroll.Balance)} / {Labels.Money(run.Spec.Target)}",
-                $"ROUND {Math.Min(run.RoundsPlayed + 1, run.Spec.Rounds)} / {run.Spec.Rounds}  ·  あと {Labels.Money(run.Remaining)}",
-                run.Bankroll.Balance / (float)run.Spec.Target);
+                progress, run.Bankroll.Balance / (float)run.Spec.Target);
         }
 
         /// <summary>挑戦をやめるか確認し、やめるなら負けとしてフロアへ戻る。</summary>
