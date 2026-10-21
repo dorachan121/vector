@@ -2,7 +2,6 @@ using UnityEngine;
 using Vector.Core;
 using Vector.Core.Crown;
 using Vector.Game.Casino;
-using Vector.Game.UI;
 
 namespace Vector.Game.Crown
 {
@@ -14,7 +13,6 @@ namespace Vector.Game.Crown
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             var rules = CrownRules.Standard;
             var engine = new CrownEngine(rules, new CryptoRandom());
             var wallet = ChallengeFlow.WalletFor(GameId.Crown, rules.MinBet);

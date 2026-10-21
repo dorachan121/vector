@@ -1,5 +1,4 @@
 using UnityEngine;
-using Vector.Game.UI;
 
 namespace Vector.Game.World
 {
@@ -11,7 +10,6 @@ namespace Vector.Game.World
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             gameObject.AddComponent<WorldDirector>().Begin(GameContext.Story, GameContext.Profiles, WorldScreen.Build());
         }
     }

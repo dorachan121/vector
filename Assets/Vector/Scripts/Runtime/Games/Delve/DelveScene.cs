@@ -2,7 +2,6 @@ using UnityEngine;
 using Vector.Core;
 using Vector.Core.Delve;
 using Vector.Game.Casino;
-using Vector.Game.UI;
 
 namespace Vector.Game.Delve
 {
@@ -13,7 +12,6 @@ namespace Vector.Game.Delve
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             var rules = DelveRules.Standard;
             var random = new CryptoRandom();
             var engine = new DelveEngine(rules, random);

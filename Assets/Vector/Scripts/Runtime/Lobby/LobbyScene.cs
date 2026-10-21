@@ -25,7 +25,6 @@ namespace Vector.Game.Lobby
 
         void Start()
         {
-            Ui.EnsureEventSystem();
             profiles = GameContext.Profiles;
             story = GameContext.Story;
             Build();

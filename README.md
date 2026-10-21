@@ -8,7 +8,7 @@
 どのゲームも、実際のカジノと同じ考え方で作っています。配当表は付属のシミュレーターで検証し（厳密に計算できるものは全列挙・動的計画法で求めた **厳密値**）、
 最善を尽くしてもハウス（カジノ側）がわずかに有利になるように設計しています。乱数は暗号論的乱数、テーブルリミット・中断時の返金・リアリティチェックも備えています。
 
-![ロビー](docs/images/lobby.jpg)
+![ホーム（タイトル・HOME・GAMES・STORY）](docs/images/home.jpg)
 
 > このゲームのチップは遊戯用です。現金・景品とは交換できません。
 
@@ -30,10 +30,42 @@ CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法�
 
 ---
 
+## 🏠 ホーム画面（縦向き）
+
+ホームとストーリーモードは **縦向き**、ゲームのテーブルは **横向き** で遊びます。起動すると最初の1回だけタイトルが出て、明けるとホームになります。
+
+| タブ | 中身 |
+|---|---|
+| **HOME** | おすすめのバナー（自動で切り替え）、コンシェルジュのレナ（触ると次の台詞。ミッションの達成や主に挑めることを教えてくれる）、ゲーム・ストーリー・ミッションへの近道 |
+| **GAMES** | 6つのゲームのタイル（ジャンル・RTP・遊び方の要約）。VECTOR は PLAYER / AUDIENCE の席を選べる |
+| **STORY** | 最上階で待つオーナーと、建物の各フロアの進み具合（CLEARED / CHALLENGE / 必要なレベル / LOCKED） |
+| **MISSIONS** | ログインボーナスの暦（7日で1巡）と、毎日入れ替わる3つのデイリーミッション・すべて達成したボーナス |
+| **SHOP** | コンプポイントと景品の交換、引換券の使用、手持ちがミニマム未満のときの補充、主から受け取った記念品のコレクション |
+
+![ミッションとショップ、ログインボーナス](docs/images/daily.jpg)
+
+- **ログインボーナス** — 1日1回、遊戯用チップかコンプ。休んでもリセットされず、端末の日付を戻しても二重には受け取れない
+- **デイリーミッション** — 「20ラウンド遊ぶ」「合計 $1,000 賭ける」「3種類のゲームを遊ぶ」など。報酬は遊戯用チップ・コンプ・経験値だけで、ゲームの確率や配当は変わらない
+- ガチャ（確率で当たりが決まる有料・無料のくじ）はありません
+
+### テーブルへの行き来と、ラウンドの始まりの演出
+
+| | |
+|---|---|
+| ![回転の案内](docs/images/rotate.jpg) | テーブルへ移るとき、暗転した画面で端末の絵が縦から横へ回り「TABLE READY」と案内します。スマートフォンでは **端末を横に持ち替えると** 画面が回ってテーブルが明けます（タップか数秒で先へ進む）。ホームへ戻るときは縦向きに戻るよう案内します |
+| ![先攻・後攻](docs/images/turn-order.jpg) | 先攻・後攻のある **VECTOR / CROWN DICE / COLOSSEUM** は、左右から2人の札が滑り込み、回る「1ST」のボタンが先攻の側に置かれて始まります。テーブルの最初のラウンドは大きく、以降は短い帯だけ。順番はゲームの規則で決まっていて（いつもプレイヤーが先）、演出はそれを見せるだけです |
+
+賭け金の5倍以上勝つと、回る光と降り注ぐ金貨の **BIG WIN** が出ます（操作は止めません）。
+
+---
+
 ## 🗺️ ストーリーモード（カジノ RPG）
 
 開業したばかりの VECTOR CASINO RESORT に、オーナーのゼロから招待状が届くところから始まります。
 カジノの中を歩き、人と話し、テーブルで腕を磨きながら、各フロアの「主」に挑んで最上階を目指します。
+フロアの画面は縦向きで、上にいまの目標、下に十字の矢印と TALK ボタン。見取り図は主人公に合わせて横に流れ、会話では話す人の立ち絵が出ます。
+
+![フロアと会話](docs/images/floor.jpg)
 
 | フロア | ゲーム | 主 | 挑戦の条件（参加費 → 挑戦用チップ $1,000 を目標額へ） |
 |---|---|---|---|
@@ -180,7 +212,7 @@ CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法�
 - **キャッシャー** — 手持ちがミニマムを下回ったら遊戯用チップを $10,000 まで補充
 - **中断した勝負の返金** — 勝負の途中でアプリが落ちた・想定外の障害が起きた場合、その勝負を無効にして賭け金を返金（主の挑戦も同じく参加費を返金）
 - **リアリティチェック** — 30分ごとにプレイ時間とそのセッションの収支を知らせ、ロビーに戻るか続けるかを選べる
-- **スマートフォン** — 横向き固定、ノッチ・パンチホールを避けるセーフエリア対応、60fps 描画。勝負中は画面を消灯させず、アプリを裏に回しても持ち時間は減らない
+- **スマートフォン** — ホーム・ストーリーは縦向き、テーブルは横向きに固定（向きが変わるときは回転を案内）、ノッチ・パンチホールを避けるセーフエリア対応、60fps 描画。勝負中は画面を消灯させず、アプリを裏に回しても持ち時間は減らない
 
 ---
 
@@ -189,8 +221,9 @@ CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法�
 | 場面 | 操作 |
 |---|---|
 | ベット | 下のラックでチップの額面を選び、ベットエリアをクリック → DEAL / ROLL / START など |
-| ストーリーモードの移動 | 矢印キー・WASD、または行きたいマスをクリック（タップ）。人やテーブルをクリックすると、そこまで歩いて話しかける |
-| 話す・調べる | Space / Enter / Z（向いている先の人・テーブル・エレベーター・キャッシャー） |
+| ホーム | 下のタブで HOME / GAMES / STORY / MISSIONS / SHOP を切り替え。Esc（Android の戻る）でホームへ、ホームなら終了の確認 |
+| ストーリーモードの移動 | 画面下の十字の矢印・矢印キー・WASD、または行きたいマスをタップ（クリック）。人やテーブルをタップすると、そこまで歩いて話しかける |
+| 話す・調べる | TALK ボタン / Space / Enter / Z（向いている先の人・テーブル・エレベーター・キャッシャー） |
 | メニュー | Esc または MENU（会員の状態・クエスト・持ち物・設定） |
 | 設定 | 効果音の音量、高速ディール、戦略ヒントの ON/OFF |
 | キーボード（テーブル） | Space / Enter = 開始、Backspace = UNDO、数字キー = 各ゲームの選択肢、Esc = ダイアログを閉じる → 離席。Android の戻るボタンも同じ |
@@ -208,20 +241,23 @@ Assets/Vector/
 │   │   ├── Games/            ゲームごとのルール・エンジン・厳密解ソルバー
 │   │   │   ├── Vector/       Betting（TableRules・TableLimits）/ Board / Poker / Round / Strategy
 │   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/
-│   │   └── Rpg/              ストーリーモードの規則: RpgSession / RpgState / Progress / Quests / Items / Floors / Challenges
+│   │   └── Rpg/              ストーリーモードの規則: RpgSession / RpgState / Progress / Quests / Items / Floors / Challenges /
+│   │                         Daily（ログインボーナス・デイリーミッション）
 │   ├── Runtime/              Vector.Runtime（Unity 側）
 │   │   ├── App/              GameContext / GameCatalog / Startup / GuardedRoutine / Log
 │   │   ├── Casino/           全ゲーム共通のテーブル: CasinoDirector（進行のテンプレート）/ CasinoView / WagerInput /
 │   │   │                     財布（ProfileWallet・ChallengeWallet）/ ChallengeFlow / Views（チップ・HUD・ベットエリアなど）
 │   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/
 │   │   ├── World/            ストーリーモードのフロア: WorldDirector / Conversation / FloorActors / Views / Cast / Panels
-│   │   ├── Story/            進み具合の保存（StoryProgress）と名前の表示（StoryNames）
-│   │   ├── Lobby/            ロビー（ゲームの選択とストーリーモードの入口）
+│   │   ├── Story/            進み具合の保存（StoryProgress）・名前の表示（StoryNames）・フロアの並び・報酬の表示
+│   │   ├── Lobby/            ホーム（縦向き）: LobbyScene（組み立て）/ Tabs（HOME・GAMES・STORY・MISSIONS・SHOP）/
+│   │   │                     Views（ヘッダー・下のタブ・バナー・ゲームのタイル・タイトル）
 │   │   ├── Persistence/      PlayerProfile / ProfileService / ProfileCodec（HMAC）/ FileProfileStorage
 │   │   ├── Audio/            Sfx / SfxSynth（効果音は実行時に合成）
-│   │   └── UI/               Foundation（Theme・Fonts・Art・Tween・Ui）/ Widgets（Dialog・Toast・Help・Settings）
+│   │   └── UI/               Foundation（Ui・画面の形と向き・SceneFlow・Tween・Palette）/ Art（光沢・額縁・アイコン・立ち絵の部品）/
+│   │                         Effects（回転・脈動・紙吹雪・金貨）/ Widgets（Dialog・報酬・回転の案内・通貨・ゲージ・バッジ）
 │   └── Editor/               日本語フォントの焼き込み（文言が増えたら自動で作り直す）
-├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（122件）
+├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（129件）
 ├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / World（どれも起点コンポーネントを1つ置くだけ）
 └── Fonts/                    Anton / Oswald / BIZ UDPGothic（SIL Open Font License）
 Tools/
@@ -240,7 +276,7 @@ Tools/
 | **リスコフ (L)** | 所持金と挑戦用チップは `ITableWallet`（`ProfileWallet` / `ChallengeWallet`）で入れ替えても、テーブルはそのまま動く |
 | **インターフェース分離 (I)** | `IBetLimits`・`IChipAccount`・`IRoundOutcome`・`IRandomSource` などはメソッド1〜4個の最小構成 |
 | **依存性逆転 (D)** | エンジンは乱数・リミット・ディーラー方針を抽象で受け取り、組み立ては各シーンの起点（コンポジションルート）だけが行う |
-| **KISS** | 画像やプレハブを持たず、UI・カード・ダイス・キャラクター・効果音をコードで生成。DI コンテナやイベントバスは導入しない |
+| **KISS** | 画像やプレハブを持たず、UI・カード・ダイス・キャラクター・効果音をコードで生成。DI コンテナやイベントバスは導入しない。画面の向きは各シーンが `Ui.CreateScreen(name, ScreenShape)` で宣言するだけ |
 | **YAGNI** | 使わない機能・メンバーは置かない。不要な using・使われないメンバーはビルドで検出する（下記） |
 | **DRY** | 配当の数値は各ゲームの `*Rules` だけが持ち、配当表・ヘルプ・フェルトの印字はそこから生成。賭け金の管理・進行・入力・配当表の部品は全ゲームで共通 |
 
@@ -264,8 +300,8 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（122件）
-# Unity なし（Core のみ・107件）
+# Unity: Window > General > Test Runner > EditMode（129件）
+# Unity なし（Core のみ・114件）
 dotnet test Tools/CoreTests
 ```
 

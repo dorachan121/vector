@@ -44,11 +44,12 @@ namespace Vector.Game.UI
         }
 
         /// <summary>
-        /// 1画面ぶんの土台を作り、端末の向きをその形にする（シーンの切り替え中なら、回転を促してから）。
+        /// 1画面ぶんの土台を作り、端末の向きをその形にする（シーンの切り替え中なら、回転を促してから）。入力を受け付ける EventSystem も用意する。
         /// 背景は画面いっぱいに敷き、中身の親は安全領域（ノッチを避けた範囲）に収める。
         /// </summary>
         public static RectTransform CreateScreen(string name, ScreenShape shape)
         {
+            EnsureEventSystem();
             SceneFlow.UseShape(shape);
             var canvas = CreateCanvas(name + "Canvas", 0, ReferenceSize(shape));
             var backdrop = Image(canvas.transform, "Backdrop", Art.Backdrop, Color.white, Vector2.zero, Vector2.zero);
@@ -59,7 +60,7 @@ namespace Vector.Game.UI
             return root;
         }
 
-        public static void EnsureEventSystem()
+        static void EnsureEventSystem()
         {
             if (UnityEngine.Object.FindAnyObjectByType<EventSystem>() == null)
                 new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));

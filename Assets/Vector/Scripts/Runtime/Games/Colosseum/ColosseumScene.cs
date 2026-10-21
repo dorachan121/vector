@@ -2,7 +2,6 @@ using UnityEngine;
 using Vector.Core;
 using Vector.Core.Colosseum;
 using Vector.Game.Casino;
-using Vector.Game.UI;
 
 namespace Vector.Game.Colosseum
 {
@@ -14,7 +13,6 @@ namespace Vector.Game.Colosseum
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             var rules = BattleRules.Standard;
             var engine = new BattleEngine(rules, new CryptoRandom());
             var wallet = ChallengeFlow.WalletFor(GameId.Colosseum, rules.MinBet);

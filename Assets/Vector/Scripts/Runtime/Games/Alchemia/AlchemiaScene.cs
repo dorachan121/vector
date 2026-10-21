@@ -2,7 +2,6 @@ using UnityEngine;
 using Vector.Core;
 using Vector.Core.Alchemia;
 using Vector.Game.Casino;
-using Vector.Game.UI;
 
 namespace Vector.Game.Alchemia
 {
@@ -13,7 +12,6 @@ namespace Vector.Game.Alchemia
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             var rules = AlchemiaRules.Standard;
             var engine = new AlchemiaEngine(rules, new CryptoRandom());
             var wallet = ChallengeFlow.WalletFor(GameId.Alchemia, rules.BetLevels[0]);

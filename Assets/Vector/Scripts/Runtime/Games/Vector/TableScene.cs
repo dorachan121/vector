@@ -1,7 +1,6 @@
 using UnityEngine;
 using Vector.Core;
 using Vector.Game.Casino;
-using Vector.Game.UI;
 
 namespace Vector.Game.Table
 {
@@ -13,7 +12,6 @@ namespace Vector.Game.Table
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             var rules = GameContext.Rules;
             var mode = GameContext.SelectedMode;
 

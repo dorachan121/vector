@@ -2,7 +2,6 @@ using UnityEngine;
 using Vector.Core;
 using Vector.Core.Derby;
 using Vector.Game.Casino;
-using Vector.Game.UI;
 
 namespace Vector.Game.Derby
 {
@@ -13,7 +12,6 @@ namespace Vector.Game.Derby
     {
         void Start()
         {
-            Ui.EnsureEventSystem();
             var rules = DerbyRules.Standard;
             var engine = new DerbyEngine(rules, new CryptoRandom());
             var wallet = ChallengeFlow.WalletFor(GameId.Derby, rules.ExactaMinBet);
