@@ -84,12 +84,10 @@ namespace Vector.Game.World
                 yield return SmallTalk(id);
         }
 
-        /// <summary>テーブルから戻ってきた挑戦の結果を受け取り、主の台詞と報酬を見せる。</summary>
-        public IEnumerator Conclude(ChallengeRun run)
+        /// <summary>テーブルで決着した挑戦の、主の台詞と報酬を見せる（結果はテーブル側で確定済み）。</summary>
+        public IEnumerator Conclude(ChallengeReward reward)
         {
-            var reward = Session.FinishChallenge(run);
-            story.Save();
-            string master = run.Spec.Master;
+            string master = reward.Spec.Master;
             var lines = Cast.Of(master).Master;
             if (!reward.Won)
             {

@@ -139,6 +139,57 @@ namespace Vector.Tests
         }
 
         [Test]
+        public void Challenge_InterruptedBeforeTheResultRefundsTheEntryFeeOnce()
+        {
+            var spec = Floors.Of(FloorId.Lobby).Master;
+            var state = new RpgState { level = spec.RequiredLevel };
+            var session = NewSession(10_000, out var chips, state);
+
+            session.StartChallenge(spec);
+            Assert.AreEqual(spec.Master, state.challenge, "決着まで、参加費を払った挑戦を覚えておく");
+            Assert.AreEqual(spec.EntryFee, session.RefundInterruptedChallenge());
+            Assert.AreEqual(10_000, chips.Balance);
+            Assert.IsNull(state.challenge);
+            Assert.AreEqual(0, session.RefundInterruptedChallenge(), "二重に返さない");
+
+            var run = session.StartChallenge(spec);
+            run.Abandon();
+            session.FinishChallenge(run);
+            Assert.IsNull(state.challenge);
+            Assert.AreEqual(0, session.RefundInterruptedChallenge(), "決着した挑戦の参加費は返さない");
+            Assert.AreEqual(10_000 - spec.EntryFee, chips.Balance);
+        }
+
+        [Test]
+        public void Sanitize_DropsDuplicatesAndUnknownEntries()
+        {
+            var state = new RpgState
+            {
+                flags = new List<string> { "a", "a", "", null, "b" },
+                quests = new List<QuestProgress>
+                {
+                    new QuestProgress { id = "first_win", count = 5 },
+                    new QuestProgress { id = "first_win", count = 1 },
+                    new QuestProgress { id = "no_such_quest" },
+                },
+                items = new List<ItemStack>
+                {
+                    new ItemStack { id = ItemCatalog.LuckyCoin, count = 2 },
+                    new ItemStack { id = ItemCatalog.LuckyCoin, count = 3 },
+                    new ItemStack { id = "no_such_item", count = 1 },
+                },
+                challenge = "nobody",
+            };
+            state.Sanitize();
+            CollectionAssert.AreEqual(new[] { "a", "b" }, state.flags);
+            Assert.AreEqual(1, state.quests.Count);
+            Assert.AreEqual(1, state.quests[0].count, "回数は目標で頭打ち");
+            Assert.AreEqual(2, state.Count(ItemCatalog.LuckyCoin));
+            Assert.AreEqual(1, state.items.Count);
+            Assert.IsNull(state.challenge);
+        }
+
+        [Test]
         public void ChallengeRun_LosesWhenRoundsRunOutOrBroke()
         {
             var spec = new ChallengeSpec { Master = "test", Stack = 1_000, Target = 2_000, Rounds = 2 };

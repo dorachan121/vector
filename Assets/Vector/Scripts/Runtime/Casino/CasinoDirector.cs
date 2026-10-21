@@ -116,6 +116,7 @@ namespace Vector.Game.Casino
                 if (++consecutiveFaults >= MaxConsecutiveFaults)
                 {
                     Log.Error("エラーが続いたためロビーに戻ります。");
+                    ChallengeFlow.CancelAfterFault();
                     SceneManager.LoadScene(GameContext.ReturnScene);
                     yield break;
                 }

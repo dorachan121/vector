@@ -199,7 +199,22 @@ namespace Vector.Core.Rpg
                 throw new InvalidOperationException("この挑戦はまだ受けられません。");
             if (!chips.TryDebit(spec.EntryFee))
                 throw new InvalidOperationException("参加費が足りません。");
+            State.challenge = spec.Master;
             return new ChallengeRun(spec);
+        }
+
+        /// <summary>
+        /// 参加費を払ったまま決着しなかった挑戦（アプリの終了や障害で中断）の参加費を返す。返した額（なければ 0）。
+        /// 進行中の挑戦が手元に無いとき（起動時・障害でテーブルを離れたとき）に呼ぶ。
+        /// </summary>
+        public long RefundInterruptedChallenge()
+        {
+            var floor = State.challenge == null ? null : Floors.OfMaster(State.challenge);
+            State.challenge = null;
+            if (floor == null)
+                return 0;
+            chips.Credit(floor.Master.EntryFee);
+            return floor.Master.EntryFee;
         }
 
         /// <summary>挑戦の結果を受け取る。はじめて勝ったときだけ賞金・記念品・次のフロアが手に入る（再挑戦の勝ちは経験値のみ）。</summary>
@@ -208,7 +223,8 @@ namespace Vector.Core.Rpg
             if (!run.IsOver)
                 throw new InvalidOperationException("挑戦はまだ終わっていません。");
             var spec = run.Spec;
-            var reward = new ChallengeReward { Won = run.State == ChallengeState.Won };
+            State.challenge = null;
+            var reward = new ChallengeReward { Spec = spec, Won = run.State == ChallengeState.Won };
             if (!reward.Won)
                 return reward;
             reward.FirstVictory = !State.Has(spec.DefeatedFlag);

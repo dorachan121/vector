@@ -10,6 +10,9 @@ namespace Vector.Core.Rpg
     [Serializable]
     public sealed class RpgState
     {
+        /// <summary>物語の進行の印の数の上限（壊れたデータで膨らまないように）。</summary>
+        const int MaxFlags = 512;
+
         public int level = 1;
 
         /// <summary>今のレベルで貯めた経験値。</summary>
@@ -32,6 +35,12 @@ namespace Vector.Core.Rpg
 
         /// <summary>ストーリーモードで賭けた総額（成績の表示用）。</summary>
         public long wagered;
+
+        /// <summary>
+        /// 参加費を払って決着していない挑戦の主の id（無ければ null）。決着の前にアプリが終わったときは、
+        /// 次の起動時に参加費を返す（テーブルの賭け金と同じく、中断した勝負は無効にする）。
+        /// </summary>
+        public string challenge;
 
         public bool Has(string flag) => flags.Contains(flag);
 
@@ -100,15 +109,23 @@ namespace Vector.Core.Rpg
                 floor = (int)FloorId.Lobby;
             facing = Math.Min(Math.Max(0, facing), 3);
             flags ??= new List<string>();
-            flags.RemoveAll(f => string.IsNullOrEmpty(f));
+            var seenFlags = new HashSet<string>();
+            flags.RemoveAll(f => string.IsNullOrEmpty(f) || !seenFlags.Add(f));
+            if (flags.Count > MaxFlags)
+                flags.RemoveRange(MaxFlags, flags.Count - MaxFlags);
+            // 同じクエスト・同じ持ち物が2つあると数え方が狂うので、最初の1つだけ残す
             quests ??= new List<QuestProgress>();
-            quests.RemoveAll(q => q == null || QuestBook.Find(q.id) == null);
+            var seenQuests = new HashSet<string>();
+            quests.RemoveAll(q => q == null || QuestBook.Find(q.id) == null || !seenQuests.Add(q.id));
             foreach (var q in quests)
                 q.count = Math.Min(Math.Max(0, q.count), QuestBook.Find(q.id).Target);
             items ??= new List<ItemStack>();
-            items.RemoveAll(i => i == null || ItemCatalog.Find(i.id) == null || i.count <= 0);
+            var seenItems = new HashSet<string>();
+            items.RemoveAll(i => i == null || ItemCatalog.Find(i.id) == null || i.count <= 0 || !seenItems.Add(i.id));
             foreach (var i in items)
                 i.count = Math.Min(i.count, ItemStack.MaxCount);
+            if (challenge != null && Floors.OfMaster(challenge) == null)
+                challenge = null;
         }
     }
 }

@@ -42,8 +42,8 @@ namespace Vector.Game
         /// <summary>フロアの主の挑戦の最中なら、その挑戦（テーブルはこれを手持ちにする）。</summary>
         public static ChallengeRun Challenge { get; set; }
 
-        /// <summary>テーブルから戻ってきた挑戦の結果（フロアのシーンが受け取って片付ける）。</summary>
-        public static ChallengeRun ChallengeResult { get; set; }
+        /// <summary>テーブルで決着した挑戦の結果（フロアのシーンが受け取って主の台詞を見せる）。</summary>
+        public static ChallengeReward ChallengeResult { get; set; }
 
         /// <summary>ロビーで選んだ席。テーブルシーンはこれを見てモードを決める。</summary>
         public static GameMode SelectedMode { get; set; } = GameMode.Player;

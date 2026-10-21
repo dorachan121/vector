@@ -75,12 +75,15 @@ namespace Vector.Game.World
                 State.Set(StoryFlags.Opening);
                 story.Save();
             }
-            var run = GameContext.ChallengeResult;
+            long refunded = story.TakeRefundedEntryFee();
+            if (refunded > 0)
+                yield return screen.Dialogue.Say("", "", null, $"前回の挑戦は決着しないまま中断されたため、参加費 {Labels.Money(refunded)} を返しました。");
+            var result = GameContext.ChallengeResult;
             GameContext.ChallengeResult = null;
-            if (run != null)
+            if (result != null)
             {
-                actors.TurnToPlayer(run.Spec.Master);
-                yield return conversation.Conclude(run);
+                actors.TurnToPlayer(result.Spec.Master);
+                yield return conversation.Conclude(result);
             }
             else
             {

@@ -43,13 +43,15 @@ namespace Vector.Game.Casino
                 .AddButton("FORFEIT", () =>
                 {
                     run.Abandon();
-                    ReturnToFloor(run);
+                    Resolve(run);
+                    SceneManager.LoadScene(SceneNames.World);
                 });
         }
 
-        /// <summary>挑戦の結果を見せてからフロアへ戻る。</summary>
+        /// <summary>決着した挑戦の結果を確定してから見せ、フロアへ戻る（結果を見ている間にアプリが終わっても結果は残る）。</summary>
         public static IEnumerator Finish(Transform overlay, ChallengeRun run)
         {
+            Resolve(run);
             bool won = run.State == ChallengeState.Won;
             Sfx.Play(won ? SfxKind.BigWin : SfxKind.Lose);
             string body = won
@@ -58,14 +60,22 @@ namespace Vector.Game.Casino
             yield return Dialog.Open(overlay, won ? "CHALLENGE CLEARED" : "CHALLENGE FAILED", body, new Vector2(820, 380))
                 .AddButton("RETURN", null, true)
                 .WaitUntilClosed();
-            ReturnToFloor(run);
+            SceneManager.LoadScene(SceneNames.World);
         }
 
-        static void ReturnToFloor(ChallengeRun run)
+        /// <summary>障害が続いてテーブルを離れるとき、決着していない挑戦は無効にして参加費を返す。</summary>
+        public static void CancelAfterFault()
+        {
+            if (GameContext.Challenge == null)
+                return;
+            GameContext.Challenge = null;
+            GameContext.Story.CancelChallenge();
+        }
+
+        static void Resolve(ChallengeRun run)
         {
             GameContext.Challenge = null;
-            GameContext.ChallengeResult = run;
-            SceneManager.LoadScene(SceneNames.World);
+            GameContext.ChallengeResult = GameContext.Story.FinishChallenge(run);
         }
 
         /// <summary>精算で上がったレベル・達成したクエストなどをトーストで知らせる。</summary>

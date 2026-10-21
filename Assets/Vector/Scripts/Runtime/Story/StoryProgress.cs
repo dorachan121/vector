@@ -13,14 +13,44 @@ namespace Vector.Game.Story
     {
         readonly ProfileService profiles;
 
+        long refundedEntryFee;
+
         public StoryProgress(ProfileService profiles)
         {
             this.profiles = profiles;
             Session = new RpgSession(profiles.Profile.rpg, new ProfileAccount(profiles));
+            // 作られるのは起動ごとに1回で、この時点で進行中の挑戦は無い。記録が残っていれば前回の起動で中断したもの
+            CancelChallenge();
         }
 
         public RpgSession Session { get; }
         public RpgState State => Session.State;
+
+        /// <summary>挑戦の結果を受け取って保存する（テーブルを離れる前に確定させる）。</summary>
+        public ChallengeReward FinishChallenge(ChallengeRun run)
+        {
+            var reward = Session.FinishChallenge(run);
+            profiles.Save();
+            return reward;
+        }
+
+        /// <summary>決着しなかった挑戦（障害でテーブルを離れた・前回の起動で中断した）の参加費を返す。</summary>
+        public void CancelChallenge()
+        {
+            long fee = Session.RefundInterruptedChallenge();
+            if (fee <= 0)
+                return;
+            refundedEntryFee += fee;
+            profiles.Save();
+        }
+
+        /// <summary>中断した挑戦で返した参加費（お知らせ用。読むと 0 に戻る）。</summary>
+        public long TakeRefundedEntryFee()
+        {
+            long fee = refundedEntryFee;
+            refundedEntryFee = 0;
+            return fee;
+        }
 
         /// <summary>テーブルの精算を集計して保存する。</summary>
         public RoundReport OnRound(GameId game, IRoundOutcome outcome, IReadOnlyCollection<string> tags)
