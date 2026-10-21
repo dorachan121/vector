@@ -7,19 +7,17 @@ using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.Casino
 {
-    /// <summary>画面上部のバー（ロビーへ戻る・テーブル情報・所持金・ヘルプ・設定）。</summary>
+    /// <summary>画面上部のバー（戻る・ゲーム名・テーブル情報・所持金・ヘルプ・設定）。画面の上端に付く。</summary>
     public sealed class TableHud : MonoBehaviour
     {
-        const float Height = 84f;
-        static readonly Color ButtonColor = new Color(1, 1, 1, 0.08f);
+        const float Height = 96f;
 
-        TextMeshProUGUI balance;
+        CurrencyPill balance;
         TextMeshProUGUI round;
         TextMeshProUGUI limits;
         TextMeshProUGUI balanceLabel;
         CasinoButton lobby;
         Image progress;
-        long shownBalance;
 
         public event Action LobbyClicked;
         public event Action HelpClicked;
@@ -30,42 +28,33 @@ namespace Vector.Game.Casino
         /// <param name="limits">中央のテーブル情報（リミットなど）。</param>
         public static TableHud Create(Transform parent, string title, string subtitle, string limits)
         {
-            var rt = Ui.Rect(parent, "Hud", new Vector2(0, Ui.Landscape.y / 2 - Height / 2), new Vector2(Ui.Landscape.x, Height));
+            float w = Ui.Landscape.x;
+            var rt = Ui.Edge(parent, "Hud", true, w, Height);
             var hud = rt.gameObject.AddComponent<TableHud>();
-            Ui.Image(rt, "Fade", Art.VerticalFade, new Color(0, 0, 0, 0.85f), Vector2.zero, new Vector2(Ui.Landscape.x, Height));
+            Ui.Image(rt, "Fade", Chrome.Gradient(Palette.NightDeep.WithAlpha(0.95f), Palette.NightDeep.WithAlpha(0f)), Color.white, new Vector2(0, -10), new Vector2(w * 2, Height + 20));
 
-            float left = -Ui.Landscape.x / 2;
-            hud.lobby = Ui.Button(rt, "Lobby", "< LOBBY", new Vector2(left + 100, 0), new Vector2(150, 50), ButtonColor, Theme.Ivory, () => hud.LobbyClicked?.Invoke(), 24);
-            var logo = Ui.Text(rt, "Logo", title, Fonts.Display, 44, Theme.Gold, new Vector2(left + 300, 2), new Vector2(200, 60), TextAlignmentOptions.Left);
+            float left = -w / 2;
+            hud.lobby = Ui.IconButton(rt, "Lobby", IconKind.Back, new Vector2(left + 58, 2), 68, new Color(1, 1, 1, 0.1f), () => hud.LobbyClicked?.Invoke());
+            var logo = Ui.Headline(rt, "Logo", title, Fonts.Display, 46, new Vector2(left + 300, 4), new Vector2(200, 60), TextAlignmentOptions.Left);
             // ゲーム名の長さに合わせて、右隣の小さな表示を詰めて置く
             float logoWidth = Mathf.Max(60, logo.GetPreferredValues(title).x);
             logo.rectTransform.sizeDelta = new Vector2(logoWidth, 60);
-            logo.rectTransform.anchoredPosition = new Vector2(left + 200 + logoWidth / 2, 2);
-            Ui.Text(rt, "Mode", subtitle, Fonts.Label, 20, Theme.Muted, new Vector2(left + 215 + logoWidth + 100, -2), new Vector2(200, 30), TextAlignmentOptions.Left);
+            logo.rectTransform.anchoredPosition = new Vector2(left + 112 + logoWidth / 2, 4);
+            Ui.Text(rt, "Mode", subtitle, Fonts.Label, 20, Palette.Muted, new Vector2(left + 127 + logoWidth + 100, 0), new Vector2(200, 30), TextAlignmentOptions.Left);
 
-            hud.limits = Ui.Text(rt, "Limits", limits, Fonts.Label, 22, Theme.Ivory.WithAlpha(0.8f), new Vector2(-40, 10), new Vector2(620, 30));
-            hud.round = Ui.Text(rt, "Round", "", Fonts.Label, 18, Theme.Muted, new Vector2(-40, -16), new Vector2(520, 24));
+            hud.limits = Ui.Text(rt, "Limits", limits, Fonts.Label, 22, Palette.Ivory.WithAlpha(0.85f), new Vector2(-40, 12), new Vector2(620, 30));
+            hud.round = Ui.Text(rt, "Round", "", Fonts.Label, 18, Palette.Muted, new Vector2(-40, -16), new Vector2(520, 24));
 
-            float right = Ui.Landscape.x / 2;
-            hud.balanceLabel = Ui.Text(rt, "BalanceLabel", "BALANCE", Fonts.Label, 18, Theme.Muted, new Vector2(right - 430, 14), new Vector2(240, 24), TextAlignmentOptions.Right);
-            hud.balance = Ui.Text(rt, "Balance", "", Fonts.Display, 40, Theme.GoldBright, new Vector2(right - 430, -12), new Vector2(240, 48), TextAlignmentOptions.Right);
-            Ui.Button(rt, "Help", "HOW TO PLAY", new Vector2(right - 225, 0), new Vector2(150, 50), ButtonColor, Theme.Ivory, () => hud.HelpClicked?.Invoke(), 20);
-            Ui.Button(rt, "Settings", "SETTINGS", new Vector2(right - 80, 0), new Vector2(120, 50), ButtonColor, Theme.Ivory, () => hud.SettingsClicked?.Invoke(), 20);
+            float right = w / 2;
+            hud.balance = CurrencyPill.Create(rt, new Vector2(right - 380, 8), 320, Chrome.Coin, Color.white, Labels.Money);
+            hud.balanceLabel = Ui.Text(rt, "BalanceLabel", "PLAY MONEY", Fonts.Label, 15, Palette.Muted, new Vector2(right - 380, -32), new Vector2(300, 20));
+            Ui.IconButton(rt, "Help", IconKind.Help, new Vector2(right - 152, 2), 68, new Color(1, 1, 1, 0.1f), () => hud.HelpClicked?.Invoke());
+            Ui.IconButton(rt, "Settings", IconKind.Settings, new Vector2(right - 62, 2), 68, new Color(1, 1, 1, 0.1f), () => hud.SettingsClicked?.Invoke());
             return hud;
         }
 
         /// <summary>所持金を表示する。animate なら数字を数え上げる。</summary>
-        public void SetBalance(long value, bool animate)
-        {
-            long from = shownBalance;
-            shownBalance = value;
-            if (!animate || from == value)
-            {
-                balance.text = Labels.Money(value);
-                return;
-            }
-            Tween.Run(balance, "count", 0.8f, Ease.OutCubic, t => balance.text = Labels.Money((long)Math.Round(from + (value - from) * (double)t)));
-        }
+        public void SetBalance(long value, bool animate) => balance.SetValue(value, animate);
 
         /// <summary>テーブル情報の2行目（ラウンド番号など）を自由な文言にする。</summary>
         public void SetInfo(string text)
@@ -83,11 +72,11 @@ namespace Vector.Game.Casino
             {
                 var rt = (RectTransform)transform;
                 Ui.Panel(rt, "ChallengeBack", new Vector2(-40, -36), new Vector2(520, 8), new Color(1, 1, 1, 0.15f), 4);
-                progress = Ui.Panel(rt, "Challenge", new Vector2(-40, -36), new Vector2(520, 8), Theme.GoldBright, 4);
+                progress = Ui.Panel(rt, "Challenge", new Vector2(-40, -36), new Vector2(520, 8), Palette.GoldLight, 4);
                 progress.type = Image.Type.Filled;
                 progress.fillMethod = Image.FillMethod.Horizontal;
                 balanceLabel.text = "CHALLENGE CHIPS";
-                limits.color = Theme.GoldBright;
+                limits.color = Palette.GoldLight;
             }
             limits.text = headline;
             round.text = detail;
@@ -104,6 +93,6 @@ namespace Vector.Game.Casino
         }
 
         /// <summary>払い戻しのチップが飛んでいく先。</summary>
-        public Vector3 BalanceWorldPosition => balance.transform.position;
+        public Vector3 BalanceWorldPosition => balance.Icon.position;
     }
 }

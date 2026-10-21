@@ -23,7 +23,7 @@ namespace Vector.Game.Colosseum
         static readonly Vector2 BeastCenter = new Vector2(560, 180);
         static readonly Vector2 PlayerCardPos = new Vector2(-220, 170);
         static readonly Vector2 IntentCardPos = new Vector2(220, 170);
-        static readonly Vector2 DeckPos = new Vector2(0, 318);
+        static readonly Vector2 DeckPos = new Vector2(0, 298);
         const float CardScale = 1.25f;
         const int LogLines = 5;
 
