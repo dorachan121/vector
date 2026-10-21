@@ -94,6 +94,7 @@ namespace Vector.Game.Table
 
         IEnumerator Betting()
         {
+            KeepScreenOn(false);
             if (session.BeginBetting())
                 yield return Shuffle();
             RefreshTableInfo();
@@ -181,6 +182,7 @@ namespace Vector.Game.Table
 
         IEnumerator Deal()
         {
+            KeepScreenOn(true);
             long stake = session.Bets.Total;
             session.Deal();
             profiles.RecordDeal(session.Balance, stake);
@@ -284,12 +286,22 @@ namespace Vector.Game.Table
 
         void RefreshTableInfo()
         {
-            view.Hud.SetRoundInfo(Round.Shoe.ShoeNumber, Round.RoundNumber);
+            // ベット受付中は、これから配るラウンドの番号を出す
+            int round = Round.Phase == RoundPhase.Betting ? Round.RoundNumber + 1 : Round.RoundNumber;
+            view.Hud.SetRoundInfo(Round.Shoe.ShoeNumber, round);
             view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
             RefreshShoe();
         }
 
         void RefreshShoe() => view.Shoe.SetRemaining(Round.Shoe.Remaining, Round.Shoe.TotalCards);
+
+        /// <summary>
+        /// ラウンド中は画面を消さない（観戦やディーラーの手番では操作が無いまま見続けるため）。
+        /// ベット待ちは端末の設定に戻し、席を離れたまま点けっぱなしにならないようにする。
+        /// </summary>
+        static void KeepScreenOn(bool on) => Screen.sleepTimeout = on ? SleepTimeout.NeverSleep : SleepTimeout.SystemSetting;
+
+        void OnDestroy() => KeepScreenOn(false);
 
         void GoToLobby()
         {

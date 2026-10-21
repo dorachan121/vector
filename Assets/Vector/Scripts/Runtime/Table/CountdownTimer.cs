@@ -8,6 +8,9 @@ namespace Vector.Game.Table
     {
         const float WarningSeconds = 5f;
 
+        /// <summary>1フレームで減らす上限。アプリが裏に回っていた間に持ち時間が尽きないようにする。</summary>
+        const float MaxStep = 0.25f;
+
         readonly float total;
         float remaining;
 
@@ -24,7 +27,7 @@ namespace Vector.Game.Table
         public void Tick(StatusBanner status, bool paused)
         {
             if (!paused)
-                remaining -= Time.unscaledDeltaTime;
+                remaining -= Mathf.Min(Time.unscaledDeltaTime, MaxStep);
             if (status.SetTimer(remaining, total) && remaining <= WarningSeconds && remaining > 0)
                 Sfx.Play(SfxKind.Tick);
         }

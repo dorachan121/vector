@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using Vector.Core;
 using Vector.Game.UI;
+using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.Table
 {
@@ -59,6 +60,13 @@ namespace Vector.Game.Table
         public void SetRoundInfo(int shoeNumber, int roundNumber) => round.text = $"SHOE #{shoeNumber}  ·  ROUND {roundNumber}";
 
         public void SetLobbyEnabled(bool enabled) => lobby.Interactable = enabled;
+
+        /// <summary>Esc（Android の戻るボタン）は LOBBY ボタンと同じ。</summary>
+        void Update()
+        {
+            if (!Dialog.IsAnyOpen && lobby.Interactable && Input.GetKeyDown(KeyCode.Escape))
+                LobbyClicked?.Invoke();
+        }
 
         /// <summary>払い戻しのチップが飛んでいく先。</summary>
         public Vector3 BalanceWorldPosition => balance.transform.position;

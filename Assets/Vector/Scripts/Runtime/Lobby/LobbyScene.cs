@@ -120,5 +120,19 @@ namespace Vector.Game.Lobby
             GameContext.SelectedMode = mode;
             SceneManager.LoadScene(SceneNames.Table);
         }
+
+        /// <summary>Esc（Android の戻るボタン）で終了の確認を出す。</summary>
+        void Update()
+        {
+            if (!Dialog.IsAnyOpen && Input.GetKeyDown(KeyCode.Escape))
+                ConfirmQuit();
+        }
+
+        void ConfirmQuit()
+        {
+            Dialog.Open(root, "QUIT GAME", "ゲームを終了しますか？", new Vector2(600, 260))
+                .AddButton("CANCEL", null)
+                .AddButton("QUIT", Application.Quit, true);
+        }
     }
 }
