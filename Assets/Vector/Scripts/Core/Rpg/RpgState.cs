@@ -42,6 +42,17 @@ namespace Vector.Core.Rpg
         /// </summary>
         public string challenge;
 
+        /// <summary>ログインボーナスを受け取った日数（累計）と、最後に受け取った日（日付の通し番号。まだなら -1）。</summary>
+        public int loginCount;
+        public int lastLoginDay = -1;
+
+        /// <summary>デイリーミッションの日（日付の通し番号）と、3つの進み具合・受け取り済みか・達成ボーナス・今日遊んだゲーム。</summary>
+        public int dailyDay = -1;
+        public List<long> dailyProgress = new List<long>();
+        public List<bool> dailyClaimed = new List<bool>();
+        public bool dailyBonusClaimed;
+        public List<int> dailyGames = new List<int>();
+
         public bool Has(string flag) => flags.Contains(flag);
 
         public void Set(string flag)
@@ -126,6 +137,20 @@ namespace Vector.Core.Rpg
                 i.count = Math.Min(i.count, ItemStack.MaxCount);
             if (challenge != null && Floors.OfMaster(challenge) == null)
                 challenge = null;
+            loginCount = Math.Max(0, loginCount);
+            lastLoginDay = Math.Max(-1, lastLoginDay);
+            dailyDay = Math.Max(-1, dailyDay);
+            dailyProgress ??= new List<long>();
+            dailyClaimed ??= new List<bool>();
+            dailyGames ??= new List<int>();
+            for (int i = 0; i < dailyProgress.Count; i++)
+                dailyProgress[i] = Math.Max(0, dailyProgress[i]);
+            var seenGames = new HashSet<int>();
+            int gameCount = Enum.GetValues(typeof(GameId)).Length;
+            dailyGames.RemoveAll(g => g < 0 || g >= gameCount || !seenGames.Add(g));
+            // 数が合わなければ今日の進み具合を作り直す（DailyProgress が次に読むとき）
+            if (dailyProgress.Count != DailyMissions.Count || dailyClaimed.Count != DailyMissions.Count)
+                dailyDay = -1;
         }
     }
 }

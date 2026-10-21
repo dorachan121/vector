@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Vector.Core;
 using Vector.Core.Rpg;
@@ -18,10 +19,13 @@ namespace Vector.Game.Story
         public StoryProgress(ProfileService profiles)
         {
             this.profiles = profiles;
-            Session = new RpgSession(profiles.Profile.rpg, new ProfileAccount(profiles));
+            Session = new RpgSession(profiles.Profile.rpg, new ProfileAccount(profiles), Today);
             // 作られるのは起動ごとに1回で、この時点で進行中の挑戦は無い。記録が残っていれば前回の起動で中断したもの
             CancelChallenge();
         }
+
+        /// <summary>日付の通し番号の起点（端末の現地時刻の日付で数える）。</summary>
+        static readonly DateTime Epoch = new DateTime(2020, 1, 1);
 
         public RpgSession Session { get; }
         public RpgState State => Session.State;
@@ -61,5 +65,8 @@ namespace Vector.Game.Story
         }
 
         public void Save() => profiles.Save();
+
+        /// <summary>今日の日付の通し番号（ログインボーナスとデイリーミッションの日付）。</summary>
+        static int Today() => (int)(DateTime.Now.Date - Epoch).TotalDays;
     }
 }

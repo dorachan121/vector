@@ -11,13 +11,24 @@ namespace Vector.Core.Rpg
     {
         readonly IChipAccount chips;
 
-        public RpgSession(RpgState state, IChipAccount chips)
+        public RpgSession(RpgState state, IChipAccount chips) : this(state, chips, () => 0)
+        {
+        }
+
+        /// <param name="state">進み具合（保存する状態）。</param>
+        /// <param name="chips">所持金（報酬の受け取りと参加費の支払い）。</param>
+        /// <param name="today">今日の日付の通し番号（ログインボーナスとデイリーミッションの日付）。</param>
+        public RpgSession(RpgState state, IChipAccount chips, Func<int> today)
         {
             State = state ?? throw new ArgumentNullException(nameof(state));
             this.chips = chips ?? throw new ArgumentNullException(nameof(chips));
+            Daily = new DailyProgress(state, chips, today);
         }
 
         public RpgState State { get; }
+
+        /// <summary>ログインボーナスとデイリーミッション。</summary>
+        public DailyProgress Daily { get; }
 
         public VipRank Rank => Progression.RankFor(State.level);
 
@@ -50,6 +61,7 @@ namespace Vector.Core.Rpg
                 }
             }
             CheckLevelQuests(report.CompletedQuests);
+            report.CompletedDailies.AddRange(Daily.OnRound(round));
             if (Rank != rankBefore)
                 report.NewRank = Rank;
             return report;
@@ -134,12 +146,7 @@ namespace Vector.Core.Rpg
             var quest = QuestBook.Find(id);
             progress.claimed = true;
             State.Set(QuestBook.ClaimedFlag(id));
-            levelsGained = Progression.AddXp(State, quest.Xp);
-            State.comps += quest.Comps;
-            if (quest.Chips > 0)
-                chips.Credit(quest.Chips);
-            if (quest.Item != null)
-                State.AddItem(quest.Item);
+            levelsGained = new RewardGrant { Xp = quest.Xp, Comps = quest.Comps, Chips = quest.Chips, Item = quest.Item }.ApplyTo(State, chips).LevelsGained;
             var newly = new List<QuestDef>();
             CheckLevelQuests(newly);
             return true;

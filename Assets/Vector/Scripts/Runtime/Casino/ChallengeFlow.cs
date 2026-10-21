@@ -93,6 +93,11 @@ namespace Vector.Game.Casino
                 toast.Show($"クエスト達成: {StoryNames.Quest(report.CompletedQuests[0].Id)}（フロアで報酬を受け取れます）", Theme.GoldBright);
                 Sfx.Play(SfxKind.Sparkle);
             }
+            else if (report.CompletedDailies.Count > 0)
+            {
+                toast.Show("デイリーミッション達成！（ホームの MISSIONS で報酬を受け取れます）", Theme.GoldBright);
+                Sfx.Play(SfxKind.Sparkle);
+            }
         }
     }
 }
