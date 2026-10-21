@@ -11,8 +11,6 @@ namespace Vector.Game.Table
     {
         const float DealSeconds = 0.32f;
         const float FlipSeconds = 0.28f;
-        const float ChipSeconds = 0.38f;
-        const int MaxFlyingChips = 4;
 
         readonly TableView view;
 
@@ -72,20 +70,9 @@ namespace Vector.Game.Table
 
         /// <summary>チップの山を飛ばす（額に応じて最大数枚）。</summary>
         public void FlyChips(long amount, Vector3 fromWorld, Vector3 toWorld, float delay = 0f)
-        {
-            if (amount <= 0)
-                return;
-            var chips = ChipSet.Breakdown(amount, MaxFlyingChips);
-            Vector2 from = view.FxPoint(fromWorld), to = view.FxPoint(toWorld);
-            for (int i = 0; i < chips.Count; i++)
-            {
-                var chip = ChipView.Create(view.Fx, chips[i], 56, from + new Vector2(0, i * 5));
-                float d = delay + i * 0.05f;
-                Tween.Move(chip.Rect, to + new Vector2(0, i * 5), ChipSeconds, Ease.InOutQuad, () => Object.Destroy(chip.gameObject), d);
-            }
-        }
+            => ChipFlight.Fly(view.Fx, amount, fromWorld, toWorld, delay);
 
-        public static float ChipFlightSeconds => ChipSeconds + MaxFlyingChips * 0.05f;
+        public static float ChipFlightSeconds => ChipFlight.Seconds;
 
         CardView SpawnAtShoe(Card card)
         {

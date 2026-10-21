@@ -85,6 +85,32 @@ namespace Vector.Game.UI
             }
         }
 
+        /// <summary>新しいゲームのベット検証の問題（ベットエリアの名前はゲームごとに渡す）。</summary>
+        public static string WagerProblem(WagerCheck check, Func<int, string> spotName)
+        {
+            switch (check.Error)
+            {
+                case BetError.None: return null;
+                case BetError.NoPrimaryBet: return "メインのベットを置いてください";
+                case BetError.BelowMinimum: return $"{spotName(check.Spot)} のミニマムは {Money(check.Limit)} です";
+                case BetError.AboveMaximum: return $"{spotName(check.Spot)} のマキシマムは {Money(check.Limit)} です";
+                default: return $"{spotName(check.Spot)} には賭けられません";
+            }
+        }
+
+        /// <summary>チップを置けなかった理由（新しいゲーム用）。</summary>
+        public static string ChipProblem(ChipError error, string spotName, long maximum)
+        {
+            switch (error)
+            {
+                case ChipError.None: return null;
+                case ChipError.InsufficientFunds: return "手持ちのチップが足りません";
+                case ChipError.AboveMaximum: return $"{spotName} のマキシマムは {Money(maximum)} です";
+                case ChipError.NotBetting: return "ベット受付は終了しました";
+                default: return $"{spotName} には賭けられません";
+            }
+        }
+
         public static string ChipProblem(ChipError error, BetSpot spot, TableRules rules)
         {
             switch (error)

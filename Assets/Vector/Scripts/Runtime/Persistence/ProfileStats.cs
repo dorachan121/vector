@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Vector.Core;
 
 namespace Vector.Game.Persistence
@@ -16,20 +17,37 @@ namespace Vector.Game.Persistence
         public long biggestWin;
         public int reloads;
 
+        /// <summary>ゲームごとの成績。</summary>
+        public List<GameStats> games = new List<GameStats>();
+
         public long Net => totalReturned - totalWagered;
 
-        public void Record(RoundResult result)
+        public GameStats For(GameId game)
         {
+            foreach (var g in games)
+            {
+                if (g.game == (int)game)
+                    return g;
+            }
+            var created = new GameStats { game = (int)game };
+            games.Add(created);
+            return created;
+        }
+
+        public void Record(IRoundOutcome result, GameId game)
+        {
+            For(game).Record(result);
+            long net = result.TotalReturn - result.TotalStake;
             roundsPlayed++;
-            if (result.Net > 0)
+            if (net > 0)
                 roundsWon++;
-            else if (result.Net < 0)
+            else if (net < 0)
                 roundsLost++;
             else
                 roundsPushed++;
             totalWagered = PlayerProfile.Clamp(totalWagered + result.TotalStake);
             totalReturned = PlayerProfile.Clamp(totalReturned + result.TotalReturn);
-            biggestWin = Math.Max(biggestWin, result.Net);
+            biggestWin = Math.Max(biggestWin, net);
         }
 
         public void Sanitize()
@@ -42,6 +60,10 @@ namespace Vector.Game.Persistence
             totalReturned = PlayerProfile.Clamp(totalReturned);
             biggestWin = PlayerProfile.Clamp(biggestWin);
             reloads = Math.Max(0, reloads);
+            games ??= new List<GameStats>();
+            games.RemoveAll(g => g == null || !Enum.IsDefined(typeof(GameId), (byte)Math.Max(0, Math.Min(255, g.game))));
+            foreach (var g in games)
+                g.Sanitize();
         }
     }
 }

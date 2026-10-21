@@ -71,7 +71,7 @@ namespace Vector.Game.Table
                 if (++consecutiveFaults >= MaxConsecutiveFaults)
                 {
                     Log.Error("エラーが続いたためロビーに戻ります。");
-                    SceneManager.LoadScene(SceneNames.Lobby);
+                    SceneManager.LoadScene(GameContext.ReturnScene);
                     yield break;
                 }
             }
@@ -243,7 +243,7 @@ namespace Vector.Game.Table
         IEnumerator Showdown()
         {
             var result = session.Settle();
-            profiles.RecordSettlement(session.Balance, result);
+            profiles.RecordSettlement(session.Balance, result, GameId.Vector);
             yield return presenter.ShowResult(result, Round.Bets[BetSpot.Bonus] > 0);
 
             view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
@@ -307,7 +307,7 @@ namespace Vector.Game.Table
         {
             // ベット受付中だけ離席できる。置いたチップはまだ引き落としていないのでそのまま手元に戻る。
             if (Round.Phase == RoundPhase.Betting || Round.Phase == RoundPhase.Complete)
-                SceneManager.LoadScene(SceneNames.Lobby);
+                SceneManager.LoadScene(GameContext.ReturnScene);
         }
     }
 }

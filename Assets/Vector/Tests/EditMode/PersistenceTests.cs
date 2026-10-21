@@ -113,14 +113,20 @@ namespace Vector.Tests
 
             var result = new RoundResult(LineFamily.Row, LineFamily.Column, 30, 20, new Line[0], new Line[0], PokerHand.Nothing,
                 new[] { new BetResult(BetSpot.Main, 100, BetOutcome.Win, 200) });
-            service.RecordSettlement(10_100, result);
+            service.RecordSettlement(10_100, result, GameId.Vector);
             Assert.AreEqual(0, service.Profile.pendingStake);
             Assert.AreEqual(10_100, service.Profile.balance);
             Assert.AreEqual(1, service.Profile.stats.roundsWon);
             Assert.AreEqual(100, service.Profile.stats.biggestWin);
+            var vector = service.Profile.stats.For(GameId.Vector);
+            Assert.AreEqual(1, vector.rounds);
+            Assert.AreEqual(1, vector.wins);
+            Assert.AreEqual(100, vector.wagered);
+            Assert.AreEqual(0, service.Profile.stats.For(GameId.Crown).rounds);
 
             Assert.IsTrue(ProfileCodec.TryDecode(storage.Primary, out var saved));
             Assert.AreEqual(10_100, saved.balance);
+            Assert.AreEqual(1, saved.stats.For(GameId.Vector).rounds, "ゲームごとの成績も保存される");
         }
 
         [Test]

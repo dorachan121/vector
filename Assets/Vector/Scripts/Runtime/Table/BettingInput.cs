@@ -44,8 +44,9 @@ namespace Vector.Game.Table
             Refresh();
         }
 
-        void OnSpotClicked(BetSpot spot)
+        void OnSpotClicked(int id)
         {
+            var spot = (BetSpot)id;
             if (!active)
                 return;
             long amount = view.Rack.Selected;

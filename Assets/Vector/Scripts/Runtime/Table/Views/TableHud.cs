@@ -23,6 +23,12 @@ namespace Vector.Game.Table
         public event Action SettingsClicked;
 
         public static TableHud Create(Transform parent, GameMode mode, TableRules rules)
+            => Create(parent, "VECTOR", Labels.Mode(mode), $"TABLE LIMITS  {Labels.Money(rules.MinBet)} – {Labels.Money(rules.MaxBet)}");
+
+        /// <param name="title">左上のゲーム名。</param>
+        /// <param name="subtitle">ゲーム名の右の小さな表示（席など）。</param>
+        /// <param name="limits">中央のテーブル情報（リミットなど）。</param>
+        public static TableHud Create(Transform parent, string title, string subtitle, string limits)
         {
             var rt = Ui.Rect(parent, "Hud", new Vector2(0, Ui.ReferenceResolution.y / 2 - Height / 2), new Vector2(Ui.ReferenceResolution.x, Height));
             var hud = rt.gameObject.AddComponent<TableHud>();
@@ -30,10 +36,14 @@ namespace Vector.Game.Table
 
             float left = -Ui.ReferenceResolution.x / 2;
             hud.lobby = Ui.Button(rt, "Lobby", "< LOBBY", new Vector2(left + 100, 0), new Vector2(150, 50), ButtonColor, Theme.Ivory, () => hud.LobbyClicked?.Invoke(), 24);
-            Ui.Text(rt, "Logo", "VECTOR", Fonts.Display, 44, Theme.Gold, new Vector2(left + 300, 2), new Vector2(200, 60), TextAlignmentOptions.Left);
-            Ui.Text(rt, "Mode", Labels.Mode(mode), Fonts.Label, 20, Theme.Muted, new Vector2(left + 445, -2), new Vector2(200, 30), TextAlignmentOptions.Left);
+            var logo = Ui.Text(rt, "Logo", title, Fonts.Display, 44, Theme.Gold, new Vector2(left + 300, 2), new Vector2(200, 60), TextAlignmentOptions.Left);
+            // ゲーム名の長さに合わせて、右隣の小さな表示を詰めて置く
+            float logoWidth = Mathf.Max(60, logo.GetPreferredValues(title).x);
+            logo.rectTransform.sizeDelta = new Vector2(logoWidth, 60);
+            logo.rectTransform.anchoredPosition = new Vector2(left + 200 + logoWidth / 2, 2);
+            Ui.Text(rt, "Mode", subtitle, Fonts.Label, 20, Theme.Muted, new Vector2(left + 215 + logoWidth + 100, -2), new Vector2(200, 30), TextAlignmentOptions.Left);
 
-            Ui.Text(rt, "Limits", $"TABLE LIMITS  {Labels.Money(rules.MinBet)} – {Labels.Money(rules.MaxBet)}", Fonts.Label, 22, Theme.Ivory.WithAlpha(0.8f), new Vector2(-40, 10), new Vector2(520, 30));
+            Ui.Text(rt, "Limits", limits, Fonts.Label, 22, Theme.Ivory.WithAlpha(0.8f), new Vector2(-40, 10), new Vector2(520, 30));
             hud.round = Ui.Text(rt, "Round", "", Fonts.Label, 18, Theme.Muted, new Vector2(-40, -16), new Vector2(520, 24));
 
             float right = Ui.ReferenceResolution.x / 2;
@@ -58,6 +68,9 @@ namespace Vector.Game.Table
         }
 
         public void SetRoundInfo(int shoeNumber, int roundNumber) => round.text = $"SHOE #{shoeNumber}  ·  ROUND {roundNumber}";
+
+        /// <summary>テーブル情報の2行目（ラウンド番号など）を自由な文言にする。</summary>
+        public void SetInfo(string text) => round.text = text;
 
         public void SetLobbyEnabled(bool enabled) => lobby.Interactable = enabled;
 

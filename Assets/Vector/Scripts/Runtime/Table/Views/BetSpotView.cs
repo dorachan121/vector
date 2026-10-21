@@ -9,8 +9,9 @@ namespace Vector.Game.Table
 {
     /// <summary>
     /// フェルトに印刷されたベットエリア。クリックでチップを置き、精算時は勝ち負けを光り方で示す。
+    /// ベットエリアは番号で表す（VECTOR は BetSpot の値、新しいゲームは各ゲームのベットエリアの番号）。
     /// </summary>
-    public sealed class BetSpotView : MonoBehaviour
+    public sealed class BetSpotView : MonoBehaviour, IBetTarget
     {
         Image area;
         Image outline;
@@ -22,16 +23,17 @@ namespace Vector.Game.Table
         ClickTarget click;
         bool hovered;
 
-        public BetSpot Spot { get; private set; }
+        public int Id { get; private set; }
         public ChipStackView Stack => stack;
+        public Vector3 ChipWorldPosition => stack.TopWorldPosition;
 
-        public event Action<BetSpot> Clicked;
+        public event Action<int> Clicked;
 
-        public static BetSpotView Create(Transform parent, BetSpot spot, Vector2 position, Vector2 size, bool round, string titleText, string oddsText, Color accent)
+        public static BetSpotView Create(Transform parent, int id, Vector2 position, Vector2 size, bool round, string titleText, string oddsText, Color accent)
         {
-            var rt = Ui.Rect(parent, "Spot" + spot, position, size);
+            var rt = Ui.Rect(parent, "Spot" + titleText, position, size);
             var view = rt.gameObject.AddComponent<BetSpotView>();
-            view.Spot = spot;
+            view.Id = id;
             view.accent = accent;
 
             view.glow = Ui.Image(rt, "Glow", Art.Glow, accent.WithAlpha(0f), Vector2.zero, size * 1.6f);
@@ -50,7 +52,7 @@ namespace Vector.Game.Table
             view.stack = ChipStackView.Create(rt, new Vector2(0, -2), Mathf.Min(size.x, size.y) * 0.42f);
 
             view.click = view.area.gameObject.AddComponent<ClickTarget>();
-            view.click.Clicked += () => view.Clicked?.Invoke(view.Spot);
+            view.click.Clicked += () => view.Clicked?.Invoke(view.Id);
             view.click.Hovered += h =>
             {
                 view.hovered = h;

@@ -99,7 +99,7 @@ namespace Vector.Game.Table
         }
 
         void AddSpot(Transform root, BetSpot spot, Vector2 position, Vector2 size, bool round, string title, string odds, Color accent)
-            => spots[spot] = BetSpotView.Create(root, spot, position, size, round, title, odds, accent);
+            => spots[spot] = BetSpotView.Create(root, (int)spot, position, size, round, title, odds, accent);
 
         /// <summary>任意の RectTransform の位置を Fx レイヤーの座標に変換する。</summary>
         public Vector2 FxPoint(Vector3 worldPosition) => Fx.InverseTransformPoint(worldPosition);

@@ -1,15 +1,17 @@
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using Vector.Core;
 
 namespace Vector.Game.UI.Widgets
 {
-    /// <summary>遊び方の説明（ページ送り）。配当の数値はテーブルルールから生成する。</summary>
+    /// <summary>遊び方の説明（ページ送り）。配当の数値は各ゲームのルールから生成する。</summary>
     public static class HelpDialog
     {
-        public static Dialog Open(Transform root, TableRules rules)
+        public static Dialog Open(Transform root, TableRules rules) => Open(root, BuildPages(rules));
+
+        public static Dialog Open(Transform root, IReadOnlyList<(string title, string body)> pages)
         {
-            var pages = BuildPages(rules);
             var dialog = Dialog.Open(root, "HOW TO PLAY", null, new Vector2(1180, 820));
             var content = dialog.Content;
             var size = content.sizeDelta;
@@ -25,9 +27,9 @@ namespace Vector.Game.UI.Widgets
             {
                 heading.text = pages[page].title;
                 body.text = pages[page].body;
-                indicator.text = $"{page + 1} / {pages.Length}";
+                indicator.text = $"{page + 1} / {pages.Count}";
                 prev.Interactable = page > 0;
-                next.Interactable = page < pages.Length - 1;
+                next.Interactable = page < pages.Count - 1;
             }
             var navColor = new Color(1, 1, 1, 0.1f);
             prev = Ui.Button(content, "Prev", "< PREV", new Vector2(-size.x / 2 + 90, -size.y / 2 + 26), new Vector2(160, 52), navColor, Theme.Ivory, () =>

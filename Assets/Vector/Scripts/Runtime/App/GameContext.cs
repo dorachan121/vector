@@ -36,11 +36,15 @@ namespace Vector.Game
         /// <summary>ロビーで選んだ席。テーブルシーンはこれを見てモードを決める。</summary>
         public static GameMode SelectedMode { get; set; } = GameMode.Player;
 
+        /// <summary>テーブルを離れたときに戻るシーン（ロビーか、RPG のフロア）。</summary>
+        public static string ReturnScene { get; set; } = SceneNames.Lobby;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
             profiles = null;
             SelectedMode = GameMode.Player;
+            ReturnScene = SceneNames.Lobby;
         }
 
         public static void ApplySettings()

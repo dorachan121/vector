@@ -79,11 +79,11 @@ namespace Vector.Game.Persistence
         }
 
         /// <summary>精算結果を記録する。</summary>
-        public void RecordSettlement(long balance, RoundResult result)
+        public void RecordSettlement(long balance, IRoundOutcome result, GameId game)
         {
             Profile.balance = PlayerProfile.Clamp(balance);
             Profile.pendingStake = 0;
-            Profile.stats.Record(result);
+            Profile.stats.Record(result, game);
             Save();
         }
 

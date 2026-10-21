@@ -122,7 +122,10 @@ namespace Vector.Game.UI
         /// <summary>
         /// カジノテーブル。角の大きく丸い長方形に、革張りのレール・金の縁取り・起毛したフェルトを描く。
         /// </summary>
-        public static Sprite Table => Cached("table", () =>
+        public static Sprite Table => TableIn(Theme.FeltCenter, Theme.FeltEdge);
+
+        /// <summary>フェルトの色を変えたテーブル（ゲームごとの色）。</summary>
+        public static Sprite TableIn(Color feltCenter, Color feltEdge) => Cached($"table{ColorUtility.ToHtmlStringRGB(feltCenter)}{ColorUtility.ToHtmlStringRGB(feltEdge)}", () =>
         {
             const int w = 1496, h = 696;
             const float radius = 96f;
@@ -165,7 +168,7 @@ namespace Vector.Game.UI
                     float u = lx / hw;
                     float v = ly / hh;
                     float r = Mathf.Sqrt(u * u * 0.9f + v * v * 1.1f);
-                    c = Color.Lerp(Theme.FeltCenter, Theme.FeltEdge, Mathf.SmoothStep(0.05f, 1.15f, r));
+                    c = Color.Lerp(feltCenter, feltEdge, Mathf.SmoothStep(0.05f, 1.15f, r));
                     float grain = (Hash(x, y) - 0.5f) * 0.07f + (Hash(x / 3, y / 3 + 977) - 0.5f) * 0.05f;
                     c *= 1 + grain;
                     float shadow = Mathf.Clamp01((inside - rail) / 30f);
@@ -315,6 +318,93 @@ namespace Vector.Game.UI
         });
 
         // ------------------------------------------------------------------
+        // 紋章・シンボル（白で描き、色は Image.color で付ける）
+        // ------------------------------------------------------------------
+
+        /// <summary>盾（COLOSSEUM のプレイヤーの紋章）。上が角丸の四角、下が尖ったヒーターシールド。</summary>
+        public static Sprite Shield => Cached("shield", () => Disc(256, (x, y) =>
+            Mathf.Min(SdRoundBox(x, y - 0.36f, 0.74f, 0.52f, 0.22f), SdTriangle(x, y, -0.74f, -0.1f, 0.74f, -0.1f, 0f, -0.96f))));
+
+        /// <summary>角のある獣の頭の影絵（COLOSSEUM の獣、DELVE の魔物）。目は別の画像で重ねる。</summary>
+        public static Sprite BeastHead => Cached("beast", () => Disc(256, (x, y) =>
+        {
+            float d = SdCircle(x, y, 0f, -0.08f, 0.52f);
+            d = Mathf.Min(d, SdCircle(x, y, 0f, -0.48f, 0.3f));
+            // 外へ反り上がる角
+            d = Mathf.Min(d, SdTriangle(x, y, -0.42f, 0.22f, -0.12f, 0.36f, -0.9f, 0.94f));
+            d = Mathf.Min(d, SdTriangle(x, y, 0.42f, 0.22f, 0.12f, 0.36f, 0.9f, 0.94f));
+            // 耳
+            d = Mathf.Min(d, SdTriangle(x, y, -0.46f, 0.08f, -0.92f, 0.2f, -0.5f, -0.2f));
+            d = Mathf.Min(d, SdTriangle(x, y, 0.46f, 0.08f, 0.92f, 0.2f, 0.5f, -0.2f));
+            return d;
+        }));
+
+        /// <summary>
+        /// ALCHEMIA の位ごとのシンボルの形。1 素=小さな球、2 晶=菱形、3 霊薬=六角形、4 秘宝=六芒星、5 賢者の石=三角を抱いた円環。
+        /// </summary>
+        public static Sprite Gem(int tier) => Cached($"gem{tier}", () => Disc(192, GemDistance(tier)));
+
+        static Func<float, float, float> GemDistance(int tier)
+        {
+            switch (tier)
+            {
+                case 1: return (x, y) => SdCircle(x, y, 0, 0, 0.5f);
+                case 2: return (x, y) => SdRhombus(x, y, 0.62f, 0.9f);
+                case 3: return (x, y) => SdPolygon(x, y, 6, 0.78f);
+                case 4: return (x, y) => SdStar(x, y, 6, 0.5f, 0.95f);
+                default:
+                    return (x, y) =>
+                    {
+                        float ring = Mathf.Abs(SdCircle(x, y, 0, 0, 0.82f)) - 0.12f;
+                        float tri = SdTriangle(x, y, 0f, 0.66f, -0.58f, -0.36f, 0.58f, -0.36f);
+                        return Mathf.Min(ring, tri);
+                    };
+            }
+        }
+
+        /// <summary>迷宮の木の扉（色付き）。石のアーチに縦の板と鉄の帯、取っ手の輪。</summary>
+        public static Sprite Door => Cached("door", () =>
+        {
+            const int w = 200, h = 300;
+            var tex = NewTexture(w, h);
+            var px = new Color32[w * h];
+            var stone = Theme.Hex("4A4640");
+            var wood = Theme.Hex("6B4426");
+            var dark = Theme.Hex("2B1A0E");
+            var iron = Theme.Hex("2F3236");
+            for (int py = 0; py < h; py++)
+            for (int pxl = 0; pxl < w; pxl++)
+            {
+                // 正規化座標: x は [-1, 1]、y は下端 -1.5 〜 上端 1.5
+                float x = (pxl + 0.5f) / w * 2 - 1;
+                float y = ((py + 0.5f) / h * 2 - 1) * 1.5f;
+                float outer = Mathf.Min(SdRoundBox(x, y + 0.35f, 0.98f, 1.15f, 0.02f), SdCircle(x, y, 0, 0.5f, 0.98f));
+                float inner = Mathf.Min(SdRoundBox(x, y + 0.42f, 0.78f, 1.04f, 0.02f), SdCircle(x, y, 0, 0.5f, 0.78f));
+                float scale = w / 2f;
+                Color c;
+                if (inner < 0)
+                {
+                    // 縦の板と継ぎ目、鉄の帯
+                    float plank = Mathf.Repeat((x + 1) * 3.2f, 1f);
+                    c = Color.Lerp(wood, dark, Mathf.Clamp01(1.4f - Mathf.Abs(plank - 0.5f) * 40f) * 0.8f);
+                    c *= 0.9f + Hash(pxl / 3, py) * 0.18f;
+                    bool band = Mathf.Abs(y - 0.55f) < 0.07f || Mathf.Abs(y + 0.85f) < 0.07f;
+                    if (band)
+                        c = iron * (0.9f + Hash(pxl, py) * 0.2f);
+                    float ring = Mathf.Abs(SdCircle(x, y, 0.5f, -0.1f, 0.1f)) - 0.025f;
+                    c = Color.Lerp(c, Theme.Hex("8A8F96"), Alpha(ring * scale) / 255f);
+                }
+                else
+                {
+                    c = stone * (0.85f + Hash(pxl / 4, py / 4) * 0.3f);
+                }
+                c.a = Alpha(outer * scale) / 255f;
+                px[py * w + pxl] = c;
+            }
+            return Finish(tex, px, FilterMode.Bilinear);
+        });
+
+        // ------------------------------------------------------------------
         // 補助
         // ------------------------------------------------------------------
 
@@ -416,6 +506,23 @@ namespace Vector.Game.UI
             float ax = Mathf.Abs(x), ay = Mathf.Abs(y);
             float k = hw * hh / Mathf.Sqrt(hw * hw + hh * hh);
             return (ax / hw + ay / hh - 1f) * k;
+        }
+
+        /// <summary>正 n 角形（apothem は中心から辺までの距離）。</summary>
+        static float SdPolygon(float x, float y, int n, float apothem)
+        {
+            float sector = Mathf.PI * 2 / n;
+            float a = Mathf.Repeat(Mathf.Atan2(y, x) + Mathf.PI / 2, sector) - sector / 2;
+            return Mathf.Sqrt(x * x + y * y) * Mathf.Cos(a) - apothem;
+        }
+
+        /// <summary>n 芒星（inner / outer は谷と先端の半径）。距離は近似だが、縁のアンチエイリアスには十分。</summary>
+        static float SdStar(float x, float y, int n, float inner, float outer)
+        {
+            float sector = Mathf.PI * 2 / n;
+            float a = Mathf.Abs(Mathf.Repeat(Mathf.Atan2(y, x) + Mathf.PI / 2, sector) - sector / 2) / (sector / 2);
+            float radius = Mathf.Lerp(outer, inner, a);
+            return (Mathf.Sqrt(x * x + y * y) - radius) * 0.7f;
         }
 
         static float SdTriangle(float px, float py, float ax, float ay, float bx, float by, float cx, float cy)
