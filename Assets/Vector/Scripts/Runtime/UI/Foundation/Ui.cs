@@ -7,17 +7,30 @@ using UnityEngine.UI;
 namespace Vector.Game.UI
 {
     /// <summary>
-    /// uGUI をコードで組み立てるための小さなヘルパー群。座標は親の中心を原点とした px（1920×1080基準）で指定する。
+    /// uGUI をコードで組み立てるための小さなヘルパー群。座標は親の中心を原点とした px（画面の形の基準解像度）で指定する。
     /// </summary>
     public static class Ui
     {
-        public static readonly Vector2 ReferenceResolution = new Vector2(1920f, 1080f);
+        /// <summary>横向きの画面（ゲームのテーブル）の基準解像度。</summary>
+        public static readonly Vector2 Landscape = new Vector2(1920f, 1080f);
+
+        /// <summary>縦向きの画面（ホーム・フロア）の基準解像度。</summary>
+        public static readonly Vector2 Portrait = new Vector2(1080f, 1920f);
+
+        public static Vector2 ReferenceSize(ScreenShape shape) => shape == ScreenShape.Portrait ? Portrait : Landscape;
+
+        /// <summary>t を置いた画面が縦向きの画面か（キャンバスの基準解像度で判断する）。縦横どちらでも開くダイアログの大きさを決める。</summary>
+        public static bool IsPortrait(Transform t)
+        {
+            var scaler = t.GetComponentInParent<CanvasScaler>();
+            return scaler != null && scaler.referenceResolution.y > scaler.referenceResolution.x;
+        }
 
         /// <summary>角丸スプライトの元画像の半径。表示上の半径は pixelsPerUnitMultiplier で調整する。</summary>
         const int SpriteRadius = 32;
 
-        /// <summary>スクリーン全体を覆うキャンバスを作る。</summary>
-        static Canvas CreateCanvas(string name, int sortingOrder)
+        /// <summary>スクリーン全体を覆うキャンバスを作る。基準解像度の範囲が必ず収まるように拡大縮小する。</summary>
+        internal static Canvas CreateCanvas(string name, int sortingOrder, Vector2 reference)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             var canvas = go.GetComponent<Canvas>();
@@ -25,17 +38,19 @@ namespace Vector.Game.UI
             canvas.sortingOrder = sortingOrder;
             var scaler = go.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = ReferenceResolution;
+            scaler.referenceResolution = reference;
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             return canvas;
         }
 
         /// <summary>
-        /// 1画面ぶんの土台を作る。背景は画面いっぱいに敷き、中身の親は安全領域（ノッチを避けた範囲）に収める。
+        /// 1画面ぶんの土台を作り、端末の向きをその形にする（シーンの切り替え中なら、回転を促してから）。
+        /// 背景は画面いっぱいに敷き、中身の親は安全領域（ノッチを避けた範囲）に収める。
         /// </summary>
-        public static RectTransform CreateScreen(string name)
+        public static RectTransform CreateScreen(string name, ScreenShape shape)
         {
-            var canvas = CreateCanvas(name + "Canvas", 0);
+            SceneFlow.UseShape(shape);
+            var canvas = CreateCanvas(name + "Canvas", 0, ReferenceSize(shape));
             var backdrop = Image(canvas.transform, "Backdrop", Art.Backdrop, Color.white, Vector2.zero, Vector2.zero);
             backdrop.rectTransform.anchorMin = Vector2.zero;
             backdrop.rectTransform.anchorMax = Vector2.one;
@@ -66,6 +81,33 @@ namespace Vector.Game.UI
             var rt = Rect(parent, name, Vector2.zero, Vector2.zero);
             rt.anchorMin = Vector2.zero;
             rt.anchorMax = Vector2.one;
+            return rt;
+        }
+
+        /// <summary>中身をこの四角の内側だけに切り抜いて見せる領域（立ち絵の顔だけを見せる枠など）。</summary>
+        public static RectTransform Clip(Transform parent, string name, Vector2 position, Vector2 size)
+        {
+            var rt = Rect(parent, name, position, size);
+            rt.gameObject.AddComponent<RectMask2D>();
+            return rt;
+        }
+
+        /// <summary>親の上端（top）か下端に付く、幅 width・高さ height の帯。縦に長い端末でも端に付いたまま。</summary>
+        public static RectTransform Edge(Transform parent, string name, bool top, float width, float height)
+        {
+            var rt = Rect(parent, name, Vector2.zero, new Vector2(width, height));
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, top ? 1f : 0f);
+            return rt;
+        }
+
+        /// <summary>親の上の top・下の bottom を除いた高さいっぱいの、幅 width の領域（ヘッダーと下のタブに挟まれた中身など）。</summary>
+        public static RectTransform Between(Transform parent, string name, float top, float bottom, float width)
+        {
+            var rt = Rect(parent, name, Vector2.zero, Vector2.zero);
+            rt.anchorMin = new Vector2(0.5f, 0f);
+            rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.offsetMin = new Vector2(-width / 2, bottom);
+            rt.offsetMax = new Vector2(width / 2, -top);
             return rt;
         }
 

@@ -30,11 +30,11 @@ namespace Vector.Game.Casino
         /// <param name="limits">中央のテーブル情報（リミットなど）。</param>
         public static TableHud Create(Transform parent, string title, string subtitle, string limits)
         {
-            var rt = Ui.Rect(parent, "Hud", new Vector2(0, Ui.ReferenceResolution.y / 2 - Height / 2), new Vector2(Ui.ReferenceResolution.x, Height));
+            var rt = Ui.Rect(parent, "Hud", new Vector2(0, Ui.Landscape.y / 2 - Height / 2), new Vector2(Ui.Landscape.x, Height));
             var hud = rt.gameObject.AddComponent<TableHud>();
-            Ui.Image(rt, "Fade", Art.VerticalFade, new Color(0, 0, 0, 0.85f), Vector2.zero, new Vector2(Ui.ReferenceResolution.x, Height));
+            Ui.Image(rt, "Fade", Art.VerticalFade, new Color(0, 0, 0, 0.85f), Vector2.zero, new Vector2(Ui.Landscape.x, Height));
 
-            float left = -Ui.ReferenceResolution.x / 2;
+            float left = -Ui.Landscape.x / 2;
             hud.lobby = Ui.Button(rt, "Lobby", "< LOBBY", new Vector2(left + 100, 0), new Vector2(150, 50), ButtonColor, Theme.Ivory, () => hud.LobbyClicked?.Invoke(), 24);
             var logo = Ui.Text(rt, "Logo", title, Fonts.Display, 44, Theme.Gold, new Vector2(left + 300, 2), new Vector2(200, 60), TextAlignmentOptions.Left);
             // ゲーム名の長さに合わせて、右隣の小さな表示を詰めて置く
@@ -46,7 +46,7 @@ namespace Vector.Game.Casino
             hud.limits = Ui.Text(rt, "Limits", limits, Fonts.Label, 22, Theme.Ivory.WithAlpha(0.8f), new Vector2(-40, 10), new Vector2(620, 30));
             hud.round = Ui.Text(rt, "Round", "", Fonts.Label, 18, Theme.Muted, new Vector2(-40, -16), new Vector2(520, 24));
 
-            float right = Ui.ReferenceResolution.x / 2;
+            float right = Ui.Landscape.x / 2;
             hud.balanceLabel = Ui.Text(rt, "BalanceLabel", "BALANCE", Fonts.Label, 18, Theme.Muted, new Vector2(right - 430, 14), new Vector2(240, 24), TextAlignmentOptions.Right);
             hud.balance = Ui.Text(rt, "Balance", "", Fonts.Display, 40, Theme.GoldBright, new Vector2(right - 430, -12), new Vector2(240, 48), TextAlignmentOptions.Right);
             Ui.Button(rt, "Help", "HOW TO PLAY", new Vector2(right - 225, 0), new Vector2(150, 50), ButtonColor, Theme.Ivory, () => hud.HelpClicked?.Invoke(), 20);

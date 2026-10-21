@@ -113,9 +113,12 @@ namespace Vector.Tests
             var state = new RpgState();
             var session = NewSession(10_000, out var chips, state);
             Assert.AreEqual(ChallengeBlock.Level, session.CheckChallenge(spec));
+            Assert.AreEqual(FloorStatus.Open, session.StatusOf(FloorId.Lobby));
             state.level = spec.RequiredLevel;
             Assert.AreEqual(ChallengeBlock.None, session.CheckChallenge(spec));
+            Assert.AreEqual(FloorStatus.Ready, session.StatusOf(FloorId.Lobby));
             Assert.IsFalse(session.IsFloorOpen(FloorId.DiceParlor));
+            Assert.AreEqual(FloorStatus.Locked, session.StatusOf(FloorId.DiceParlor));
 
             var run = session.StartChallenge(spec);
             Assert.AreEqual(10_000 - spec.EntryFee, chips.Balance);
@@ -128,6 +131,7 @@ namespace Vector.Tests
             Assert.AreEqual(10_000 - spec.EntryFee + spec.Prize, chips.Balance, "挑戦用のチップは持ち帰らず、賞金だけが入る");
             Assert.AreEqual(1, state.Count(spec.Trophy));
             Assert.IsTrue(session.IsFloorOpen(FloorId.DiceParlor));
+            Assert.AreEqual(FloorStatus.Cleared, session.StatusOf(FloorId.Lobby));
 
             var again = session.StartChallenge(spec);
             again.Bankroll.Credit(spec.Target);

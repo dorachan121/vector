@@ -10,7 +10,7 @@ namespace Vector.Game.World
         WorldScreen(RectTransform root)
         {
             Root = root;
-            Stage = Ui.Rect(root, "Stage", Vector2.zero, Ui.ReferenceResolution);
+            Stage = Ui.Rect(root, "Stage", Vector2.zero, Ui.Landscape);
             Hud = WorldHud.Create(root);
             Dialogue = DialogueBox.Create(root);
             Toast = Toast.Create(root, new Vector2(0, 380));
@@ -26,6 +26,6 @@ namespace Vector.Game.World
         public DialogueBox Dialogue { get; }
         public Toast Toast { get; }
 
-        public static WorldScreen Build() => new WorldScreen(Ui.CreateScreen("World"));
+        public static WorldScreen Build() => new WorldScreen(Ui.CreateScreen("World", ScreenShape.Landscape));
     }
 }

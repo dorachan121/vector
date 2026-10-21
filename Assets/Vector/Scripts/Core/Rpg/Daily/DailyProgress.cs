@@ -30,6 +30,17 @@ namespace Vector.Core.Rpg
         /// <summary>次に受け取るのは巡の何日目か（0〜6）。</summary>
         public int NextLoginDay => LoginBonus.Day(state.loginCount);
 
+        /// <summary>いまの巡で受け取った日数（0〜7）。今日の分を受け取ったあとは、今日まで数える。</summary>
+        public int ClaimedThisCycle
+        {
+            get
+            {
+                if (state.loginCount == 0)
+                    return 0;
+                return LoginAvailable ? LoginBonus.Day(state.loginCount) : LoginBonus.Day(state.loginCount - 1) + 1;
+            }
+        }
+
         /// <summary>今日のログインボーナスを受け取る。受け取れなければ null。</summary>
         public RewardGrant ClaimLogin()
         {

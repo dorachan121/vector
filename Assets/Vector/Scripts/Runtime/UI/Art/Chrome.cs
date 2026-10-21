@@ -156,6 +156,26 @@ namespace Vector.Game.UI
             return c;
         }));
 
+        /// <summary>カットした宝石（白の明暗で面を描く。色を掛けて使う）。コンプポイントの印。</summary>
+        public static Sprite Jewel => Cached("chrome.jewel", () => Paint(128, 128, (x, y) =>
+        {
+            float u = (x - 64) / 60f, v = (y - 64) / 60f;
+            // 上の冠（台形）と下のパビリオン（逆三角形）
+            float crown = Mathf.Max(Mathf.Max(v - 0.62f, -(v - 0.12f)), Mathf.Abs(u) - (1f - (v - 0.12f) * 0.56f));
+            float pavilion = SdTriangle(u, v, -1f, 0.12f, 1f, 0.12f, 0f, -0.98f) / 1f;
+            float shape = Mathf.Min(crown, pavilion);
+            float l;
+            if (v > 0.12f)
+                l = Mathf.Abs(u) < 0.42f ? 1f : 0.82f;
+            else
+                l = u < -0.34f ? 0.58f : u > 0.34f ? 0.72f : 0.88f;
+            float edges = Mathf.Min(Mathf.Abs(v - 0.12f), Mathf.Abs(Mathf.Abs(u) - 0.42f) + Mathf.Max(0, 0.12f - v) * 10f);
+            l = Mathf.Lerp(l, 1f, Mathf.Clamp01(1 - edges * 40f) * 0.5f);
+            float spark = Mathf.Exp(-((u + 0.3f) * (u + 0.3f) + (v - 0.4f) * (v - 0.4f)) * 30f);
+            l = Mathf.Lerp(l, 1.6f, spark);
+            return new Color(Mathf.Min(1, l), Mathf.Min(1, l), Mathf.Min(1, l), Coverage(shape * 60f));
+        }));
+
         /// <summary>紙吹雪の1片（角の丸い小さな長方形）。</summary>
         public static Sprite Confetti => Cached("chrome.confetti", () => Paint(24, 36, (x, y) =>
             new Color(1, 1, 1, Coverage(SdRoundBox(x - 12, y - 18, 11, 17, 4)))));

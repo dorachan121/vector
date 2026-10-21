@@ -51,6 +51,9 @@ namespace Vector.Game
         /// <summary>テーブルを離れたときに戻るシーン（ロビーか、RPG のフロア）。</summary>
         public static string ReturnScene { get; set; } = SceneNames.Lobby;
 
+        /// <summary>この起動でタイトルを見せた（ホームに戻るたびには出さない）。</summary>
+        public static bool TitleShown { get; set; }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
@@ -58,6 +61,7 @@ namespace Vector.Game
             story = null;
             SelectedMode = GameMode.Player;
             ReturnScene = SceneNames.Lobby;
+            TitleShown = false;
             Challenge = null;
             ChallengeResult = null;
         }

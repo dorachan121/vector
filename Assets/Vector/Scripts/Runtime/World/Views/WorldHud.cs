@@ -26,10 +26,10 @@ namespace Vector.Game.World
 
         public static WorldHud Create(Transform parent)
         {
-            var rt = Ui.Rect(parent, "WorldHud", new Vector2(0, Ui.ReferenceResolution.y / 2 - Height / 2), new Vector2(Ui.ReferenceResolution.x, Height));
+            var rt = Ui.Rect(parent, "WorldHud", new Vector2(0, Ui.Landscape.y / 2 - Height / 2), new Vector2(Ui.Landscape.x, Height));
             var hud = rt.gameObject.AddComponent<WorldHud>();
-            Ui.Image(rt, "Fade", Art.VerticalFade, new Color(0, 0, 0, 0.9f), Vector2.zero, new Vector2(Ui.ReferenceResolution.x, Height));
-            float left = -Ui.ReferenceResolution.x / 2, right = Ui.ReferenceResolution.x / 2;
+            Ui.Image(rt, "Fade", Art.VerticalFade, new Color(0, 0, 0, 0.9f), Vector2.zero, new Vector2(Ui.Landscape.x, Height));
+            float left = -Ui.Landscape.x / 2, right = Ui.Landscape.x / 2;
             Ui.Button(rt, "Title", "< TITLE", new Vector2(left + 100, 0), new Vector2(150, 50), ButtonColor, Theme.Ivory, () => hud.TitleClicked?.Invoke(), 24);
             hud.floorName = Ui.Text(rt, "Floor", "", Fonts.Display, 38, Theme.Gold, new Vector2(left + 410, 2), new Vector2(420, 56), TextAlignmentOptions.Left);
 

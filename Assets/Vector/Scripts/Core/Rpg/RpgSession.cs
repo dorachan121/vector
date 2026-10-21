@@ -189,6 +189,16 @@ namespace Vector.Core.Rpg
 
         public bool HasDefeated(string master) => State.Has(StoryFlags.Defeated(master));
 
+        public FloorStatus StatusOf(FloorId id)
+        {
+            var master = Floors.Of(id).Master;
+            if (HasDefeated(master.Master))
+                return FloorStatus.Cleared;
+            if (!IsFloorOpen(id))
+                return FloorStatus.Locked;
+            return State.level >= master.RequiredLevel ? FloorStatus.Ready : FloorStatus.Open;
+        }
+
         /// <summary>挑戦できるか。できない理由を返す（できるなら None）。</summary>
         public ChallengeBlock CheckChallenge(ChallengeSpec spec)
         {

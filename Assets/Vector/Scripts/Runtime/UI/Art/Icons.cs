@@ -147,6 +147,15 @@ namespace Vector.Game.UI
                     };
                 case IconKind.Play:
                     return (x, y) => SdTriangle(x, y, -0.46f, 0.7f, -0.46f, -0.7f, 0.74f, 0f) - 0.06f;
+                case IconKind.Rotate:
+                    return (x, y) =>
+                    {
+                        // 右上（-10° から 60° まで）を空けた輪と、空けた所の下端で上を指す矢じり
+                        float ring = Mathf.Abs(Mathf.Sqrt(x * x + y * y) - 0.58f) - 0.12f;
+                        float gap = Mathf.Max(x * -0.174f + y * -0.985f, x * -0.866f + y * 0.5f);
+                        float head = SdTriangle(x, y, 0.27f, -0.05f, 0.87f, -0.15f, 0.64f, 0.3f);
+                        return Mathf.Min(Mathf.Max(ring, -gap), head);
+                    };
                 default:
                     return (x, y) =>
                     {

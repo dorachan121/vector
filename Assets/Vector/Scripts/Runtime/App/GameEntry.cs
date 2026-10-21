@@ -18,6 +18,9 @@ namespace Vector.Game
         /// <summary>テーブルの条件（リミットと主な配当）。</summary>
         public string Terms;
 
+        /// <summary>RTP の要約（ゲーム選択の表示用。数値の根拠は README と Tools/Simulator）。</summary>
+        public string Rtp;
+
         public string Scene;
         public Color Accent;
     }

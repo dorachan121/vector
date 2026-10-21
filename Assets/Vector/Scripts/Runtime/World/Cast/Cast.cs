@@ -22,10 +22,11 @@ namespace Vector.Game.World
             return member;
         }
 
-        static CharacterLook Look(string skin, string hair, string outfit, string accent, bool crown = false, bool master = false)
+        static CharacterLook Look(string skin, string hair, string outfit, string accent, bool crown = false, bool master = false, bool longHair = false, string eyes = null)
             => new CharacterLook
             {
                 Skin = Theme.Hex(skin), Hair = Theme.Hex(hair), Outfit = Theme.Hex(outfit), Accent = Theme.Hex(accent), Crown = crown, Master = master,
+                LongHair = longHair, Eyes = eyes != null ? Theme.Hex(eyes) : default,
             };
 
         static CastMember Person(CharacterLook look, string[] intro, string[] idle) => new CastMember { Look = look, Intro = intro, Idle = idle };
@@ -54,7 +55,7 @@ namespace Vector.Game.World
             var r = new Dictionary<string, CastMember>();
 
             // ---------------- 1F グランドロビー ----------------
-            r["lena"] = Person(Look("F6D5B8", "B8862F", "8E1B2C", "E3C06E"),
+            r["lena"] = Person(Look("F6D5B8", "B8862F", "8E1B2C", "E3C06E", longHair: true, eyes: "3E7CC9"),
                 new[]
                 {
                     "ようこそ、VECTOR CASINO RESORT へ。コンシェルジュのレナと申します。",
@@ -74,7 +75,7 @@ namespace Vector.Game.World
                 "まだ勝てていないようですね。焦らず、戦略ヒントも使ってみてください。",
                 "おめでとうございます！　はじめての一勝ですね。こちら、お祝いのチップです。");
 
-            r["mabel"] = Person(Look("F2C9A0", "E0703A", "3D8BFF", "FFFFFF"),
+            r["mabel"] = Person(Look("F2C9A0", "E0703A", "3D8BFF", "FFFFFF", longHair: true, eyes: "2E8B57"),
                 new[] { "わあ、あなたも観光？　わたしメイベル！　このロビーの VECTOR ってゲーム、すっごく人気なんだって！" },
                 new[] { "VECTOR の BONUS って、ポーカーの役で当たるんだって！", "次は2階のダイスにも行ってみたいな〜" });
             r["mabel"].Quests["mabel_rounds"] = Lines(
@@ -149,7 +150,7 @@ namespace Vector.Game.World
                 "まだ？　3回振れるからチャンスはあるよ！",
                 "すっげー！　YACHT だ！　お礼にこれあげる！");
 
-            r["sora"] = Person(Look("F2C9A0", "3A3A6A", "6E8FD6", "F6F0E1"),
+            r["sora"] = Person(Look("F2C9A0", "3A3A6A", "6E8FD6", "F6F0E1", longHair: true, eyes: "3A6AC9"),
                 new[]
                 {
                     "私はソラ、数学者よ。このダイスは、残す目の全組み合わせを後ろから計算すれば、最善の振り方がわかるの。",
@@ -162,7 +163,7 @@ namespace Vector.Game.World
                 "あと {0} 勝ね。",
                 "ありがとう。理論どおりの結果ね。謝礼を受け取って。");
 
-            r["ume"] = Person(Look("F6D5B8", "E8A0B4", "8E1B2C", "FFFFFF"),
+            r["ume"] = Person(Look("F6D5B8", "E8A0B4", "8E1B2C", "FFFFFF", longHair: true, eyes: "B8336A"),
                 new[] { "いらっしゃいませ〜！　ダイスパーラーへようこそ♪" },
                 new[]
                 {
@@ -170,7 +171,7 @@ namespace Vector.Game.World
                     "レイナ様は奥にいらっしゃいます。ちょっと怖いけど、優しい方ですよ♪",
                 });
 
-            r["reina"] = Person(Look("F6E0CC", "E8E0F0", "3A1E5A", "FFE7A3", crown: true, master: true),
+            r["reina"] = Person(Look("F6E0CC", "E8E0F0", "3A1E5A", "FFE7A3", crown: true, master: true, longHair: true, eyes: "7B3FE4"),
                 new[]
                 {
                     "あら、カイを倒したのね。わたくしはレイナ。ダイスの女王と呼ばれているわ。",
@@ -206,7 +207,7 @@ namespace Vector.Game.World
                 "会心の一撃は、K を引いて斬った時だけ。あせらずに。",
                 "なんと美しい一撃……！　この幸運のコインを差し上げましょう。");
 
-            r["nana"] = Person(Look("F6D5B8", "2A2A34", "E0462B", "FFFFFF"),
+            r["nana"] = Person(Look("F6D5B8", "2A2A34", "E0462B", "FFFFFF", longHair: true),
                 new[] { "きゃー！　新しい挑戦者！？　応援してる！" },
                 new[] { "ガルドさまは一度も負けたことがないんだって！", "受けて反撃するの、かっこいいよね！" });
 
@@ -242,7 +243,7 @@ namespace Vector.Game.World
                 "あと {0} レースだね。",
                 "いい顔になった。レースの空気がわかったようだね。");
 
-            r["momo"] = Person(Look("F6D5B8", "E0462B", "FFE7A3", "E0462B"),
+            r["momo"] = Person(Look("F6D5B8", "E0462B", "FFE7A3", "E0462B", longHair: true),
                 new[] { "わたしモモ！　朱雀ちゃんの大ファンなの！" },
                 new[] { "朱雀ちゃん、がんばれー！", "青龍、朱雀、白虎、玄武……みんなまとめて四神って言うんだって！" });
 
@@ -264,7 +265,7 @@ namespace Vector.Game.World
             };
 
             // ---------------- 5F 錬金の間 ----------------
-            r["nico"] = Person(Look("F6D5B8", "7B5BD6", "F6F0E1", "7B5BD6"),
+            r["nico"] = Person(Look("F6D5B8", "7B5BD6", "F6F0E1", "7B5BD6", longHair: true),
                 new[] { "あっ、こ、こんにちは！　錬金術師見習いのニコです！" },
                 new[] { "融合したシンボルは、塊の中で一番位の高いマスに残るんです。" });
             r["nico"].Quests["nico_relic"] = Lines(
@@ -273,7 +274,7 @@ namespace Vector.Game.World
                 "秘宝は、霊薬にさらに同じ元素を融合させるとできます！",
                 "わあ、秘宝だ！　ありがとうございます！　これ、お礼です！");
 
-            r["vivi"] = Person(Look("F6E0CC", "1A1A1E", "6A1B5E", "FFE7A3"),
+            r["vivi"] = Person(Look("F6E0CC", "1A1A1E", "6A1B5E", "FFE7A3", longHair: true, eyes: "B8862F"),
                 new[] { "あら、いい目をしてるわね。わたしはヴィヴィ、宝石の収集家よ。" },
                 new[] { "大錬成って知ってる？　賢者の石がさらに融合すると、その元素が盤面から全部消えるの。" });
             r["vivi"].Quests["vivi_stone"] = Lines(
@@ -286,7 +287,7 @@ namespace Vector.Game.World
                 new[] { "ルーだよ。この筐体の整備をしてる。" },
                 new[] { "結果はスピンした瞬間に乱数で決まる。演出は、その再生にすぎないよ。", "1億2千万回回して、RTP を確かめてあるんだ。" });
 
-            r["mira"] = Person(Look("F6E0CC", "C79BFF", "24184C", "C79BFF", master: true),
+            r["mira"] = Person(Look("F6E0CC", "C79BFF", "24184C", "C79BFF", master: true, longHair: true, eyes: "7B3FE4"),
                 new[]
                 {
                     "ようこそ、錬金の間へ。私はミラ。この盤面を設計した者よ。",
@@ -322,7 +323,7 @@ namespace Vector.Game.World
                 "あと {0} 回。",
                 "……慣れたようだな。");
 
-            r["ivy"] = Person(Look("F6D5B8", "3FA060", "4A4640", "3FA060"),
+            r["ivy"] = Person(Look("F6D5B8", "3FA060", "4A4640", "3FA060", longHair: true, eyes: "2E8B57"),
                 new[] { "ひっ……あ、人間……？　道に迷っちゃって……" },
                 new[] { "B10 の宝は x2,234 なんだって……でも、生きて帰れる確率は 0.04%……", "引き返すの、早すぎたかなぁ……" });
 
@@ -348,7 +349,7 @@ namespace Vector.Game.World
                     "この最上階からは、VECTOR のすべてを見渡せるのでございます。",
                 });
 
-            r["zero"] = Person(Look("F6E0CC", "F6F0E1", "1A1A20", "FFE7A3", crown: true, master: true),
+            r["zero"] = Person(Look("F6E0CC", "F6F0E1", "1A1A20", "FFE7A3", crown: true, master: true, eyes: "C9302C"),
                 new[]
                 {
                     "よく来たね。私がこのカジノのオーナー、ゼロだ。",

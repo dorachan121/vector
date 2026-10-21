@@ -22,6 +22,9 @@ namespace Vector.Game.UI
         Gift,
         Calendar,
         Play,
+
+        /// <summary>回転の矢印（反時計回り。左右反転すると時計回り）。</summary>
+        Rotate,
         Coin,
     }
 }

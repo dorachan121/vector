@@ -8,7 +8,7 @@ namespace Vector.Game.UI.Widgets
     {
         public static Dialog Open(Transform root, IReadOnlyList<(string title, string body)> pages)
         {
-            var dialog = Dialog.Open(root, "HOW TO PLAY", null, new Vector2(1180, 820));
+            var dialog = Dialog.Open(root, "HOW TO PLAY", null, Ui.IsPortrait(root) ? new Vector2(1000, 1360) : new Vector2(1180, 820));
             var content = dialog.Content;
             var size = content.sizeDelta;
 

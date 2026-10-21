@@ -1,0 +1,110 @@
+using UnityEngine;
+using Vector.Core;
+using Vector.Game.UI;
+
+namespace Vector.Game.Lobby
+{
+    /// <summary>ゲームの紋章（タイルやバナーの絵）。ゲームの中身をひと目で表す小さな絵を図形で組む。座標は 200px の原図から比例で決める。</summary>
+    public static class GameEmblem
+    {
+        public static RectTransform Create(Transform parent, Vector2 position, float size, GameId game)
+        {
+            var rt = Ui.Rect(parent, "Emblem", position, Vector2.one * size);
+            float s = size / 200f;
+            switch (game)
+            {
+                case GameId.Vector: Vector(rt, s); break;
+                case GameId.Crown: Crown(rt, s); break;
+                case GameId.Colosseum: Colosseum(rt, s); break;
+                case GameId.Derby: Derby(rt, s); break;
+                case GameId.Alchemia: Alchemia(rt, s); break;
+                default: Delve(rt, s); break;
+            }
+            return rt;
+        }
+
+        static void Vector(RectTransform rt, float s)
+        {
+            var suits = new[] { Suit.Spades, Suit.Hearts, Suit.Diamonds, Suit.Clubs };
+            for (int i = 0; i < 9; i++)
+            {
+                var at = new Vector2((i % 3 - 1) * 58, (1 - i / 3) * 70) * s;
+                Ui.Panel(rt, "Shadow", at + new Vector2(3, -4) * s, new Vector2(50, 62) * s, new Color(0, 0, 0, 0.4f), 8 * s);
+                Ui.Panel(rt, "Card", at, new Vector2(50, 62) * s, Theme.CardFace, 8 * s);
+                var suit = suits[i % 4];
+                bool red = suit == Suit.Hearts || suit == Suit.Diamonds;
+                Ui.Image(rt, "Suit", Art.Suit(suit), red ? Theme.CardRed : Theme.CardBlack, at, Vector2.one * 26 * s);
+            }
+            var line = Ui.Panel(rt, "Line", Vector2.zero, new Vector2(230, 12) * s, Palette.Gold, 6 * s);
+            line.rectTransform.localEulerAngles = new Vector3(0, 0, -50);
+            Ui.Image(rt, "Spark", Chrome.Sparkle, Palette.GoldLight, new Vector2(60, -72) * s, Vector2.one * 60 * s);
+        }
+
+        static void Crown(RectTransform rt, float s)
+        {
+            Die(rt, new Vector2(-40, -26) * s, 92 * s, 12, 5);
+            Die(rt, new Vector2(44, -36) * s, 92 * s, -10, 6);
+            Ui.Image(rt, "Glow", Art.Glow, Palette.Gold.WithAlpha(0.6f), new Vector2(0, 62) * s, Vector2.one * 150 * s);
+            Ui.Icon(rt, "Crown", IconKind.Crown, Palette.Gold, new Vector2(0, 66) * s, 96 * s);
+        }
+
+        static void Die(RectTransform rt, Vector2 at, float size, float angle, int face)
+        {
+            var shadow = Ui.Panel(rt, "Shadow", at + new Vector2(4, -6) * (size / 92f), Vector2.one * size, new Color(0, 0, 0, 0.45f), size * 0.2f);
+            var die = Ui.Panel(rt, "Die", at, Vector2.one * size, Palette.Ivory, size * 0.2f);
+            shadow.rectTransform.localEulerAngles = die.rectTransform.localEulerAngles = new Vector3(0, 0, angle);
+            var pips = face == 5
+                ? new[] { new Vector2(-1, 1), new Vector2(1, 1), Vector2.zero, new Vector2(-1, -1), new Vector2(1, -1) }
+                : new[] { new Vector2(-1, 1), new Vector2(1, 1), new Vector2(-1, 0), new Vector2(1, 0), new Vector2(-1, -1), new Vector2(1, -1) };
+            foreach (var p in pips)
+                Ui.Image(die.rectTransform, "Pip", Art.Circle, Palette.Ink, p * size * 0.27f, Vector2.one * size * 0.18f);
+        }
+
+        static void Colosseum(RectTransform rt, float s)
+        {
+            Ui.Image(rt, "Glow", Art.Glow, Theme.DealerRed.WithAlpha(0.45f), new Vector2(40, 10) * s, Vector2.one * 190 * s);
+            Ui.Image(rt, "Beast", Art.BeastHead, Theme.Hex("6E1420"), new Vector2(44, 14) * s, Vector2.one * 150 * s);
+            Ui.Image(rt, "EyeL", Art.Glow, Palette.Gold, new Vector2(30, 8) * s, Vector2.one * 26 * s);
+            Ui.Image(rt, "EyeR", Art.Glow, Palette.Gold, new Vector2(58, 8) * s, Vector2.one * 26 * s);
+            Ui.Image(rt, "Rim", Art.Shield, Palette.Gold, new Vector2(-46, -18) * s, new Vector2(116, 126) * s);
+            Ui.Image(rt, "Shield", Art.Shield, Palette.Sapphire, new Vector2(-46, -18) * s, new Vector2(102, 112) * s);
+            Ui.Image(rt, "Star", Art.Gem(4), Palette.GoldLight, new Vector2(-46, -6) * s, Vector2.one * 50 * s);
+        }
+
+        static void Derby(RectTransform rt, float s)
+        {
+            var suits = new[] { Suit.Spades, Suit.Hearts, Suit.Diamonds, Suit.Clubs };
+            var colors = new[] { Palette.Sapphire, Palette.Ruby, Palette.Amber, Palette.Emerald };
+            for (int i = 0; i < 4; i++)
+            {
+                float y = (1.5f - i) * 42;
+                Ui.Panel(rt, "Lane", new Vector2(0, y) * s, new Vector2(190, 32) * s, colors[i].WithAlpha(0.35f), 16 * s);
+                float x = -60 + new[] { 70, 20, 96, 40 }[i];
+                Ui.Image(rt, "Runner", Art.Circle, colors[i], new Vector2(x, y) * s, Vector2.one * 40 * s);
+                Ui.Image(rt, "Suit", Art.Suit(suits[i]), Palette.Ivory, new Vector2(x, y) * s, Vector2.one * 22 * s);
+            }
+            Ui.Panel(rt, "Goal", new Vector2(96, 0) * s, new Vector2(6, 176) * s, Palette.Ivory, 3 * s);
+        }
+
+        static void Alchemia(RectTransform rt, float s)
+        {
+            Ui.Image(rt, "Glow", Art.Glow, Palette.Amethyst.WithAlpha(0.7f), Vector2.zero, Vector2.one * 210 * s);
+            var colors = new[] { Theme.Hex("FF5A36"), Theme.Hex("3C9BFF"), Theme.Hex("3DDC97"), Theme.Hex("E0AA45") };
+            for (int i = 0; i < 4; i++)
+            {
+                float a = i * Mathf.PI / 2 + Mathf.PI / 4;
+                Ui.Image(rt, "Orb", Art.Gem(i % 2 == 0 ? 2 : 3), colors[i], new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * 72 * s, Vector2.one * 40 * s);
+            }
+            Ui.Image(rt, "Stone", Art.Gem(5), Palette.GoldLight, Vector2.zero, Vector2.one * 120 * s);
+            Ui.Image(rt, "Spark", Chrome.Sparkle, Color.white, new Vector2(30, 36) * s, Vector2.one * 70 * s);
+        }
+
+        static void Delve(RectTransform rt, float s)
+        {
+            Ui.Image(rt, "TorchL", Art.Glow, Palette.Amber.WithAlpha(0.7f), new Vector2(-74, 20) * s, Vector2.one * 80 * s);
+            Ui.Image(rt, "TorchR", Art.Glow, Palette.Amber.WithAlpha(0.7f), new Vector2(74, 20) * s, Vector2.one * 80 * s);
+            Ui.Image(rt, "Door", Art.Door, Color.white, new Vector2(0, -6) * s, new Vector2(120, 180) * s);
+            Ui.Image(rt, "Light", Art.Glow, Palette.GoldLight.WithAlpha(0.55f), new Vector2(0, -40) * s, new Vector2(80, 60) * s);
+        }
+    }
+}

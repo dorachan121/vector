@@ -46,7 +46,7 @@ namespace Vector.Game.Casino
         public static CasinoView Build(string name, string title, string subtitle, string limits, string feltPrint, Color feltCenter, Color feltEdge)
         {
             var view = new CasinoView();
-            var root = Ui.CreateScreen(name);
+            var root = Ui.CreateScreen(name, ScreenShape.Landscape);
             view.Root = root;
             Ui.Image(root, "Felt", Art.TableIn(feltCenter, feltEdge), Color.white, TableCenter, TableSize);
             if (!string.IsNullOrEmpty(feltPrint))

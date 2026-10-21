@@ -12,19 +12,13 @@ namespace Vector.Game.World
     {
         const float RowHeight = 72f;
 
-        /// <summary>ボタンの並び（上の階ほど上）。</summary>
-        static readonly FloorId[] Order =
-        {
-            FloorId.Penthouse, FloorId.AlchemyHall, FloorId.BeastTrack, FloorId.Arena, FloorId.DiceParlor, FloorId.Lobby, FloorId.Undervault,
-        };
-
         public static void Open(Transform root, RpgSession session, FloorId current, Action<FloorId> go)
         {
-            var dialog = Dialog.Open(root, "ELEVATOR", "行き先のフロアを選んでください。", new Vector2(760, 300 + Order.Length * RowHeight));
+            var dialog = Dialog.Open(root, "ELEVATOR", "行き先のフロアを選んでください。", new Vector2(760, 300 + FloorOrder.TopDown.Length * RowHeight));
             float top = dialog.Content.sizeDelta.y / 2 - RowHeight / 2;
-            for (int i = 0; i < Order.Length; i++)
+            for (int i = 0; i < FloorOrder.TopDown.Length; i++)
             {
-                var floor = Order[i];
+                var floor = FloorOrder.TopDown[i];
                 bool open = session.IsFloorOpen(floor);
                 string label = floor == current ? $"{StoryNames.Floor(floor)}  ·  HERE" : open ? StoryNames.Floor(floor) : $"{StoryNames.Floor(floor)}  ·  LOCKED";
                 var button = Ui.Button(dialog.Content, "Floor" + floor, label, new Vector2(0, top - i * RowHeight), new Vector2(600, RowHeight - 10),

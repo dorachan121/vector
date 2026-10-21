@@ -15,5 +15,11 @@ namespace Vector.Game.World
 
         /// <summary>フロアの主（足元に金の輪）。</summary>
         public bool Master;
+
+        /// <summary>長い髪（立ち絵で肩まで垂らす）。</summary>
+        public bool LongHair;
+
+        /// <summary>瞳の色（未設定なら髪の色を暗くしたもの）。</summary>
+        public Color Eyes;
     }
 }

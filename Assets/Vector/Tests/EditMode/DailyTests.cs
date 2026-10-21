@@ -43,10 +43,13 @@ namespace Vector.Tests
             for (int i = 0; i < LoginBonus.CycleLength; i++)
             {
                 Assert.AreEqual(i, session.Daily.NextLoginDay);
+                Assert.AreEqual(i, session.Daily.ClaimedThisCycle);
                 Assert.IsNotNull(session.Daily.ClaimLogin());
+                Assert.AreEqual(i + 1, session.Daily.ClaimedThisCycle, "受け取った日はその日まで数える");
                 day++;
             }
             Assert.AreEqual(0, session.Daily.NextLoginDay);
+            Assert.AreEqual(0, session.Daily.ClaimedThisCycle, "次の巡は0日から");
             Assert.AreEqual(1, session.State.Count(ItemCatalog.LuckyCoin), "7日目は記念のコイン付き");
         }
 

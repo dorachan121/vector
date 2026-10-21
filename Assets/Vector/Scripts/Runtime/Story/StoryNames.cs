@@ -41,17 +41,34 @@ namespace Vector.Game.Story
 
         public static string Title(string id) => people.TryGetValue(id, out var p) ? p.title : "";
 
-        public static string Floor(FloorId floor)
+        public static string Floor(FloorId floor) => $"{FloorLevel(floor)} {FloorTitle(floor)}";
+
+        /// <summary>階の表示（1F・B1・PH）。</summary>
+        public static string FloorLevel(FloorId floor)
         {
             switch (floor)
             {
-                case FloorId.Lobby: return "1F GRAND LOBBY";
-                case FloorId.DiceParlor: return "2F DICE PARLOR";
-                case FloorId.Arena: return "3F ARENA";
-                case FloorId.BeastTrack: return "4F BEAST TRACK";
-                case FloorId.AlchemyHall: return "5F ALCHEMY HALL";
-                case FloorId.Undervault: return "B1 UNDERVAULT";
-                default: return "PH PENTHOUSE";
+                case FloorId.Lobby: return "1F";
+                case FloorId.DiceParlor: return "2F";
+                case FloorId.Arena: return "3F";
+                case FloorId.BeastTrack: return "4F";
+                case FloorId.AlchemyHall: return "5F";
+                case FloorId.Undervault: return "B1";
+                default: return "PH";
+            }
+        }
+
+        public static string FloorTitle(FloorId floor)
+        {
+            switch (floor)
+            {
+                case FloorId.Lobby: return "GRAND LOBBY";
+                case FloorId.DiceParlor: return "DICE PARLOR";
+                case FloorId.Arena: return "ARENA";
+                case FloorId.BeastTrack: return "BEAST TRACK";
+                case FloorId.AlchemyHall: return "ALCHEMY HALL";
+                case FloorId.Undervault: return "UNDERVAULT";
+                default: return "PENTHOUSE";
             }
         }
 
