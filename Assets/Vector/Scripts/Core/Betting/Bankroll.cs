@@ -3,7 +3,7 @@ using System;
 namespace Vector.Core
 {
     /// <summary>所持金。マイナスにはならない。</summary>
-    public sealed class Bankroll
+    public sealed class Bankroll : IChipAccount
     {
         public long Balance { get; private set; }
 
