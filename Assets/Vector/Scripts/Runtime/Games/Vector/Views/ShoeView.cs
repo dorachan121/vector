@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Vector.Game.Casino;
 using Vector.Game.UI;
 
 namespace Vector.Game.Table

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Vector.Core;
+using Vector.Game.Casino;
 using Vector.Game.UI;
 
 namespace Vector.Game.Table

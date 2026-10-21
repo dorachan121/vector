@@ -1,7 +1,7 @@
 using UnityEngine;
 using Vector.Game.Audio;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>持ち時間。一時停止中（ダイアログ表示中など）は減らず、残り5秒からは秒ごとに音を鳴らす。</summary>
     public sealed class CountdownTimer

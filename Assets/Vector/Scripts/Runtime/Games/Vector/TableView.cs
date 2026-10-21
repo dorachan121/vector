@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Vector.Core;
+using Vector.Game.Casino;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
 
@@ -76,7 +77,7 @@ namespace Vector.Game.Table
             view.Actions = ActionBar.Create(root, new Vector2(500, BottomRow));
             view.Picker = FamilyPicker.Create(root, new Vector2(0, BottomRow));
             view.Result = ResultBanner.Create(root, new Vector2(0, -282));
-            view.Hud = TableHud.Create(root, mode, rules);
+            view.Hud = TableHud.Create(root, "VECTOR", Labels.Mode(mode), $"TABLE LIMITS  {Labels.Money(rules.MinBet)} – {Labels.Money(rules.MaxBet)}");
 
             view.Fx = Ui.Stretch(root, "Fx");
             view.Overlay = Ui.Stretch(root, "Overlay");

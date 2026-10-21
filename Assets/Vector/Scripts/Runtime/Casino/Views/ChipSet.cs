@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>チップの額面と配色（カジノで一般的な色分け）。</summary>
     public static class ChipSet

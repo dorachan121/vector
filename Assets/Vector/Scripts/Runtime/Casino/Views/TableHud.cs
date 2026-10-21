@@ -6,7 +6,7 @@ using Vector.Core;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>画面上部のバー（ロビーへ戻る・テーブル情報・所持金・ヘルプ・設定）。</summary>
     public sealed class TableHud : MonoBehaviour
@@ -25,9 +25,6 @@ namespace Vector.Game.Table
         public event Action LobbyClicked;
         public event Action HelpClicked;
         public event Action SettingsClicked;
-
-        public static TableHud Create(Transform parent, GameMode mode, TableRules rules)
-            => Create(parent, "VECTOR", Labels.Mode(mode), $"TABLE LIMITS  {Labels.Money(rules.MinBet)} – {Labels.Money(rules.MaxBet)}");
 
         /// <param name="title">左上のゲーム名。</param>
         /// <param name="subtitle">ゲーム名の右の小さな表示（席など）。</param>

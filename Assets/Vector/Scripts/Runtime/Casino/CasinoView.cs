@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Vector.Game.Table;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
 

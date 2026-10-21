@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Vector.Core;
-using Vector.Game.Table;
+using Vector.Game.Casino;
 using Vector.Game.UI;
 
 namespace Vector.Game.Derby

@@ -7,7 +7,6 @@ using Vector.Core.Crown;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
-using Vector.Game.Table;
 using Vector.Game.UI;
 
 namespace Vector.Game.Crown

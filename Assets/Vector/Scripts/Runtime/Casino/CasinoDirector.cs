@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
-using Vector.Game.Table;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
 

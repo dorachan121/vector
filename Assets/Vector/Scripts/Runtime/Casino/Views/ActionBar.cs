@@ -3,7 +3,7 @@ using UnityEngine;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>ベット受付中の操作ボタン（取り消し・クリア・リベット・倍掛け・ディール）。</summary>
     public sealed class ActionBar : MonoBehaviour

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>ベットエリアに積まれたチップの山と金額表示。</summary>
     public sealed class ChipStackView : MonoBehaviour

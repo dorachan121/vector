@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using Vector.Core;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>
     /// 1枚のトランプ。表面は角にランクとスート、中央に大きなスート、A/J/Q/K には点数を添える。

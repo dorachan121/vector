@@ -1,7 +1,7 @@
 using UnityEngine;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>チップの山を飛ばす演出（ベット・払い戻し・回収）。どのテーブルでも共通。</summary>
     public static class ChipFlight

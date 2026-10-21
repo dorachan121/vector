@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Vector.Core;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>チップを置ける場所（フェルトのベットエリアやオッズ表のマス）。番号はゲームごとのベットエリアの番号。</summary>
     public interface IBetTarget

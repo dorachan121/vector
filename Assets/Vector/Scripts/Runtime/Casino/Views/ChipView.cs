@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>1枚のチップ。</summary>
     public sealed class ChipView : MonoBehaviour

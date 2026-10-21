@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>テーブル中央の進行表示（「PLACE YOUR BETS」など）と、残り時間のリング。</summary>
     public sealed class StatusBanner : MonoBehaviour

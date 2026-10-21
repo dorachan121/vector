@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>手元のチップラック。額面を選び、手持ちで買えない額面は暗くする。</summary>
     public sealed class ChipRackView : MonoBehaviour

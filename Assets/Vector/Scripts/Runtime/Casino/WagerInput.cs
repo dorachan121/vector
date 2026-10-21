@@ -1,7 +1,6 @@
 using System;
 using Vector.Core;
 using Vector.Game.Audio;
-using Vector.Game.Table;
 using Vector.Game.UI;
 
 namespace Vector.Game.Casino

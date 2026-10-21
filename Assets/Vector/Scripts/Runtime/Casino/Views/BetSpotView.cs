@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using Vector.Core;
 using Vector.Game.UI;
 
-namespace Vector.Game.Table
+namespace Vector.Game.Casino
 {
     /// <summary>
     /// フェルトに印刷されたベットエリア。クリックでチップを置き、精算時は勝ち負けを光り方で示す。

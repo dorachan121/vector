@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using Vector.Core;
 using Vector.Game.Audio;
+using Vector.Game.Casino;
 using Vector.Game.UI;
 
 namespace Vector.Game.Table
