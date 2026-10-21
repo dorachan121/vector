@@ -229,12 +229,4 @@ namespace Vector.Core.Rpg
             return reward;
         }
     }
-
-    /// <summary>挑戦できない理由。</summary>
-    public enum ChallengeBlock : byte
-    {
-        None,
-        Level,
-        Funds,
-    }
 }

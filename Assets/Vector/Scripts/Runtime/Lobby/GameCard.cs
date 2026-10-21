@@ -10,7 +10,7 @@ namespace Vector.Game.Lobby
     {
         public static readonly Vector2 Size = new Vector2(540, 206);
 
-        public static RectTransform Create(Transform parent, Vector2 position, GameCatalog.Entry entry, params (string label, Action onClick)[] buttons)
+        public static RectTransform Create(Transform parent, Vector2 position, GameEntry entry, params (string label, Action onClick)[] buttons)
         {
             var rt = Ui.Rect(parent, "Game" + entry.Title, position, Size);
             Ui.Image(rt, "Glow", Art.Glow, entry.Accent.WithAlpha(0.14f), Vector2.zero, Size * 1.3f);

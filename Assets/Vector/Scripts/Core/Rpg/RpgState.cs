@@ -111,26 +111,4 @@ namespace Vector.Core.Rpg
                 i.count = Math.Min(i.count, ItemStack.MaxCount);
         }
     }
-
-    [Serializable]
-    public sealed class QuestProgress
-    {
-        public string id;
-        public int count;
-
-        /// <summary>条件を満たした。</summary>
-        public bool done;
-
-        /// <summary>報酬を受け取った。</summary>
-        public bool claimed;
-    }
-
-    [Serializable]
-    public sealed class ItemStack
-    {
-        public const int MaxCount = 999;
-
-        public string id;
-        public int count;
-    }
 }

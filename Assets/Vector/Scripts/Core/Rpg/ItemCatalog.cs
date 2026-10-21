@@ -8,17 +8,6 @@ namespace Vector.Core.Rpg
     /// </summary>
     public static class ItemCatalog
     {
-        public sealed class Item
-        {
-            public string Id;
-
-            /// <summary>コンプでの交換に必要なポイント（0 なら交換できない）。</summary>
-            public long CompPrice;
-
-            /// <summary>使うと受け取れる遊戯用チップ（0 なら使えない）。</summary>
-            public long ChipValue;
-        }
-
         public const string VoucherSmall = "voucher.500";
         public const string VoucherLarge = "voucher.5000";
         public const string LuckyCoin = "lucky.coin";
@@ -30,23 +19,23 @@ namespace Vector.Core.Rpg
         public const string TrophyVault = "trophy.vault";
         public const string BlackCard = "black.card";
 
-        static readonly List<Item> items = new List<Item>
+        static readonly List<ItemDef> items = new List<ItemDef>
         {
-            new Item { Id = VoucherSmall, CompPrice = 50, ChipValue = 500 },
-            new Item { Id = VoucherLarge, CompPrice = 450, ChipValue = 5_000 },
-            new Item { Id = LuckyCoin, CompPrice = 30 },
-            new Item { Id = TrophyLobby },
-            new Item { Id = TrophyDice },
-            new Item { Id = TrophyArena },
-            new Item { Id = TrophyTrack },
-            new Item { Id = TrophyAlchemy },
-            new Item { Id = TrophyVault },
-            new Item { Id = BlackCard },
+            new ItemDef { Id = VoucherSmall, CompPrice = 50, ChipValue = 500 },
+            new ItemDef { Id = VoucherLarge, CompPrice = 450, ChipValue = 5_000 },
+            new ItemDef { Id = LuckyCoin, CompPrice = 30 },
+            new ItemDef { Id = TrophyLobby },
+            new ItemDef { Id = TrophyDice },
+            new ItemDef { Id = TrophyArena },
+            new ItemDef { Id = TrophyTrack },
+            new ItemDef { Id = TrophyAlchemy },
+            new ItemDef { Id = TrophyVault },
+            new ItemDef { Id = BlackCard },
         };
 
-        public static IReadOnlyList<Item> All => items;
+        public static IReadOnlyList<ItemDef> All => items;
 
-        public static Item Find(string id)
+        public static ItemDef Find(string id)
         {
             foreach (var item in items)
             {
