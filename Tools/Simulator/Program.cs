@@ -6,6 +6,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Orbit;
 
 namespace Vector.Simulator
 {
@@ -19,6 +20,7 @@ namespace Vector.Simulator
     /// dotnet run -c Release -- derby [races] [seed] [targetReturn=0.97]
     /// dotnet run -c Release -- delve [dives] [seed] [targetReturn=0.97]
     /// dotnet run -c Release -- alchemia [spins] [seed] [pays=tier3,tier4,tier5:transmutation:multipliers]
+    /// dotnet run -c Release -- orbit [spins] [seed]
     /// dotnet run -c Release -- challenge [trials] [seed]
     /// </code>
     /// </summary>
@@ -73,6 +75,12 @@ namespace Vector.Simulator
                         AlchemiaSimulation.Run(
                             args.Length > 3 ? AlchemiaSimulation.Parse(args[3]) : AlchemiaRules.Standard,
                             spins: args.Length > 1 ? long.Parse(args[1]) : 2_000_000,
+                            seed: args.Length > 2 ? ulong.Parse(args[2]) : 20261021UL);
+                        return 0;
+                    case "orbit":
+                        OrbitSimulation.Run(
+                            OrbitRules.Standard,
+                            spins: args.Length > 1 ? int.Parse(args[1]) : 2_000_000,
                             seed: args.Length > 2 ? ulong.Parse(args[2]) : 20261021UL);
                         return 0;
                     case "challenge":

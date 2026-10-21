@@ -1,8 +1,8 @@
-# VECTOR CASINO RESORT — 6つのオリジナルカジノゲームとカジノ RPG
+# VECTOR CASINO RESORT — 7つのオリジナルカジノゲームとカジノ RPG
 
 [![Core](https://github.com/dorachan121/vector/actions/workflows/core.yml/badge.svg)](https://github.com/dorachan121/vector/actions/workflows/core.yml)
 
-**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、6つのオリジナルのカジノゲームと、
+**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、7つのオリジナルのカジノゲームと、
 そのカジノの中を歩いてフロアの主たちに挑む **ストーリーモード（カジノ RPG）** を収録しています。
 
 どのゲームも、実際のカジノと同じ考え方で作っています。配当表は付属のシミュレーターで検証し（厳密に計算できるものは全列挙・動的計画法で求めた **厳密値**）、
@@ -24,6 +24,7 @@
 | **FOUR BEASTS DERBY** | カード × レース | めくったスートの神獣が1歩進むレース。オッズは着順の確率から厳密計算 | 単勝 95.7% / 馬単 96.6%（厳密・平均） |
 | **ALCHEMIA** | 融合 × スロット | 同じ元素が3つつながると融合して位が上がる、連鎖型のビデオスロット | 96.92% ±0.19%（1.2億回） |
 | **DELVE** | 迷宮 × 引き際 | 扉を選んで迷宮を潜り、いつ引き返すかを決める | **96.75〜97.00%**（厳密・どこで引き返しても） |
+| **ORBIT** | 天球儀 × ルーレット | 3つの惑星が止まる位置と並び方に賭ける。37回に1回は彗星が横切る | **97.297%**（厳密・どの賭けも同じ） |
 
 「腕で RTP が変わる」スキルゲーム（VECTOR / CROWN DICE / COLOSSEUM）には、設定で ON にできる **戦略ヒント** があります。
 CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法で求めた **厳密な最善手** です。
@@ -204,6 +205,23 @@ CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法�
 - 扉と魔物: 4/1 · 4/1 · 3/1 · 3/1 · 2/1 · 2/1 · 3/2 · 3/2 · 4/3 · 4/3（最深部 B10 で x2,234.88）
 - 倍率は「払戻率 ÷ その深さまで生き残る確率」を 0.01倍単位で切り捨て。**どこで引き返しても RTP は 96.75〜97.00%** で、打ち方による有利・不利はありません
 
+## 🪐 ORBIT
+
+![ORBIT](docs/images/orbit.jpg)
+
+- 天球儀のテーブルで、太陽のまわりを回る3つの惑星（内 6・中 12・外 24 の位置）が **どこに止まり、どう並ぶか** に賭けるルーレット
+- 惑星への賭けは、彗星が来なかったときの確率どおりの **真のオッズ** で払い、ハウスの取り分は **37 回に 1 回横切る彗星** だけ（シングルゼロのルーレットの 0 と同じ役目）。そのため **どの賭けも RTP は 36/37 = 97.297%**（全スピンを数え上げた厳密値）
+
+| 賭け先 | 配当 | 当たる確率 | 上限 |
+|---|---:|---:|---:|
+| 内惑星の位置（1〜6） | 5:1 | 16.22% | $2,000 |
+| 外惑星の方角（北東・南東・南西・北西） | 3:1 | 24.32% | $5,000 |
+| 外惑星の天地（上半分・下半分） | 1:1 | 48.65% | $10,000 |
+| 内合（内惑星と中惑星が一直線） | 11:1 | 8.11% | $1,000 |
+| 外合（中惑星と外惑星が一直線） | 23:1 | 4.05% | $500 |
+| **惑星直列**（3つとも一直線） | **287:1** | 0.34% | $50 |
+| 彗星 | 35:1 | 2.70% | $300 |
+
 ---
 
 ## 🎰 カジノとしての仕様（全ゲーム共通）
@@ -242,14 +260,14 @@ Assets/Vector/
 │   │   │                     Wagering（BetBoard・IBetLimits・WagerCheck・WagerSession・SpotResult）/ ResponsibleGaming
 │   │   ├── Games/            ゲームごとのルール・エンジン・厳密解ソルバー
 │   │   │   ├── Vector/       Betting（TableRules・TableLimits）/ Board / Poker / Round / Strategy
-│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/
+│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/
 │   │   └── Rpg/              ストーリーモードの規則: RpgSession / RpgState / Progress / Quests / Items / Floors / Challenges /
 │   │                         Daily（ログインボーナス・デイリーミッション）
 │   ├── Runtime/              Vector.Runtime（Unity 側）
 │   │   ├── App/              GameContext / GameCatalog / Startup / GuardedRoutine / Log
 │   │   ├── Casino/           全ゲーム共通のテーブル: CasinoDirector（進行のテンプレート）/ CasinoView / WagerInput /
 │   │   │                     財布（ProfileWallet・ChallengeWallet）/ ChallengeFlow / Views（チップ・HUD・ベットエリアなど）
-│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/
+│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/
 │   │   ├── World/            ストーリーモードのフロア: WorldDirector / Conversation / FloorActors / Views / Cast / Panels
 │   │   ├── Story/            進み具合の保存（StoryProgress）・名前の表示（StoryNames）・フロアの並び・報酬の表示
 │   │   ├── Lobby/            ホーム（縦向き）: LobbyScene（組み立て）/ Tabs（ホーム・ストーリー・プレイ・ミッション・ショップ）/
@@ -259,8 +277,8 @@ Assets/Vector/
 │   │   └── UI/               Foundation（Ui・画面の形と向き・SceneFlow・Tween・Palette）/ Art（光沢・額縁・アイコン・立ち絵の部品）/
 │   │                         Effects（回転・脈動・紙吹雪・金貨）/ Widgets（Dialog・報酬・回転の案内・通貨・ゲージ・バッジ・サブタブ）
 │   └── Editor/               日本語フォントの焼き込み（文言が増えたら自動で作り直す）
-├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（129件）
-├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / World（どれも起点コンポーネントを1つ置くだけ）
+├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（137件）
+├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / World（どれも起点コンポーネントを1つ置くだけ）
 └── Fonts/                    Anton / Oswald / BIZ UDPGothic（SIL Open Font License）
 Tools/
 ├── Simulator/                配当表・挑戦の検証ツール（.NET、Core のソースを共有）
@@ -302,8 +320,8 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（129件）
-# Unity なし（Core のみ・114件）
+# Unity: Window > General > Test Runner > EditMode（137件）
+# Unity なし（Core のみ・122件）
 dotnet test Tools/CoreTests
 ```
 
@@ -324,6 +342,7 @@ dotnet run -c Release -- colosseum                 # COLOSSEUM の厳密な RTP 
 dotnet run -c Release -- derby                     # DERBY の全出走表のオッズと RTP
 dotnet run -c Release -- delve                     # DELVE の深さごとの倍率と RTP
 dotnet run -c Release -- alchemia 120000000        # ALCHEMIA の RTP（1.2億回）
+dotnet run -c Release -- orbit                     # ORBIT の賭け先ごとの厳密な RTP とシミュレーション
 dotnet run -c Release -- challenge 2000            # ストーリーモードの挑戦の勝率
 ```
 
@@ -339,7 +358,7 @@ dotnet run -c Release -- challenge 2000            # ストーリーモードの
 | ディーラーがランダムに置くだけで、上手に打つとプレイヤーが大幅に有利（シミュレーションで RTP 160% 超） | ハウスウェイと「残り2種類の高い方」ルールで、最善手でもハウスエッジ約3% |
 | 引き分け時の精算ミス、毎フレームのセーブ | 精算を `Settlement` に一本化、セーブは配札時と精算時だけ |
 | ベット操作は額面の送りと全額取消のみ、タイマーは常に15秒 | チップラック、UNDO / CLEAR / REBET / ×2、タイマーはチップを置いてから動く |
-| ゲームは VECTOR の1つだけ | 5つの新ゲームとストーリーモードを追加し、6ゲームが同じテーブルの土台（`CasinoDirector`）を共有 |
+| ゲームは VECTOR の1つだけ | 6つの新ゲームとストーリーモードを追加し、7ゲームが同じテーブルの土台（`CasinoDirector`）を共有 |
 
 ---
 

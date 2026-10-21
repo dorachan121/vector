@@ -10,6 +10,7 @@ namespace Vector.Game
         public const string Derby = "Derby";
         public const string Alchemia = "Alchemia";
         public const string Delve = "Delve";
+        public const string Orbit = "Orbit";
 
         /// <summary>RPG のフロア（カジノの中を歩くシーン）。</summary>
         public const string World = "World";

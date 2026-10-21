@@ -18,6 +18,7 @@ namespace Vector.Game.Lobby
                 case GameId.Colosseum: Colosseum(rt, s); break;
                 case GameId.Derby: Derby(rt, s); break;
                 case GameId.Alchemia: Alchemia(rt, s); break;
+                case GameId.Orbit: Orbit(rt, s); break;
                 default: Delve(rt, s); break;
             }
             return rt;
@@ -105,6 +106,24 @@ namespace Vector.Game.Lobby
             Ui.Image(rt, "TorchR", Art.Glow, Palette.Amber.WithAlpha(0.7f), new Vector2(74, 20) * s, Vector2.one * 80 * s);
             Ui.Image(rt, "Door", Art.Door, Color.white, new Vector2(0, -6) * s, new Vector2(120, 180) * s);
             Ui.Image(rt, "Light", Art.Glow, Palette.GoldLight.WithAlpha(0.55f), new Vector2(0, -40) * s, new Vector2(80, 60) * s);
+        }
+
+        /// <summary>天球儀: 太陽と3つの軌道、一直線に並んだ惑星。</summary>
+        static void Orbit(RectTransform rt, float s)
+        {
+            var colors = new[] { Palette.Cyan, Palette.Amber, Palette.Amethyst };
+            var radii = new[] { 34f, 58f, 82f };
+            Ui.Image(rt, "Ray", null, Palette.GoldLight.WithAlpha(0.85f), new Vector2(31, 31) * s, new Vector2(8, 88) * s).rectTransform.localEulerAngles = new Vector3(0, 0, -45);
+            for (int p = 0; p < 3; p++)
+            {
+                float d = radii[p] * 2;
+                Ui.Image(rt, "Orbit", Art.Ring(4f / d), colors[p].WithAlpha(0.6f), Vector2.zero, Vector2.one * d * s);
+                var at = new Vector2(1, 1).normalized * radii[p] * s;
+                Ui.Image(rt, "Glow", Art.Glow, colors[p].WithAlpha(0.7f), at, Vector2.one * 40 * s);
+                Ui.Image(rt, "Planet", Art.Circle, colors[p], at, Vector2.one * (14 + p * 4) * s);
+            }
+            Ui.Image(rt, "Corona", Art.Glow, Palette.GoldMid.WithAlpha(0.85f), Vector2.zero, Vector2.one * 90 * s);
+            Ui.Image(rt, "Sun", Art.Circle, Palette.Gold, Vector2.zero, Vector2.one * 36 * s);
         }
     }
 }

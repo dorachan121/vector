@@ -9,7 +9,7 @@ namespace Vector.Game.Lobby
     {
         static readonly (string tag, Color color, string title, string body)[] Notices =
         {
-            ("イベント", Palette.Ruby, "VECTOR CASINO RESORT グランドオープン！", "6つのオリジナルゲームと、フロアの主に挑むストーリーモードをお楽しみください。"),
+            ("イベント", Palette.Ruby, "VECTOR CASINO RESORT グランドオープン！", "7つのオリジナルゲームと、フロアの主に挑むストーリーモードをお楽しみください。新作 ORBIT（天球儀のルーレット）も登場！"),
             ("新機能", Palette.Emerald, "ログインボーナスとデイリーミッション", "毎日のログインと3つのミッションで、遊戯用チップやコンプが受け取れます。休んでもリセットされません。"),
             ("ゲーム", Palette.Sapphire, "すべてのゲームの配当と確率を公開中", "各テーブルの「遊び方」から、配当表と RTP（プレイヤーへの還元率）を確認できます。"),
             ("大切", Palette.Amber, "遊戯用チップについて", "このゲームのチップは遊戯用です。現金・景品とは交換できません。30分ごとにプレイ時間と収支をお知らせします。"),

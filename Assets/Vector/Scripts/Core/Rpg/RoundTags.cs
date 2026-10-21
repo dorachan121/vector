@@ -15,5 +15,7 @@ namespace Vector.Core.Rpg
         public const string AlchemiaTransmutation = "alchemia.transmutation";
         public const string DelveDeepReturn = "delve.return5";
         public const string DelveLegend = "delve.legend";
+        public const string OrbitAlignment = "orbit.alignment";
+        public const string OrbitComet = "orbit.comet";
     }
 }

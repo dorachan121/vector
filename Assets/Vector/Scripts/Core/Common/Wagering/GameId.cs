@@ -20,5 +20,8 @@ namespace Vector.Core
 
         /// <summary>扉を選んで迷宮を潜り、好きな深さで引き返す。</summary>
         Delve,
+
+        /// <summary>3つの惑星が止まる位置と並び方に賭ける、天球儀のルーレット。</summary>
+        Orbit,
     }
 }

@@ -43,6 +43,8 @@ jobs:
         run: dotnet run --project Tools/Simulator -c Release --no-build -- derby 2000
       - name: DELVE RTP (exact) and simulation
         run: dotnet run --project Tools/Simulator -c Release --no-build -- delve 200000
+      - name: ORBIT RTP (exact) and simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- orbit 200000
       - name: ALCHEMIA smoke simulation
         run: dotnet run --project Tools/Simulator -c Release --no-build -- alchemia 200000
       - name: Story mode challenge balance

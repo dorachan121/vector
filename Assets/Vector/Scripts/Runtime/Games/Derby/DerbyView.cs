@@ -203,7 +203,8 @@ namespace Vector.Game.Derby
             ShowLive(card.Probabilities, false);
             foreach (var pair in tickets)
             {
-                pair.Value.SetOdds(card.OddsTenths(pair.Key));
+                int tenths = card.OddsTenths(pair.Key);
+                pair.Value.SetOdds(DerbyLabels.Odds(tenths), tenths > 0);
                 pair.Value.Highlight(false);
             }
             if (drawn != null)

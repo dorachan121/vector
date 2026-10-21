@@ -5,6 +5,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Orbit;
 using Vector.Game.UI;
 
 namespace Vector.Game
@@ -34,6 +35,7 @@ namespace Vector.Game
             var derby = DerbyRules.Standard;
             var alchemia = AlchemiaRules.Standard;
             var delve = DelveRules.Standard;
+            var orbit = OrbitRules.Standard;
             return new List<GameEntry>
             {
                 new GameEntry
@@ -77,6 +79,13 @@ namespace Vector.Game
                     Pitch = "扉を選んで迷宮を潜る。どこで引き返しても RTP は同じ、違うのは宝の大きさ",
                     Features = new[] { "引き際", "RTP 一定" },
                     Terms = $"{Labels.Money(delve.MinBet)}–{Labels.Money(delve.MaxBet)}  ·  B{delve.Depths} x{delve.MultiplierHundredths(delve.Depths) / 100.0:N2}",
+                },
+                new GameEntry
+                {
+                    Id = GameId.Orbit, Title = "ORBIT", Rtp = "97.3%", Genre = "ORRERY ROULETTE", Scene = SceneNames.Orbit, Accent = Palette.Cyan,
+                    Pitch = "3つの惑星が止まる位置と並びに賭ける天球儀のルーレット。直列すれば 287 倍",
+                    Features = new[] { "RTP 一定", "直列 287:1" },
+                    Terms = $"{Labels.Money(orbit.MinBet)}–{Labels.Money(orbit.MaxFor(OrbitSpots.Half(0)))}  ·  ALIGNMENT {orbit.PaysFor(OrbitSpots.Alignment)}  ·  COMET 1 IN {OrbitRules.CometOneIn}",
                 },
             };
         }

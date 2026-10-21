@@ -3,12 +3,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Vector.Core;
-using Vector.Game.Casino;
 using Vector.Game.UI;
 
-namespace Vector.Game.Derby
+namespace Vector.Game.Casino
 {
-    /// <summary>オッズ表の1マス（馬券）。クリックでチップを置き、置いた額を右下に表示する。</summary>
+    /// <summary>オッズ表の1マス（DERBY の馬券、ORBIT の賭け先など）。クリックでチップを置き、置いた額を右下に表示する。</summary>
     public sealed class TicketView : MonoBehaviour, IBetTarget
     {
         Image plate;
@@ -56,11 +55,11 @@ namespace Vector.Game.Derby
             return view;
         }
 
-        /// <summary>オッズを表示する（10倍した値。0 は発売しない）。</summary>
-        public void SetOdds(int tenths)
+        /// <summary>オッズを表示する。open が false なら発売しない（チップを置けない）。</summary>
+        public void SetOdds(string text, bool open)
         {
-            open = tenths > 0;
-            odds.text = DerbyLabels.Odds(tenths);
+            this.open = open;
+            odds.text = text;
             odds.color = open ? Theme.GoldBright : Theme.Muted.WithAlpha(0.5f);
             Refresh();
         }
