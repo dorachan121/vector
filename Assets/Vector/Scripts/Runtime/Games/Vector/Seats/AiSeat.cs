@@ -21,7 +21,7 @@ namespace Vector.Game.Table
 
         public IEnumerator ChooseFamily(RoundEngine round, Action<LineFamily> done)
         {
-            view.Status.Show("PLAYER IS CHOOSING", "AIプレイヤーがラインの種類を選んでいます");
+            view.Casino.Status.Show("PLAYER IS CHOOSING", "AIプレイヤーがラインの種類を選んでいます");
             var values = round.Board.ToValues();
             var hand = round.HandValues();
             FamilyEstimate[] estimates = null;
@@ -32,7 +32,7 @@ namespace Vector.Game.Table
 
         public IEnumerator ChoosePlacement(RoundEngine round, Action<Placement> done)
         {
-            view.Status.Show("PLAYER'S TURN", "AIプレイヤーが考えています");
+            view.Casino.Status.Show("PLAYER'S TURN", "AIプレイヤーが考えています");
             var values = round.Board.ToValues();
             var hand = round.HandValues();
             var family = round.PlayerFamily;

@@ -9,65 +9,65 @@ namespace Vector.Tests
         static readonly TableRules Rules = TableRules.Standard;
 
         [Test]
-        public void BetLayout_UndoRemovesChipsInReverseOrder()
+        public void BetBoard_UndoRemovesChipsInReverseOrder()
         {
-            var bets = new BetLayout();
-            bets.Add(BetSpot.Main, 100);
-            bets.Add(BetSpot.Bonus, 5);
-            bets.Add(BetSpot.Main, 10);
+            var bets = new BetBoard();
+            bets.Add((int)BetSpot.Main, 100);
+            bets.Add((int)BetSpot.Bonus, 5);
+            bets.Add((int)BetSpot.Main, 10);
             Assert.AreEqual(115, bets.Total);
 
             Assert.IsTrue(bets.TryUndo(out var spot, out long amount));
-            Assert.AreEqual(BetSpot.Main, spot);
+            Assert.AreEqual((int)BetSpot.Main, spot);
             Assert.AreEqual(10, amount);
             Assert.IsTrue(bets.TryUndo(out spot, out amount));
-            Assert.AreEqual(BetSpot.Bonus, spot);
-            Assert.AreEqual(0, bets[BetSpot.Bonus]);
+            Assert.AreEqual((int)BetSpot.Bonus, spot);
+            Assert.AreEqual(0, bets[(int)BetSpot.Bonus]);
             Assert.AreEqual(100, bets.Total);
         }
 
         [Test]
-        public void BetLayout_CloneKeepsAmountsAndHistory()
+        public void BetBoard_CloneKeepsAmountsAndHistory()
         {
-            var bets = new BetLayout();
-            bets.Add(BetSpot.Player, 50);
-            bets.Add(BetSpot.Tie, 10);
+            var bets = new BetBoard();
+            bets.Add((int)BetSpot.Player, 50);
+            bets.Add((int)BetSpot.Tie, 10);
             var copy = bets.Clone();
             bets.Clear();
             Assert.IsTrue(bets.IsEmpty);
             Assert.AreEqual(60, copy.Total);
             Assert.IsTrue(copy.TryUndo(out var spot, out _));
-            Assert.AreEqual(BetSpot.Tie, spot);
+            Assert.AreEqual((int)BetSpot.Tie, spot);
         }
 
         [Test]
-        public void BetLayout_RejectsNonPositiveChips()
+        public void BetBoard_RejectsNonPositiveChips()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new BetLayout().Add(BetSpot.Main, 0));
-            Assert.IsFalse(new BetLayout().TryUndo(out _, out _));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new BetBoard().Add((int)BetSpot.Main, 0));
+            Assert.IsFalse(new BetBoard().TryUndo(out _, out _));
         }
 
         [Test]
         public void Validate_EnforcesModeLimitsAndPrimaryBet()
         {
-            var bets = new BetLayout();
-            Assert.AreEqual(BetError.NoPrimaryBet, Rules.Validate(GameMode.Player, bets).Error);
+            var bets = new BetBoard();
+            Assert.AreEqual(BetError.NoPrimaryBet, WagerCheck.Validate(Rules.LimitsFor(GameMode.Player), bets).Error);
 
-            bets.Add(BetSpot.Bonus, 5);
-            Assert.AreEqual(BetError.NoPrimaryBet, Rules.Validate(GameMode.Player, bets).Error);
+            bets.Add((int)BetSpot.Bonus, 5);
+            Assert.AreEqual(BetError.NoPrimaryBet, WagerCheck.Validate(Rules.LimitsFor(GameMode.Player), bets).Error);
 
-            bets.Add(BetSpot.Main, 5);
-            var check = Rules.Validate(GameMode.Player, bets);
+            bets.Add((int)BetSpot.Main, 5);
+            var check = WagerCheck.Validate(Rules.LimitsFor(GameMode.Player), bets);
             Assert.AreEqual(BetError.BelowMinimum, check.Error);
-            Assert.AreEqual(BetSpot.Main, check.Spot);
+            Assert.AreEqual((int)BetSpot.Main, check.Spot);
             Assert.AreEqual(Rules.MinBet, check.Limit);
 
-            bets.Add(BetSpot.Main, 5);
-            Assert.IsTrue(Rules.Validate(GameMode.Player, bets).IsValid);
-            Assert.AreEqual(BetError.SpotUnavailable, Rules.Validate(GameMode.Audience, bets).Error);
+            bets.Add((int)BetSpot.Main, 5);
+            Assert.IsTrue(WagerCheck.Validate(Rules.LimitsFor(GameMode.Player), bets).IsValid);
+            Assert.AreEqual(BetError.SpotUnavailable, WagerCheck.Validate(Rules.LimitsFor(GameMode.Audience), bets).Error);
 
-            bets.Add(BetSpot.Main, Rules.MaxBet);
-            Assert.AreEqual(BetError.AboveMaximum, Rules.Validate(GameMode.Player, bets).Error);
+            bets.Add((int)BetSpot.Main, Rules.MaxBet);
+            Assert.AreEqual(BetError.AboveMaximum, WagerCheck.Validate(Rules.LimitsFor(GameMode.Player), bets).Error);
         }
 
         [Test]

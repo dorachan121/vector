@@ -10,10 +10,15 @@ namespace Vector.Core
     {
         public static readonly TableRules Standard = new TableRules(new Odds(1));
 
+        readonly TableLimits playerLimits;
+        readonly TableLimits audienceLimits;
+
         /// <param name="mainPays">メインベットの配当。シミュレーターで別の配当を検証するときに差し替える。</param>
         public TableRules(Odds mainPays)
         {
             MainPays = mainPays;
+            playerLimits = new TableLimits(this, GameMode.Player);
+            audienceLimits = new TableLimits(this, GameMode.Audience);
         }
 
         public int DeckCount { get; } = 6;
@@ -52,35 +57,7 @@ namespace Vector.Core
         /// <summary>ライン選択・カード配置の制限時間（秒）。時間切れは戦略ヒントの手で自動進行。</summary>
         public float DecisionSeconds { get; } = 25f;
 
-        public bool IsSpotAvailable(GameMode mode, BetSpot spot)
-        {
-            switch (spot)
-            {
-                case BetSpot.Main: return mode == GameMode.Player;
-                case BetSpot.Bonus: return true;
-                default: return mode == GameMode.Audience;
-            }
-        }
-
-        public long MinFor(BetSpot spot) => spot == BetSpot.Bonus ? BonusMinBet : MinBet;
-
-        public long MaxFor(BetSpot spot) => spot == BetSpot.Bonus ? BonusMaxBet : MaxBet;
-
-        /// <summary>配る前のベット検証。</summary>
-        public BetCheck Validate(GameMode mode, BetLayout bets)
-        {
-            bool hasPrimary = false;
-            foreach (var bet in bets.NonZero())
-            {
-                if (!IsSpotAvailable(mode, bet.Key))
-                    return new BetCheck(BetError.SpotUnavailable, bet.Key);
-                if (bet.Value < MinFor(bet.Key))
-                    return new BetCheck(BetError.BelowMinimum, bet.Key, MinFor(bet.Key));
-                if (bet.Value > MaxFor(bet.Key))
-                    return new BetCheck(BetError.AboveMaximum, bet.Key, MaxFor(bet.Key));
-                hasPrimary |= bet.Key != BetSpot.Bonus;
-            }
-            return hasPrimary ? BetCheck.Ok : new BetCheck(BetError.NoPrimaryBet);
-        }
+        /// <summary>そのモードで置けるベットエリアと上下限（ベットエリアの番号は <see cref="BetSpot"/> の値）。</summary>
+        public IBetLimits LimitsFor(GameMode mode) => mode == GameMode.Player ? playerLimits : audienceLimits;
     }
 }

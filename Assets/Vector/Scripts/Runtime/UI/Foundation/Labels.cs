@@ -73,19 +73,7 @@ namespace Vector.Game.UI
 
         public static string Mode(GameMode mode) => mode == GameMode.Player ? "PLAYER SEAT" : "AUDIENCE";
 
-        public static string BetProblem(BetCheck check)
-        {
-            switch (check.Error)
-            {
-                case BetError.None: return null;
-                case BetError.NoPrimaryBet: return "メインのベットを置いてください";
-                case BetError.BelowMinimum: return $"{Spot(check.Spot)} のミニマムは {Money(check.Limit)} です";
-                case BetError.AboveMaximum: return $"{Spot(check.Spot)} のマキシマムは {Money(check.Limit)} です";
-                default: return $"{Spot(check.Spot)} にはこのモードで賭けられません";
-            }
-        }
-
-        /// <summary>新しいゲームのベット検証の問題（ベットエリアの名前はゲームごとに渡す）。</summary>
+        /// <summary>ベット検証の問題（ベットエリアの名前はゲームごとに渡す）。</summary>
         public static string WagerProblem(WagerCheck check, Func<int, string> spotName)
         {
             switch (check.Error)
@@ -98,7 +86,7 @@ namespace Vector.Game.UI
             }
         }
 
-        /// <summary>チップを置けなかった理由（新しいゲーム用）。</summary>
+        /// <summary>チップを置けなかった理由。</summary>
         public static string ChipProblem(ChipError error, string spotName, long maximum)
         {
             switch (error)
@@ -108,18 +96,6 @@ namespace Vector.Game.UI
                 case ChipError.AboveMaximum: return $"{spotName} のマキシマムは {Money(maximum)} です";
                 case ChipError.NotBetting: return "ベット受付は終了しました";
                 default: return $"{spotName} には賭けられません";
-            }
-        }
-
-        public static string ChipProblem(ChipError error, BetSpot spot, TableRules rules)
-        {
-            switch (error)
-            {
-                case ChipError.None: return null;
-                case ChipError.InsufficientFunds: return "手持ちのチップが足りません";
-                case ChipError.AboveMaximum: return $"{Spot(spot)} のマキシマムは {Money(rules.MaxFor(spot))} です";
-                case ChipError.NotBetting: return "ベット受付は終了しました";
-                default: return $"{Spot(spot)} にはこのモードで賭けられません";
             }
         }
     }

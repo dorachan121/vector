@@ -10,10 +10,10 @@ namespace Vector.Tests
         static RoundEngine NewEngine(ulong seed = 11)
             => new RoundEngine(TableRules.Standard, new Shoe(6, new SeededRandom(seed)), new FirstEmptyCellDealer());
 
-        static BetLayout MainBet(long amount = 100)
+        static BetBoard MainBet(long amount = 100)
         {
-            var bets = new BetLayout();
-            bets.Add(BetSpot.Main, amount);
+            var bets = new BetBoard();
+            bets.Add((int)BetSpot.Main, amount);
             return bets;
         }
 
@@ -32,7 +32,7 @@ namespace Vector.Tests
         public void Deal_RejectsInvalidBets()
         {
             var engine = NewEngine();
-            Assert.Throws<InvalidOperationException>(() => engine.Deal(GameMode.Player, new BetLayout()));
+            Assert.Throws<InvalidOperationException>(() => engine.Deal(GameMode.Player, new BetBoard()));
             Assert.AreEqual(RoundPhase.Betting, engine.Phase);
         }
 

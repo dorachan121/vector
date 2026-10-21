@@ -1,28 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using Vector.Core;
-using Vector.Game.Audio;
 using Vector.Game.UI;
 
 namespace Vector.Game.Table
 {
     /// <summary>
-    /// ラウンドの状態を画面に映す役。配置中の得点表示、勝負の結果、チップの払い戻し演出、片付けを担当する。
-    /// 進行の判断はしない（TableDirector から呼ばれるだけ）。
+    /// ラウンドの状態を画面に映す役。配置中の得点表示、勝負の結果（勝ったライン・得点・結果の帯・配当表の強調）、片付けを担当する。
+    /// 精算とチップの演出は CasinoDirector、進行の判断は TableDirector が受け持つ。
     /// </summary>
     public sealed class RoundPresenter
     {
-        /// <summary>この倍以上の勝ちは大勝ちの効果音にする。</summary>
-        const long BigWinMultiple = 5;
-
         readonly TableView view;
-        readonly TableFx fx;
 
-        public RoundPresenter(TableView view, TableFx fx)
-        {
-            this.view = view;
-            this.fx = fx;
-        }
+        public RoundPresenter(TableView view) => this.view = view;
 
         /// <summary>配置中のライン合計と両者の暫定得点を表示する。</summary>
         public void ShowScores(int[] values, LineFamily playerFamily)
@@ -34,10 +25,10 @@ namespace Vector.Game.Table
             view.DealerPlate.SetScore(Scoring.DealerScore(values, playerFamily));
         }
 
-        /// <summary>勝負を決めたラインを示し、結果を表示してチップを精算する。</summary>
+        /// <summary>勝負を決めたラインを示し、結果の帯と勝ったベットの配当を表示する。</summary>
         public IEnumerator ShowResult(RoundResult result, bool hasBonusBet)
         {
-            view.Status.Show("SHOWDOWN");
+            view.Casino.Status.Show("SHOWDOWN");
             view.PlayerPlate.SetScore(result.PlayerScore);
             view.DealerPlate.SetFamily(Labels.Family(result.DealerFamily));
             view.DealerPlate.SetScore(result.DealerScore);
@@ -48,66 +39,24 @@ namespace Vector.Game.Table
             view.Board.DimExcept(CellsOf(result));
             yield return Tween.Wait(0.6f);
 
-            view.Status.SetVisible(false);
+            view.Casino.Status.SetVisible(false);
             view.Result.Show(result, hasBonusBet);
-            PlayResultSound(result);
-            yield return PayOut(result);
+            foreach (var bet in result.Bets)
+            {
+                if (bet.Outcome == BetOutcome.Win)
+                    view.Paytable.HighlightSpot((BetSpot)bet.Spot);
+            }
         }
 
         /// <summary>結果表示を片付け、次のラウンドの状態に戻す。</summary>
         public void Reset()
         {
             view.Result.Hide();
-            view.Status.SetVisible(true);
+            view.Picker.Hide();
+            view.Casino.Status.SetVisible(true);
             view.PlayerPlate.Clear();
             view.DealerPlate.Clear();
             view.Paytable.ClearHighlights();
-            foreach (var spot in view.Spots.Values)
-            {
-                spot.ResetOutcome();
-                spot.SetAmount(0);
-            }
-        }
-
-        /// <summary>負けたチップはディーラーへ、勝ちは配当を足してから手元へ飛ばす。</summary>
-        IEnumerator PayOut(RoundResult result)
-        {
-            var bank = view.Shoe.transform.position;
-            var wallet = view.Hud.BalanceWorldPosition;
-            foreach (var bet in result.Bets)
-            {
-                var spot = view.Spots[bet.Spot];
-                spot.ShowOutcome(bet.Outcome);
-                if (bet.Outcome == BetOutcome.Win)
-                {
-                    view.Paytable.HighlightSpot(bet.Spot);
-                    fx.FlyChips(bet.Net, bank, spot.Stack.TopWorldPosition);
-                }
-                else if (bet.Outcome == BetOutcome.Lose)
-                {
-                    fx.FlyChips(bet.Stake, spot.Stack.TopWorldPosition, bank);
-                    spot.SetAmount(0);
-                }
-            }
-            yield return Tween.Wait(TableFx.ChipFlightSeconds);
-
-            bool anyReturn = false;
-            foreach (var bet in result.Bets)
-            {
-                if (bet.Return <= 0)
-                    continue;
-                anyReturn = true;
-                var spot = view.Spots[bet.Spot];
-                spot.SetAmount(bet.Return);
-                fx.FlyChips(bet.Return, spot.Stack.TopWorldPosition, wallet, 0.35f);
-            }
-            if (anyReturn)
-            {
-                Sfx.Play(SfxKind.ChipsCollect);
-                yield return Tween.Wait(0.35f + TableFx.ChipFlightSeconds);
-            }
-            foreach (var spot in view.Spots.Values)
-                spot.SetAmount(0);
         }
 
         static HashSet<int> CellsOf(RoundResult result)
@@ -119,16 +68,6 @@ namespace Vector.Game.Table
                     cells.UnionWith(new[] { line.A, line.B, line.C });
             }
             return cells;
-        }
-
-        static void PlayResultSound(RoundResult result)
-        {
-            if (result.Net > 0)
-                Sfx.Play(result.Net >= result.TotalStake * BigWinMultiple ? SfxKind.BigWin : SfxKind.Win);
-            else if (result.Net < 0)
-                Sfx.Play(SfxKind.Lose);
-            else
-                Sfx.Play(SfxKind.Push);
         }
     }
 }

@@ -141,8 +141,8 @@ namespace Vector.Simulator
 
             long PlayVector(long stake)
             {
-                var bets = new BetLayout();
-                bets.Add(BetSpot.Main, stake);
+                var bets = new BetBoard();
+                bets.Add((int)BetSpot.Main, stake);
                 vector.BeginBetting();
                 vector.Deal(GameMode.Player, bets);
                 var estimates = vectorAdvisor.EstimateFamilies(vector.Board.ToValues(), vector.HandValues());

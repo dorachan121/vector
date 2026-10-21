@@ -60,8 +60,8 @@ namespace Vector.Simulator
             var engine = new RoundEngine(rules, new Shoe(rules.DeckCount, dealRandom), new HouseWay(new SeededRandom(seed ^ 0xD1CEUL), rules.HouseWayPlayouts));
             var advisor = new PlayerAdvisor(new SeededRandom(seed ^ 0xAD7153UL), rules);
             var casualAdvisor = new PlayerAdvisor(new SeededRandom(seed ^ 0xCA5UL), rules, familyPlayouts: 24, movePlayouts: 0);
-            var bets = new BetLayout();
-            bets.Add(BetSpot.Main, rules.MinBet);
+            var bets = new BetBoard();
+            bets.Add((int)BetSpot.Main, rules.MinBet);
             var totals = new Totals();
 
             for (int r = 0; r < rounds; r++)

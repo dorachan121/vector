@@ -7,7 +7,7 @@ using Vector.Game.UI;
 
 namespace Vector.Game.Table
 {
-    /// <summary>カードを配る・片付ける、チップを飛ばすといった演出をまとめたもの。</summary>
+    /// <summary>カードを配る・手札から置く・片付けるといった演出をまとめたもの（チップの演出は CasinoDirector が受け持つ）。</summary>
     public sealed class TableFx
     {
         const float DealSeconds = 0.32f;
@@ -58,26 +58,20 @@ namespace Vector.Game.Table
             if (cards.Count == 0)
                 yield break;
             Sfx.Play(SfxKind.CardDeal);
-            var target = view.FxPoint(view.Discard.position);
+            var target = view.Casino.FxPoint(view.Discard.position);
             for (int i = 0; i < cards.Count; i++)
             {
                 var card = cards[i];
-                card.transform.SetParent(view.Fx, true);
+                card.transform.SetParent(view.Casino.Fx, true);
                 card.Flip(false, 0.2f);
                 Tween.Move(card.Rect, target, 0.35f, Ease.InCubic, () => Object.Destroy(card.gameObject), i * 0.03f);
             }
             yield return Tween.Wait(0.35f + cards.Count * 0.03f);
         }
 
-        /// <summary>チップの山を飛ばす（額に応じて最大数枚）。</summary>
-        public void FlyChips(long amount, Vector3 fromWorld, Vector3 toWorld, float delay = 0f)
-            => ChipFlight.Fly(view.Fx, amount, fromWorld, toWorld, delay);
-
-        public static float ChipFlightSeconds => ChipFlight.Seconds;
-
         CardView SpawnAtShoe(Card card)
         {
-            var cardView = CardView.Create(view.Fx, "Card " + card, view.FxPoint(view.Shoe.DealPoint.position));
+            var cardView = CardView.Create(view.Casino.Fx, "Card " + card, view.Casino.FxPoint(view.Shoe.DealPoint.position));
             cardView.SetCard(card);
             cardView.Rect.localEulerAngles = new Vector3(0, 0, 90);
             Tween.Rotate(cardView.transform, 0f, DealSeconds);

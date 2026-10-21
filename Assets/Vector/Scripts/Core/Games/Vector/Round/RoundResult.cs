@@ -6,7 +6,7 @@ namespace Vector.Core
     public sealed class RoundResult : IRoundOutcome
     {
         public RoundResult(LineFamily playerFamily, LineFamily dealerFamily, int playerScore, int dealerScore,
-            IReadOnlyList<Line> playerLines, IReadOnlyList<Line> dealerLines, PokerHand bonusHand, IReadOnlyList<BetResult> bets)
+            IReadOnlyList<Line> playerLines, IReadOnlyList<Line> dealerLines, PokerHand bonusHand, IReadOnlyList<SpotResult> bets)
         {
             PlayerFamily = playerFamily;
             DealerFamily = dealerFamily;
@@ -27,29 +27,11 @@ namespace Vector.Core
         public IReadOnlyList<Line> PlayerLines { get; }
         public IReadOnlyList<Line> DealerLines { get; }
         public PokerHand BonusHand { get; }
-        public IReadOnlyList<BetResult> Bets { get; }
+        public IReadOnlyList<SpotResult> Bets { get; }
 
-        public long TotalStake
-        {
-            get
-            {
-                long sum = 0;
-                foreach (var b in Bets)
-                    sum += b.Stake;
-                return sum;
-            }
-        }
+        public long TotalStake => SpotResult.TotalStake(Bets);
 
-        public long TotalReturn
-        {
-            get
-            {
-                long sum = 0;
-                foreach (var b in Bets)
-                    sum += b.Return;
-                return sum;
-            }
-        }
+        public long TotalReturn => SpotResult.TotalReturn(Bets);
 
         public long Net => TotalReturn - TotalStake;
     }

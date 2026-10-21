@@ -13,7 +13,7 @@ namespace Vector.Game.Casino
 {
     /// <summary>
     /// テーブルで行うフロアの主の挑戦の共通処理（上部のバーの表示・途中でやめる確認・終わったときの結果とフロアへの帰還）。
-    /// VECTOR の TableDirector と新しいゲームの CasinoDirector の両方から使う。
+    /// CasinoDirector（全ゲーム共通の進行役）から使う。
     /// </summary>
     public static class ChallengeFlow
     {

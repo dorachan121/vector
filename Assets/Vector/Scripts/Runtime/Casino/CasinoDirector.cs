@@ -12,7 +12,7 @@ using Vector.Game.UI.Widgets;
 namespace Vector.Game.Casino
 {
     /// <summary>
-    /// 新しいゲームに共通のテーブルの進行役。ベット受付 → 勝負（ゲームごと） → 精算 → 片付け を繰り返す。
+    /// 全ゲーム共通のテーブルの進行役。ベット受付 → 勝負（ゲームごと） → 精算 → 片付け を繰り返す。
     /// 1ラウンドを GuardedRoutine で包み、想定外の例外が起きたらラウンドを無効にして賭け金を返金する。
     /// 勝負の中身は派生クラスが <see cref="PlayRound"/> で実装し、決着したら <see cref="Settle"/> を呼ぶ。
     /// </summary>

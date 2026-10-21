@@ -6,7 +6,7 @@ using Vector.Game.UI.Widgets;
 namespace Vector.Game.Casino
 {
     /// <summary>
-    /// 新しいゲームに共通のテーブル画面の土台（フェルト・上部のバー・進行表示・チップラック・操作ボタン・演出とダイアログのレイヤー）。
+    /// 全ゲーム共通のテーブル画面の土台（フェルト・上部のバー・進行表示・チップラック・操作ボタン・演出とダイアログのレイヤー）。
     /// ゲーム固有の部品は <see cref="Stage"/> に置く。座標は 1920×1080 基準で、配置の判断はしない。
     /// </summary>
     public sealed class CasinoView

@@ -6,7 +6,7 @@ using Vector.Game.UI;
 namespace Vector.Game.Table
 {
     /// <summary>
-    /// テーブルシーンの起点（コンポジションルート）。ルール・乱数・シュー・ハウスウェイ・セッションを組み立て、
+    /// テーブルシーンの起点（コンポジションルート）。ルール・乱数・シュー・ハウスウェイ・賭け金の管理を組み立て、
     /// 画面を作って進行役に渡す。シーンにはこのコンポーネントを1つ置くだけでよい。
     /// </summary>
     public sealed class TableScene : MonoBehaviour
@@ -14,7 +14,6 @@ namespace Vector.Game.Table
         void Start()
         {
             Ui.EnsureEventSystem();
-            var profiles = GameContext.Profiles;
             var rules = GameContext.Rules;
             var mode = GameContext.SelectedMode;
 
@@ -24,11 +23,11 @@ namespace Vector.Game.Table
             var house = new HouseWay(new SeededRandom(Seed(random)), rules.HouseWayPlayouts);
             var round = new RoundEngine(rules, shoe, house);
             var wallet = ChallengeFlow.WalletFor(GameId.Vector, rules.MinBet);
-            var session = new TableSession(rules, new Bankroll(wallet.Balance), round, mode);
+            var session = new WagerSession(rules.LimitsFor(mode), new Bankroll(wallet.Balance));
             var advisor = new PlayerAdvisor(new SeededRandom(Seed(random)), rules);
 
             var view = TableView.Build(mode, rules);
-            gameObject.AddComponent<TableDirector>().Begin(session, view, profiles, wallet, advisor);
+            gameObject.AddComponent<TableDirector>().Begin(rules, mode, round, view, session, wallet, advisor);
         }
 
         static ulong Seed(IRandomSource random) => ((ulong)(uint)random.Next(int.MaxValue) << 32) | (uint)random.Next(int.MaxValue);

@@ -27,7 +27,7 @@ namespace Vector.Core
         public Shoe Shoe => shoe;
         public Board Board { get; } = new Board();
         public RoundPhase Phase { get; private set; } = RoundPhase.Betting;
-        public BetLayout Bets { get; private set; } = new BetLayout();
+        public BetBoard Bets { get; private set; } = new BetBoard();
         public IReadOnlyList<Card> Hand => hand;
         public PokerHand BonusHand { get; private set; }
         public int RoundNumber { get; private set; }
@@ -57,12 +57,12 @@ namespace Vector.Core
         }
 
         /// <summary>ベットを確定し、中央のベクターカードと手札4枚を配る。</summary>
-        public void Deal(GameMode mode, BetLayout bets)
+        public void Deal(GameMode mode, BetBoard bets)
         {
             Require(RoundPhase.Betting);
             if (bets == null)
                 throw new ArgumentNullException(nameof(bets));
-            var check = rules.Validate(mode, bets);
+            var check = WagerCheck.Validate(rules.LimitsFor(mode), bets);
             if (!check.IsValid)
                 throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
 
@@ -131,9 +131,9 @@ namespace Vector.Core
             int dealerScore = Scoring.FamilyScore(values, dealerFamily);
             var winner = Scoring.WinnerOf(playerScore, dealerScore);
 
-            var bets = new List<BetResult>();
+            var bets = new List<SpotResult>();
             foreach (var bet in Bets.NonZero())
-                bets.Add(Settlement.Settle(rules, bet.Key, bet.Value, winner, BonusHand));
+                bets.Add(Settlement.Settle(rules, (BetSpot)bet.Key, bet.Value, winner, BonusHand));
 
             Phase = RoundPhase.Complete;
             return new RoundResult(playerFamily, dealerFamily, playerScore, dealerScore,

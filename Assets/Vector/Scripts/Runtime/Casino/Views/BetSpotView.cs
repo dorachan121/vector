@@ -9,7 +9,7 @@ namespace Vector.Game.Casino
 {
     /// <summary>
     /// フェルトに印刷されたベットエリア。クリックでチップを置き、精算時は勝ち負けを光り方で示す。
-    /// ベットエリアは番号で表す（VECTOR は BetSpot の値、新しいゲームは各ゲームのベットエリアの番号）。
+    /// ベットエリアは番号で表す（番号の意味はゲームごとに決める。VECTOR は BetSpot の値）。
     /// </summary>
     public sealed class BetSpotView : MonoBehaviour, IBetTarget
     {

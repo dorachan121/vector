@@ -68,8 +68,6 @@ namespace Vector.Game.Casino
             Tween.Run(balance, "count", 0.8f, Ease.OutCubic, t => balance.text = Labels.Money((long)Math.Round(from + (value - from) * (double)t)));
         }
 
-        public void SetRoundInfo(int shoeNumber, int roundNumber) => SetInfo($"SHOE #{shoeNumber}  ·  ROUND {roundNumber}");
-
         /// <summary>テーブル情報の2行目（ラウンド番号など）を自由な文言にする。</summary>
         public void SetInfo(string text)
         {

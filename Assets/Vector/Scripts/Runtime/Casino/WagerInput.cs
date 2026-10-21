@@ -7,7 +7,7 @@ namespace Vector.Game.Casino
 {
     /// <summary>
     /// ベット受付中の操作（チップを置く・取り消す・リベット・倍掛け・開始）を WagerSession に取り次ぎ、結果を画面に反映する。
-    /// ルールの判断はすべて WagerSession 側にある（VECTOR の BettingInput と同じ役割）。
+    /// ルールの判断はすべて WagerSession 側にある。
     /// </summary>
     public sealed class WagerInput
     {

@@ -112,7 +112,7 @@ namespace Vector.Tests
             Assert.AreEqual(100, service.Profile.pendingStake);
 
             var result = new RoundResult(LineFamily.Row, LineFamily.Column, 30, 20, new Line[0], new Line[0], PokerHand.Nothing,
-                new[] { new BetResult(BetSpot.Main, 100, BetOutcome.Win, 200) });
+                new[] { new SpotResult((int)BetSpot.Main, 100, BetOutcome.Win, 200) });
             service.RecordSettlement(10_100, result, GameId.Vector);
             Assert.AreEqual(0, service.Profile.pendingStake);
             Assert.AreEqual(10_100, service.Profile.balance);

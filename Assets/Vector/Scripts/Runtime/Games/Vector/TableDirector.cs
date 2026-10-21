@@ -1,240 +1,131 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.Audio;
 using Vector.Game.Casino;
-using Vector.Game.Persistence;
 using Vector.Game.UI;
-using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.Table
 {
     /// <summary>
-    /// テーブルの進行役。ベット受付 → 配札 → ライン選択 → 交互の配置 → 勝負 → 片付け を繰り返す。
-    /// 1ラウンドを GuardedRoutine で包み、想定外の例外が起きたらラウンドを無効にして賭け金を返金する。
+    /// VECTOR のテーブルの進行役。配札 → ライン選択 → 交互の配置 → 勝負 を受け持つ。
+    /// ベット受付・精算・チップの演出・障害時の返金・離席などの共通の流れは CasinoDirector が受け持つ。
     /// </summary>
-    public sealed class TableDirector : MonoBehaviour
+    public sealed class TableDirector : CasinoDirector
     {
-        const int MaxConsecutiveFaults = 3;
         const float ResultSeconds = 2.8f;
 
-        /// <summary>リアリティチェック（プレイ時間と収支のお知らせ）を出す間隔。</summary>
-        static readonly TimeSpan RealityCheckInterval = TimeSpan.FromMinutes(30);
-
-        TableSession session;
+        TableRules rules;
+        GameMode mode;
+        RoundEngine round;
         TableView view;
         TableFx fx;
         RoundPresenter presenter;
-        ProfileService profiles;
-        ITableWallet wallet;
-        BettingInput betting;
         IPlayerSeat seat;
-        RealityCheck realityCheck;
-        bool leaving;
+        readonly Scoreboard scoreboard = new Scoreboard();
 
-        TableRules Rules => session.Rules;
-        RoundEngine Round => session.Round;
-        static bool Paused => Dialog.IsAnyOpen;
-
-        /// <summary>フロアの主の挑戦中なら、その挑戦。</summary>
-        ChallengeRun Challenge => (wallet as ChallengeWallet)?.Run;
-
-        public void Begin(TableSession session, TableView view, ProfileService profiles, ITableWallet wallet, PlayerAdvisor advisor)
+        public void Begin(TableRules rules, GameMode mode, RoundEngine round, TableView view, WagerSession session, ITableWallet wallet, PlayerAdvisor advisor)
         {
-            this.session = session;
+            this.rules = rules;
+            this.mode = mode;
+            this.round = round;
             this.view = view;
-            this.profiles = profiles;
-            this.wallet = wallet;
             fx = new TableFx(view);
-            presenter = new RoundPresenter(view, fx);
-            betting = new BettingInput(session, view, fx);
-            realityCheck = new RealityCheck(RealityCheckInterval, session.Balance, DateTime.UtcNow);
-            seat = session.Mode == GameMode.Player
-                ? new HumanSeat(view, advisor, Rules, () => profiles.Profile.settings.showStrategy, () => Paused)
+            presenter = new RoundPresenter(view);
+            seat = mode == GameMode.Player
+                ? new HumanSeat(view, advisor, rules, () => ShowStrategy, () => Paused)
                 : (IPlayerSeat)new AiSeat(view, advisor);
-
-            view.Hud.LobbyClicked += GoToLobby;
-            view.Hud.HelpClicked += () => HelpDialog.Open(view.Overlay, Rules);
-            view.Hud.SettingsClicked += () => SettingsDialog.Open(view.Overlay, profiles, GameContext.ApplySettings);
-            betting.End();
-            if (Challenge != null)
-                ChallengeFlow.ShowHud(view.Hud, Challenge);
-            StartCoroutine(MainLoop());
+            Begin(view.Casino, session, wallet);
         }
 
-        IEnumerator MainLoop()
+        protected override GameId Game => GameId.Vector;
+        protected override float BettingSeconds => rules.BettingSeconds;
+        protected override long TableMinimum => rules.MinBet;
+
+        protected override string BettingHint => mode == GameMode.Player
+            ? "MAIN にチップを置いて DEAL（BONUS は任意）"
+            : "PLAYER / DEALER / TIE にチップを置いて DEAL";
+
+        protected override string SpotName(int spot) => Labels.Spot((BetSpot)spot);
+
+        protected override IReadOnlyList<(string title, string body)> HelpPages => VectorHelp.Pages(rules);
+
+        protected override IEnumerator BeforeBetting()
         {
-            int consecutiveFaults = 0;
-            while (!leaving)
+            if (round.BeginBetting())
             {
-                Exception fault = null;
-                yield return GuardedRoutine.Run(PlayRound(), e => fault = e);
-                if (fault == null)
-                {
-                    consecutiveFaults = 0;
-                    continue;
-                }
-                yield return Recover(fault);
-                if (++consecutiveFaults >= MaxConsecutiveFaults)
-                {
-                    Log.Error("エラーが続いたためロビーに戻ります。");
-                    SceneManager.LoadScene(GameContext.ReturnScene);
-                    yield break;
-                }
+                scoreboard.Clear();
+                yield return Shuffle();
             }
+            RefreshTableInfo();
         }
 
-        IEnumerator PlayRound()
+        protected override IEnumerator PlayRound(BetBoard inPlay)
         {
-            var challenge = Challenge;
-            if (challenge != null)
-            {
-                challenge.CheckBroke(Rules.MinBet);
-                if (challenge.IsOver)
-                {
-                    leaving = true;
-                    yield return ChallengeFlow.Finish(view.Overlay, challenge);
-                    yield break;
-                }
-            }
-            yield return Betting();
+            round.Deal(mode, inPlay);
             yield return Deal();
             yield return ChooseFamily();
-            while (Round.Phase != RoundPhase.Showdown)
-                yield return Round.Phase == RoundPhase.PlayerTurn ? PlayerTurn() : DealerTurn();
+            while (round.Phase != RoundPhase.Showdown)
+                yield return round.Phase == RoundPhase.PlayerTurn ? PlayerTurn() : DealerTurn();
             yield return Showdown();
-            yield return Cleanup();
         }
 
-        // ------------------------------------------------------------------
-        // ベット受付
-        // ------------------------------------------------------------------
+        protected override void AbortRound() => round.Abort();
 
-        IEnumerator Betting()
+        protected override IEnumerator ResetTable()
         {
-            KeepScreenOn(false);
-            if (session.BeginBetting())
-                yield return Shuffle();
-            RefreshTableInfo();
-            while (session.IsBroke)
-                yield return OfferReload();
-            if (realityCheck.IsDue(DateTime.UtcNow))
-                yield return ShowRealityCheck();
+            presenter.Reset();
+            yield return fx.CollectCards();
+        }
 
-            view.ShowBettingControls(true);
-            view.Hud.SetLobbyEnabled(true);
-            view.Status.Show("PLACE YOUR BETS", session.Mode == GameMode.Player
-                ? "MAIN にチップを置いて DEAL（BONUS は任意）"
-                : "PLAYER / DEALER / TIE にチップを置いて DEAL");
-            betting.Begin();
-
-            var timer = new CountdownTimer(Rules.BettingSeconds);
-            while (!betting.DealRequested)
+        /// <summary>精算したラウンドの出来事（クエストの条件用）。</summary>
+        protected override IReadOnlyCollection<string> TagsFor(IRoundOutcome outcome)
+        {
+            var result = (RoundResult)outcome;
+            var tags = new List<string>();
+            if (result.Winner == RoundWinner.Player && result.PlayerFamily == LineFamily.Slash)
+                tags.Add(RoundTags.VectorSlashWin);
+            foreach (var bet in result.Bets)
             {
-                // チップを置くまでは急かさない
-                if (session.Bets.IsEmpty)
-                {
-                    timer.Reset();
-                    view.Status.HideTimer();
-                }
-                else
-                {
-                    timer.Tick(view.Status, Paused);
-                    if (timer.Expired)
-                    {
-                        var check = session.CheckBets();
-                        if (check.IsValid)
-                            break;
-                        view.Toast.Show(Labels.BetProblem(check), Theme.Negative);
-                        timer.Reset();
-                    }
-                }
-                yield return null;
+                if (bet.Spot == (int)BetSpot.Bonus && bet.Outcome == BetOutcome.Win)
+                    tags.Add(RoundTags.VectorBonus);
             }
-            view.Status.HideTimer();
-            view.Hud.SetLobbyEnabled(false);
-        }
-
-        IEnumerator Shuffle()
-        {
-            view.Status.Show("SHUFFLING", "新しいシューを用意しています");
-            Sfx.Play(SfxKind.Shuffle);
-            view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
-            yield return Tween.Wait(1.1f);
-            view.Toast.Show($"新しいシュー #{Round.Shoe.ShoeNumber}  ·  バーンカード {Labels.CardName(Round.Shoe.BurnedCard)}");
-        }
-
-        IEnumerator OfferReload()
-        {
-            if (!wallet.CanReload)
-            {
-                yield return Dialog.Open(view.Overlay, "OUT OF CHIPS", "手持ちのチップがミニマムを下回りました。", new Vector2(760, 340))
-                    .AddButton("LEAVE", GoToLobby, true)
-                    .WaitUntilClosed();
-                yield break;
-            }
-            yield return Dialog.Open(view.Overlay, "OUT OF CHIPS",
-                    $"手持ちのチップがテーブルミニマム（{Labels.Money(Rules.MinBet)}）を下回りました。\n" +
-                    $"遊戯用チップを {Labels.Money(PlayerProfile.StartingBalance)} まで補充できます。", new Vector2(820, 420))
-                .AddButton("LOBBY", GoToLobby)
-                .AddButton("RELOAD", () =>
-                {
-                    long added = wallet.Reload(Rules.MinBet);
-                    session.Deposit(added);
-                    realityCheck.RecordDeposit(added);
-                    view.Hud.SetBalance(session.Available, true);
-                    Sfx.Play(SfxKind.ChipsCollect);
-                }, true)
-                .WaitUntilClosed();
-        }
-
-        /// <summary>責任あるゲーミングのため、一定時間ごとにプレイ時間とこのセッションの収支を知らせる。</summary>
-        IEnumerator ShowRealityCheck()
-        {
-            var elapsed = realityCheck.Elapsed(DateTime.UtcNow);
-            yield return Dialog.Open(view.Overlay, "REALITY CHECK",
-                    $"プレイ時間 {(int)elapsed.TotalHours}時間{elapsed.Minutes}分　このセッションの収支 {Labels.SignedMoney(realityCheck.Net(session.Balance))}\n" +
-                    "休憩をはさみながら、無理のない範囲でお楽しみください。", new Vector2(860, 400))
-                .AddButton("LOBBY", GoToLobby)
-                .AddButton("CONTINUE", null, true)
-                .WaitUntilClosed();
-            realityCheck.Acknowledge(DateTime.UtcNow);
+            return tags;
         }
 
         // ------------------------------------------------------------------
         // ラウンド
         // ------------------------------------------------------------------
 
+        IEnumerator Shuffle()
+        {
+            View.Status.Show("SHUFFLING", "新しいシューを用意しています");
+            Sfx.Play(SfxKind.Shuffle);
+            view.Scoreboard.Render(scoreboard, round.Shoe.ShoeNumber);
+            yield return Tween.Wait(1.1f);
+            View.Toast.Show($"新しいシュー #{round.Shoe.ShoeNumber}  ·  バーンカード {Labels.CardName(round.Shoe.BurnedCard)}");
+        }
+
         IEnumerator Deal()
         {
-            KeepScreenOn(true);
-            long stake = session.Bets.Total;
-            session.Deal();
-            wallet.RecordDeal(session.Balance, stake);
-            betting.End();
-            view.ShowBettingControls(false);
-            view.Hud.SetBalance(session.Balance, true);
-            view.Status.Show("NO MORE BETS");
+            View.Status.Show("NO MORE BETS");
             RefreshTableInfo();
             yield return Tween.Wait(0.4f);
 
-            yield return fx.DealToBoard(Round.Board[Lines.CenterCell].Value, Lines.CenterCell, Seat.House);
-            for (int i = 0; i < Round.Hand.Count; i++)
+            yield return fx.DealToBoard(round.Board[Lines.CenterCell].Value, Lines.CenterCell, Seat.House);
+            for (int i = 0; i < round.Hand.Count; i++)
             {
-                yield return fx.DealToHand(Round.Hand[i], i);
+                yield return fx.DealToHand(round.Hand[i], i);
                 yield return Tween.Wait(0.06f);
             }
             RefreshShoe();
             yield return Tween.Wait(0.3f);
 
-            if (Round.Bets[BetSpot.Bonus] > 0 && Rules.BonusPays.ContainsKey(Round.BonusHand))
+            if (HasBonusBet && rules.BonusPays.ContainsKey(round.BonusHand))
             {
-                view.Paytable.HighlightBonus(Round.BonusHand);
-                view.Toast.Show($"BONUS HIT!  {Labels.HandName(Round.BonusHand)}", Theme.GoldBright);
+                view.Paytable.HighlightBonus(round.BonusHand);
+                View.Toast.Show($"BONUS HIT!  {Labels.HandName(round.BonusHand)}", Theme.GoldBright);
                 Sfx.Play(SfxKind.Win, 0.7f);
             }
         }
@@ -242,8 +133,8 @@ namespace Vector.Game.Table
         IEnumerator ChooseFamily()
         {
             LineFamily family = default;
-            yield return seat.ChooseFamily(Round, f => family = f);
-            Round.ChooseFamily(family);
+            yield return seat.ChooseFamily(round, f => family = f);
+            round.ChooseFamily(family);
             Sfx.Play(SfxKind.Chip);
             UpdateScores();
         }
@@ -251,19 +142,19 @@ namespace Vector.Game.Table
         IEnumerator PlayerTurn()
         {
             Placement placement = default;
-            yield return seat.ChoosePlacement(Round, p => placement = p);
-            Round.PlacePlayerCard(placement.HandIndex, placement.Cell);
+            yield return seat.ChoosePlacement(round, p => placement = p);
+            round.PlacePlayerCard(placement.HandIndex, placement.Cell);
             yield return fx.MoveFromHand(placement.HandIndex, placement.Cell, Seat.Player);
             UpdateScores();
         }
 
         IEnumerator DealerTurn()
         {
-            view.Status.Show("DEALER'S TURN", "ディーラーがシューから1枚引いて置きます");
+            View.Status.Show("DEALER'S TURN", "ディーラーがシューから1枚引いて置きます");
             yield return Tween.Wait(0.3f);
             DealerMove move = default;
-            var round = Round;
-            yield return Background.Run(() => round.PlayDealerCard(), m => move = m);
+            var engine = round;
+            yield return Background.Run(() => engine.PlayDealerCard(), m => move = m);
             yield return fx.DealToBoard(move.Card, move.Cell, Seat.Dealer);
             RefreshShoe();
             UpdateScores();
@@ -271,94 +162,31 @@ namespace Vector.Game.Table
 
         IEnumerator Showdown()
         {
-            var result = session.Settle();
-            wallet.RecordSettlement(session.Balance, result, TagsFor(result));
-            if (wallet is ProfileWallet profile)
-                ChallengeFlow.AnnounceReport(view.Toast, profile.LastReport);
-            else if (Challenge != null)
-                ChallengeFlow.ShowHud(view.Hud, Challenge);
-            yield return presenter.ShowResult(result, Round.Bets[BetSpot.Bonus] > 0);
-
-            view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
-            view.Hud.SetBalance(session.Balance, true);
+            var result = round.Settle();
+            scoreboard.Add(result.Winner);
+            yield return presenter.ShowResult(result, HasBonusBet);
+            yield return Settle(result, result.Bets);
+            view.Scoreboard.Render(scoreboard, round.Shoe.ShoeNumber);
             yield return Tween.Wait(ResultSeconds);
-        }
-
-        IEnumerator Cleanup()
-        {
-            presenter.Reset();
-            yield return fx.CollectCards();
-        }
-
-        // ------------------------------------------------------------------
-        // 障害時の復旧
-        // ------------------------------------------------------------------
-
-        IEnumerator Recover(Exception fault)
-        {
-            Log.Exception(fault);
-            long refund = session.VoidRound();
-            wallet.RecordVoid(session.Balance);
-            betting.End();
-            view.Picker.Hide();
-            view.Status.HideTimer();
-            presenter.Reset();
-            yield return fx.CollectCards();
-            view.Hud.SetBalance(session.Balance, true);
-            view.Toast.Show(refund > 0
-                ? $"問題が発生したためラウンドを無効にし、{Labels.Money(refund)} を返金しました"
-                : "問題が発生したため、テーブルをリセットしました", Theme.Negative);
-            yield return Tween.Wait(1.2f);
         }
 
         // ------------------------------------------------------------------
         // 補助
         // ------------------------------------------------------------------
 
-        void UpdateScores() => presenter.ShowScores(Round.Board.ToValues(), Round.PlayerFamily);
+        bool HasBonusBet => round.Bets[(int)BetSpot.Bonus] > 0;
+
+        void UpdateScores() => presenter.ShowScores(round.Board.ToValues(), round.PlayerFamily);
 
         void RefreshTableInfo()
         {
             // ベット受付中は、これから配るラウンドの番号を出す
-            int round = Round.Phase == RoundPhase.Betting ? Round.RoundNumber + 1 : Round.RoundNumber;
-            view.Hud.SetRoundInfo(Round.Shoe.ShoeNumber, round);
-            view.Scoreboard.Render(session.Scoreboard, Round.Shoe.ShoeNumber);
+            int number = round.Phase == RoundPhase.Betting ? round.RoundNumber + 1 : round.RoundNumber;
+            View.Hud.SetInfo($"SHOE #{round.Shoe.ShoeNumber}  ·  ROUND {number}");
+            view.Scoreboard.Render(scoreboard, round.Shoe.ShoeNumber);
             RefreshShoe();
         }
 
-        void RefreshShoe() => view.Shoe.SetRemaining(Round.Shoe.Remaining, Round.Shoe.TotalCards);
-
-        /// <summary>
-        /// ラウンド中は画面を消さない（観戦やディーラーの手番では操作が無いまま見続けるため）。
-        /// ベット待ちは端末の設定に戻し、席を離れたまま点けっぱなしにならないようにする。
-        /// </summary>
-        static void KeepScreenOn(bool on) => Screen.sleepTimeout = on ? SleepTimeout.NeverSleep : SleepTimeout.SystemSetting;
-
-        void OnDestroy() => KeepScreenOn(false);
-
-        void GoToLobby()
-        {
-            // ベット受付中だけ離席できる。置いたチップはまだ引き落としていないのでそのまま手元に戻る。
-            if (leaving || (Round.Phase != RoundPhase.Betting && Round.Phase != RoundPhase.Complete))
-                return;
-            if (Challenge != null)
-                ChallengeFlow.ConfirmForfeit(view.Overlay, Challenge);
-            else
-                SceneManager.LoadScene(GameContext.ReturnScene);
-        }
-
-        /// <summary>精算したラウンドの出来事（クエストの条件用）。</summary>
-        static IReadOnlyCollection<string> TagsFor(RoundResult result)
-        {
-            var tags = new List<string>();
-            if (result.Winner == RoundWinner.Player && result.PlayerFamily == LineFamily.Slash)
-                tags.Add(RoundTags.VectorSlashWin);
-            foreach (var bet in result.Bets)
-            {
-                if (bet.Spot == BetSpot.Bonus && bet.Outcome == BetOutcome.Win)
-                    tags.Add(RoundTags.VectorBonus);
-            }
-            return tags;
-        }
+        void RefreshShoe() => view.Shoe.SetRemaining(round.Shoe.Remaining, round.Shoe.TotalCards);
     }
 }

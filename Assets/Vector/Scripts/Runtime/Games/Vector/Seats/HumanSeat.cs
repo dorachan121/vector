@@ -31,7 +31,7 @@ namespace Vector.Game.Table
 
         public IEnumerator ChooseFamily(RoundEngine round, Action<LineFamily> done)
         {
-            view.Status.Show("CHOOSE YOUR VECTOR", "手札を見て、勝負するラインの種類を選んでください");
+            view.Casino.Status.Show("CHOOSE YOUR VECTOR", "手札を見て、勝負するラインの種類を選んでください");
             var values = round.Board.ToValues();
             var hand = round.HandValues();
             // アドバイザーは1スレッドでしか使えないので、推奨の計算は常に1つだけ走らせ、終わるまで待ってから先へ進む
@@ -52,12 +52,12 @@ namespace Vector.Game.Table
                     if (estimates.Status == TaskStatus.RanToCompletion)
                         view.Picker.Show(estimates.Result);
                 }
-                timer.Tick(view.Status, paused());
+                timer.Tick(view.Casino.Status, paused());
                 yield return null;
             }
             view.Picker.Chosen -= OnChosen;
             view.Picker.Hide();
-            view.Status.HideTimer();
+            view.Casino.Status.HideTimer();
 
             while (!estimates.IsCompleted)
                 yield return null;
@@ -66,14 +66,14 @@ namespace Vector.Game.Table
                 if (estimates.IsFaulted)
                     throw estimates.Exception.GetBaseException();
                 choice = PlayerAdvisor.Best(estimates.Result);
-                view.Toast.Show($"時間切れ: 推奨の {Labels.Family(choice.Value)} を選びました");
+                view.Casino.Toast.Show($"時間切れ: 推奨の {Labels.Family(choice.Value)} を選びました");
             }
             done(choice.Value);
         }
 
         public IEnumerator ChoosePlacement(RoundEngine round, Action<Placement> done)
         {
-            view.Status.Show("YOUR TURN", "手札のカードを選び、置きたいマスをクリック");
+            view.Casino.Status.Show("YOUR TURN", "手札のカードを選び、置きたいマスをクリック");
             var values = round.Board.ToValues();
             var hand = round.HandValues();
             var family = round.PlayerFamily;
@@ -92,7 +92,7 @@ namespace Vector.Game.Table
             {
                 if (selected < 0)
                 {
-                    view.Toast.Show("先に手札からカードを選んでください");
+                    view.Casino.Toast.Show("先に手札からカードを選んでください");
                     return;
                 }
                 placement = new Placement(selected, cell);
@@ -112,7 +112,7 @@ namespace Vector.Game.Table
                     view.Hand.SetHint(suggestion.Result.HandIndex);
                     view.Board.SetHint(suggestion.Result.Cell);
                 }
-                timer.Tick(view.Status, paused());
+                timer.Tick(view.Casino.Status, paused());
                 yield return null;
             }
             view.Hand.CardClicked -= OnCard;
@@ -121,7 +121,7 @@ namespace Vector.Game.Table
             view.Hand.SetHint(-1);
             view.Board.SetSelectable(false);
             view.Board.SetHint(-1);
-            view.Status.HideTimer();
+            view.Casino.Status.HideTimer();
 
             while (!suggestion.IsCompleted)
                 yield return null;
@@ -130,7 +130,7 @@ namespace Vector.Game.Table
                 if (suggestion.IsFaulted)
                     throw suggestion.Exception.GetBaseException();
                 placement = suggestion.Result;
-                view.Toast.Show("時間切れ: 推奨の手で配置しました");
+                view.Casino.Toast.Show("時間切れ: 推奨の手で配置しました");
             }
             done(placement.Value);
         }

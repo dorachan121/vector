@@ -5,7 +5,7 @@ namespace Vector.Core
 {
     /// <summary>
     /// 番号で表すベットエリアへのチップの配置。置いた順番を覚えておき、1手ずつ取り消せる。
-    /// （VECTOR の <see cref="BetLayout"/> と同じ働きで、ベットエリアの数がゲームごとに違う新しいゲームで使う）
+    /// ベットエリアの番号の意味はゲームごとに決める（VECTOR は <see cref="BetSpot"/> の値）。
     /// </summary>
     public sealed class BetBoard
     {
