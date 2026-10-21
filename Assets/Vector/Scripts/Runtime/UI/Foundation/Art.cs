@@ -18,43 +18,27 @@ namespace Vector.Game.UI
         // ------------------------------------------------------------------
 
         /// <summary>角丸の白い四角（9スライス用）。Image.type = Sliced で使う。</summary>
-        public static Sprite RoundedRect(int radius)
-        {
-            return Cached($"rr{radius}", () =>
-            {
-                int size = radius * 2 + 4;
-                var tex = NewTexture(size, size);
-                var px = new Color32[size * size];
-                float half = size / 2f;
-                for (int y = 0; y < size; y++)
-                for (int x = 0; x < size; x++)
-                {
-                    float d = SdRoundBox(x + 0.5f - half, y + 0.5f - half, half - 1, half - 1, radius);
-                    px[y * size + x] = new Color32(255, 255, 255, Alpha(d));
-                }
-                return SlicedSprite(tex, px, radius + 1);
-            });
-        }
+        public static Sprite RoundedRect(int radius) => Rounded($"rr{radius}", radius, d => d);
 
         /// <summary>角丸の枠線（9スライス用）。</summary>
         public static Sprite RoundedOutline(int radius, float thickness)
+            => Rounded($"ro{radius}_{thickness}", radius, d => Mathf.Abs(d + thickness / 2f) - thickness / 2f);
+
+        /// <summary>角丸の四角の符号付き距離を shape で変形して塗る（9スライス用）。</summary>
+        static Sprite Rounded(string key, int radius, Func<float, float> shape) => Cached(key, () =>
         {
-            return Cached($"ro{radius}_{thickness}", () =>
+            int size = radius * 2 + 4;
+            var tex = NewTexture(size, size);
+            var px = new Color32[size * size];
+            float half = size / 2f;
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
             {
-                int size = radius * 2 + 4;
-                var tex = NewTexture(size, size);
-                var px = new Color32[size * size];
-                float half = size / 2f;
-                for (int y = 0; y < size; y++)
-                for (int x = 0; x < size; x++)
-                {
-                    float d = SdRoundBox(x + 0.5f - half, y + 0.5f - half, half - 1, half - 1, radius);
-                    float ring = Mathf.Abs(d + thickness / 2f) - thickness / 2f;
-                    px[y * size + x] = new Color32(255, 255, 255, Alpha(ring));
-                }
-                return SlicedSprite(tex, px, radius + 1);
-            });
-        }
+                float d = SdRoundBox(x + 0.5f - half, y + 0.5f - half, half - 1, half - 1, radius);
+                px[y * size + x] = new Color32(255, 255, 255, Alpha(shape(d)));
+            }
+            return SlicedSprite(tex, px, radius + 1);
+        });
 
         public static Sprite Circle => Cached("circle", () => Disc(256, (x, y) => SdCircle(x, y, 0, 0, 0.98f)));
 

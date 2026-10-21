@@ -25,7 +25,7 @@ namespace Vector.Game.Table
         public FamilyPicker Picker { get; private set; }
         public ResultBanner Result { get; private set; }
         public ScoreboardView Scoreboard { get; private set; }
-        public PaytableView Paytable { get; private set; }
+        public PaytablePanel Paytable { get; private set; }
 
         public static TableView Build(GameMode mode, TableRules rules)
         {
@@ -38,7 +38,7 @@ namespace Vector.Game.Table
             var view = new TableView { Casino = casino };
 
             view.Scoreboard = ScoreboardView.Create(stage, new Vector2(-705, 190), new Vector2(330, 340));
-            view.Paytable = PaytableView.Create(stage, new Vector2(705, 125), new Vector2(330, 470), mode, rules);
+            view.Paytable = VectorPaytable.Create(stage, new Vector2(705, 125), new Vector2(330, 470), mode, rules);
 
             view.Discard = Ui.Rect(stage, "Discard", new Vector2(-PlateOffset, 350), CardView.Size * 0.8f);
             Ui.Image(view.Discard, "Slot", Art.RoundedOutline(32, 3f), Theme.FeltPrint.WithAlpha(0.35f), Vector2.zero, CardView.Size * 0.8f).pixelsPerUnitMultiplier = 32f / 9f;

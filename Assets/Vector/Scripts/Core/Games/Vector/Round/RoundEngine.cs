@@ -60,11 +60,7 @@ namespace Vector.Core
         public void Deal(GameMode mode, BetBoard bets)
         {
             Require(RoundPhase.Betting);
-            if (bets == null)
-                throw new ArgumentNullException(nameof(bets));
-            var check = WagerCheck.Validate(rules.LimitsFor(mode), bets);
-            if (!check.IsValid)
-                throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
+            WagerCheck.ThrowIfInvalid(rules.LimitsFor(mode), bets);
 
             Bets = bets.Clone();
             Board.Clear();

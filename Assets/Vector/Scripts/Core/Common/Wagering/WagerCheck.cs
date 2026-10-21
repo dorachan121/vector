@@ -1,3 +1,5 @@
+using System;
+
 namespace Vector.Core
 {
     /// <summary>ベット検証の結果と、問題のあったベットエリア（番号）・上下限。</summary>
@@ -33,6 +35,16 @@ namespace Vector.Core
                 hasPrimary |= limits.IsPrimary(bet.Key);
             }
             return hasPrimary ? Ok : new WagerCheck(BetError.NoPrimaryBet);
+        }
+
+        /// <summary>エンジンが勝負を始める前の検証。不正なら例外（画面側は事前に <see cref="Validate"/> で確かめてから渡す）。</summary>
+        public static void ThrowIfInvalid(IBetLimits limits, BetBoard bets)
+        {
+            if (bets == null)
+                throw new ArgumentNullException(nameof(bets));
+            var check = Validate(limits, bets);
+            if (!check.IsValid)
+                throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
         }
     }
 }

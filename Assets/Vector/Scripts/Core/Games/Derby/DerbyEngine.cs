@@ -67,11 +67,7 @@ namespace Vector.Core.Derby
         public void Start(BetBoard bets)
         {
             Require(DerbyPhase.Betting);
-            if (bets == null)
-                throw new ArgumentNullException(nameof(bets));
-            var check = WagerCheck.Validate(Race, bets);
-            if (!check.IsValid)
-                throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
+            WagerCheck.ThrowIfInvalid(Race, bets);
             Bets = bets.Clone();
             RaceNumber++;
             Phase = DerbyPhase.Running;

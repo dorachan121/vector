@@ -44,7 +44,7 @@ namespace Vector.Game.Table
             foreach (var bet in result.Bets)
             {
                 if (bet.Outcome == BetOutcome.Win)
-                    view.Paytable.HighlightSpot((BetSpot)bet.Spot);
+                    view.Paytable.Highlight(VectorPaytable.Key((BetSpot)bet.Spot));
             }
         }
 

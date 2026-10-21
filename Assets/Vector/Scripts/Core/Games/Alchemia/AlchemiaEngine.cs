@@ -28,11 +28,7 @@ namespace Vector.Core.Alchemia
 
         public SpinResult Spin(BetBoard bets)
         {
-            if (bets == null)
-                throw new ArgumentNullException(nameof(bets));
-            var check = WagerCheck.Validate(rules, bets);
-            if (!check.IsValid)
-                throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
+            WagerCheck.ThrowIfInvalid(rules, bets);
             SpinNumber++;
 
             var grid = new Symbol[rules.Cells];

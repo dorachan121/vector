@@ -49,11 +49,7 @@ namespace Vector.Core.Colosseum
         public void Deal(BetBoard bets, BattleSetup? opponent = null)
         {
             Require(BattlePhase.Betting);
-            if (bets == null)
-                throw new ArgumentNullException(nameof(bets));
-            var check = WagerCheck.Validate(rules, bets);
-            if (!check.IsValid)
-                throw new InvalidOperationException($"ベットが不正です: {check.Error} ({check.Spot})");
+            WagerCheck.ThrowIfInvalid(rules, bets);
             Bets = bets.Clone();
             setup = opponent ?? rules.Setup;
             RoundNumber++;

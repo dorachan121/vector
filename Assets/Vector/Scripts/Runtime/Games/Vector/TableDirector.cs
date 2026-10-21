@@ -124,7 +124,7 @@ namespace Vector.Game.Table
 
             if (HasBonusBet && rules.BonusPays.ContainsKey(round.BonusHand))
             {
-                view.Paytable.HighlightBonus(round.BonusHand);
+                view.Paytable.Highlight(VectorPaytable.Key(round.BonusHand));
                 View.Toast.Show($"BONUS HIT!  {Labels.HandName(round.BonusHand)}", Theme.GoldBright);
                 Sfx.Play(SfxKind.Win, 0.7f);
             }
