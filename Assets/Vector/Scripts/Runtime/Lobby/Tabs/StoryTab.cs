@@ -13,7 +13,8 @@ namespace Vector.Game.Lobby
     public sealed class StoryTab : IHomeTab
     {
         const float TopY = 548;
-        const float Step = 180;
+        /// <summary>フロアの間隔。いちばん下の B1 の札が「カジノへ入る」ボタンに隠れない幅にする。</summary>
+        const float Step = 170;
         const float Zig = 200;
 
         readonly StoryProgress story;
@@ -104,8 +105,9 @@ namespace Vector.Game.Lobby
                 for (int col = 0; col < 6; col++)
                 {
                     bool lit = (row * 7 + col * 3) % 5 != 0;
-                    Ui.Panel(Body, "Window", tower + new Vector2((col - 2.5f) * 80, 560 - row * 86), new Vector2(36, 46),
-                        lit ? Palette.GoldLight.WithAlpha(0.18f) : Palette.Violet.WithAlpha(0.25f), 6);
+                    // フロアの名前や札に重なるので、窓の灯りはごく淡くする
+                    Ui.Panel(Body, "Window", tower + new Vector2((col - 2.5f) * 80, 560 - row * 86), new Vector2(30, 40),
+                        lit ? Palette.GoldLight.WithAlpha(0.07f) : Palette.Violet.WithAlpha(0.12f), 6);
                 }
             }
             var crown = Ui.Icon(Body, "Crown", IconKind.Crown, Palette.Gold, new Vector2(0, TopY + 120), 120);

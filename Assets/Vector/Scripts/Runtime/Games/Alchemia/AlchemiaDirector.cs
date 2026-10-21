@@ -144,7 +144,7 @@ namespace Vector.Game.Alchemia
             }
 
             long paid = result.TotalReturn;
-            view.SetWin(paid, result.Steps.Count > 0 ? $"{result.Steps.Count} CASCADES" : "");
+            view.SetWin(paid, result.Steps.Count == 0 ? "" : result.Steps.Count == 1 ? "1 CASCADE" : $"{result.Steps.Count} CASCADES");
             double multiple = result.WinMultiple;
             if (result.Capped)
                 view.ShowBanner("MAX WIN", Theme.GoldBright);

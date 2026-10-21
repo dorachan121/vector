@@ -116,7 +116,7 @@ namespace Vector.Game.Colosseum
 
         void BuildPanels(Transform stage)
         {
-            var rulesPanel = Ui.Rect(stage, "Rules", new Vector2(-705, -290), new Vector2(330, 200));
+            var rulesPanel = Ui.Rect(stage, "Rules", new Vector2(-705, -250), new Vector2(330, 200));
             Ui.Panel(rulesPanel, "Plate", Vector2.zero, new Vector2(330, 200), Theme.Panel, 20);
             Ui.Outline(rulesPanel, "Outline", Vector2.zero, new Vector2(330, 200), Theme.PanelLine, 20);
             Ui.Text(rulesPanel, "Heading", "HOW TO FIGHT", Fonts.Label, 22, Theme.Gold, new Vector2(0, 74), new Vector2(300, 30));
@@ -125,7 +125,7 @@ namespace Vector.Game.Colosseum
                 "<b>GUARD</b>  引いた点数で受け止め、上回れば反撃、下回れば差を受ける",
                 17, Theme.Ivory, new Vector2(0, -16), new Vector2(300, 140)).richText = true;
 
-            var logPanel = Ui.Rect(stage, "Log", new Vector2(705, -290), new Vector2(330, 200));
+            var logPanel = Ui.Rect(stage, "Log", new Vector2(705, -250), new Vector2(330, 200));
             Ui.Panel(logPanel, "Plate", Vector2.zero, new Vector2(330, 200), Theme.Panel, 20);
             Ui.Outline(logPanel, "Outline", Vector2.zero, new Vector2(330, 200), Theme.PanelLine, 20);
             Ui.Text(logPanel, "Heading", "BATTLE LOG", Fonts.Label, 22, Theme.Gold, new Vector2(0, 74), new Vector2(300, 30));

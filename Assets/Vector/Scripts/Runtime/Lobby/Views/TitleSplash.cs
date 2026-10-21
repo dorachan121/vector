@@ -42,6 +42,8 @@ namespace Vector.Game.Lobby
             Ui.Ribbon(root, "Tagline", "SIX ORIGINAL GAMES  ·  CASINO RPG", new Vector2(0, 352), 760, Palette.Ruby, 28);
 
             Ui.Image(root, "Shade", Chrome.Gradient(Palette.NightDeep.WithAlpha(0f), Palette.NightDeep), Color.white, new Vector2(0, -820), new Vector2(Ui.Portrait.x * 3, 760));
+            // 看板の2人の服に重なっても読めるよう、文字の後ろに暗い帯を敷く
+            Ui.Panel(root, "TapPlate", new Vector2(0, -690), new Vector2(640, 96), Palette.NightDeep.WithAlpha(0.78f), 48);
             splash.prompt = Ui.Text(root, "Tap", "TAP TO START", Fonts.Label, 54, Palette.GoldLight, new Vector2(0, -690), new Vector2(900, 70));
             splash.prompt.characterSpacing = 12;
             Ui.Outline(splash.prompt, Palette.Ink, 0.22f);

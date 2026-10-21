@@ -128,8 +128,9 @@ namespace Vector.Game.Derby
                 casino.AddTarget(ticket);
             }
 
-            Ui.Text(stage, "ExactaTitle", "EXACTA  馬単（1着→2着）", Fonts.Label, 20, Theme.Gold, new Vector2(-500, -78), new Vector2(300, 26));
             const float cellW = 140f, cellH = 44f, top = -102f;
+            // 左の説明パネルに重ならないよう、表の左上の空いたマスに2行で置く
+            Ui.Text(stage, "ExactaTitle", "EXACTA\n馬単（1着→2着）", Fonts.Label, 17, Theme.Gold, new Vector2(-318, top + 18), new Vector2(150, 48));
             for (int s = 0; s < Runners; s++)
                 Ui.Text(stage, "Col" + s, "2着 " + DerbyLabels.Kanji(s), Fonts.Body, 17, DerbyLabels.LabelColorOf(s),
                     new Vector2(-150 + s * (cellW + 6), top + 4), new Vector2(cellW, 22));

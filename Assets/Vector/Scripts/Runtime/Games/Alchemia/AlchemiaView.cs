@@ -72,10 +72,26 @@ namespace Vector.Game.Alchemia
                 Ui.Panel(stage, "Slot" + i, CellPosition(i), Vector2.one * (Cell - 4), new Color(1, 1, 1, 0.05f), 16);
             board = Ui.Rect(stage, "Board", Vector2.zero, Vector2.zero);
             cells = new SymbolView[rules.Cells];
+            ShowIdleBoard();
             banner = Ui.Text(stage, "Banner", "", Fonts.Display, 90, Theme.GoldBright, GridCenter, new Vector2(1000, 120));
             banner.outlineWidth = 0.2f;
             banner.outlineColor = new Color(0, 0, 0, 0.9f);
             banner.alpha = 0;
+        }
+
+        /// <summary>
+        /// 最初のスピンまでの盤面（空のままだと台が止まって見えるため）。同じ元素が隣り合わない並びの素を置き、
+        /// 当たりの形に見えないようにする。
+        /// </summary>
+        void ShowIdleBoard()
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                int col = i % rules.Columns, row = i / rules.Columns;
+                var element = (Element)((col + 2 * row) % rules.ElementCount);
+                cells[i] = SymbolView.Create(board, Cell, PositionOf(i));
+                cells[i].Set(new Symbol(element, 1));
+            }
         }
 
         void BuildPaytable(Transform stage)

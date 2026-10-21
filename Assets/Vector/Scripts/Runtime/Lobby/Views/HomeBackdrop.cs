@@ -20,8 +20,9 @@ namespace Vector.Game.Lobby
             Arches(rt);
             Chandelier(rt, new Vector2(0, 780));
             Bokeh(rt);
-            SlotMachine(rt, new Vector2(-440, Horizon + 150), false);
-            SlotMachine(rt, new Vector2(440, Horizon + 150), true);
+            // 左の丸いメニューの列と重ならないよう、台は床の手前（メニューの下）に置く
+            SlotMachine(rt, new Vector2(-440, Horizon - 130), false);
+            SlotMachine(rt, new Vector2(440, Horizon - 130), true);
             Ui.Image(rt, "HorizonGlow", Art.Glow, Palette.Gold.WithAlpha(0.28f), new Vector2(0, Horizon), new Vector2(2200, 140));
             // 手前へ伸びる絨毯（金の縁取りの上に赤）
             Ui.Image(rt, "CarpetEdge", Chrome.Trapezoid, Palette.GoldMid.WithAlpha(0.85f), new Vector2(0, Horizon - 620), new Vector2(1320, 1240));
