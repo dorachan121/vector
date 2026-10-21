@@ -7,15 +7,13 @@ using Vector.Game.UI;
 namespace Vector.Game.World
 {
     /// <summary>
-    /// フロアの見取り図を描く（床・壁・テーブル・エレベーター・キャッシャー・装飾）。1マスは 100px。
-    /// 縦画面では幅が収まらないので、<see cref="MapFollow"/> で主人公に合わせて横にずらす。
+    /// フロアの見取り図を描く（床・壁・テーブル・エレベーター・キャッシャー・装飾）。1マスは 90px で、12マスの横幅が縦画面にちょうど収まる。
+    /// 縦は画面に収まらないので、<see cref="MapFollow"/> で主人公に合わせて流す。
     /// </summary>
     public sealed class FloorView
     {
-        public const float TileSize = 100f;
+        public const float TileSize = 90f;
 
-        /// <summary>見取り図の中心の画面上の位置（上部のバーと下のタッチパッドの間）。</summary>
-        public static readonly Vector2 Center = new Vector2(0, 90);
 
         readonly TileMap map;
         readonly FloorTheme theme;
@@ -31,7 +29,7 @@ namespace Vector.Game.World
             this.floor = floor;
             map = floor.Map;
             theme = FloorTheme.Of(floor.Id);
-            Root = Ui.Rect(parent, "Floor", Center, new Vector2(map.Width * TileSize, map.Height * TileSize));
+            Root = Ui.Rect(parent, "Floor", Vector2.zero, new Vector2(map.Width * TileSize, map.Height * TileSize));
             Ground = Ui.Rect(Root, "Ground", Vector2.zero, Vector2.zero);
             Objects = Ui.Rect(Root, "Objects", Vector2.zero, Vector2.zero);
             People = Ui.Rect(Root, "People", Vector2.zero, Vector2.zero);

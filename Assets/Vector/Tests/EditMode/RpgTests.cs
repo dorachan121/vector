@@ -226,8 +226,8 @@ namespace Vector.Tests
                 var floor = floors[i];
                 var map = floor.Map;
                 Assert.AreEqual((FloorId)i, floor.Id);
-                Assert.AreEqual(22, map.Width);
-                Assert.AreEqual(12, map.Height);
+                Assert.AreEqual(12, map.Width, "縦画面の横幅に収まる");
+                Assert.AreEqual(18, map.Height);
                 CollectionAssert.AreEquivalent(map.People.Keys, floor.People.Keys, $"{floor.Id}: 見取り図の人と人の一覧が一致する");
                 Assert.IsTrue(map.People.ContainsKey('M'), $"{floor.Id}: 主がいる");
                 Assert.AreEqual(floor.Master.Master, floor.People['M']);

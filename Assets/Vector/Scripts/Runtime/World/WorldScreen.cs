@@ -12,7 +12,8 @@ namespace Vector.Game.World
         WorldScreen(RectTransform root)
         {
             Root = root;
-            Stage = Ui.Stretch(root, "Stage");
+            // 見取り図が見える場所は、上のバーと目標の帯の下から、タッチパッドの上まで
+            Stage = Ui.Between(root, "Stage", WorldHud.Height + WorldHud.ObjectiveHeight, TouchPad.Height - 40, Ui.Portrait.x);
             Hud = WorldHud.Create(root);
             Pad = TouchPad.Create(root);
             Dialogue = DialogueBox.Create(root);
@@ -22,7 +23,7 @@ namespace Vector.Game.World
         /// <summary>画面の土台（ダイアログはここに開く）。</summary>
         public RectTransform Root { get; }
 
-        /// <summary>見取り図を置く場所（フロアを移るたびに中身を作り直す）。</summary>
+        /// <summary>見取り図が見える場所（フロアを移るたびに中身を作り直す）。</summary>
         public RectTransform Stage { get; }
 
         public WorldHud Hud { get; }

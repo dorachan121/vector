@@ -13,6 +13,9 @@ namespace Vector.Game.World
     {
         public const float Height = 220f;
 
+        /// <summary>バーの下の目標の帯の高さ（見取り図はその下から見せる）。</summary>
+        public const float ObjectiveHeight = 76f;
+
         TextMeshProUGUI floorName;
         TextMeshProUGUI floorJapanese;
         TextMeshProUGUI level;
@@ -37,7 +40,7 @@ namespace Vector.Game.World
             Ui.IconButton(rt, "Home", IconKind.Home, new Vector2(left + 64, top), 80, new Color(1, 1, 1, 0.1f), () => hud.HomeClicked?.Invoke());
             hud.floorName = Ui.Headline(rt, "Floor", "", Fonts.Display, 46, new Vector2(left + 380, top + 10), new Vector2(520, 56), TextAlignmentOptions.Left);
             hud.floorJapanese = Ui.Text(rt, "FloorJa", "", Fonts.Body, 20, Palette.Muted, new Vector2(left + 380, top - 30), new Vector2(520, 26), TextAlignmentOptions.Left);
-            Ui.Button(rt, "Menu", "MENU", new Vector2(right - 110, top), new Vector2(180, 76), Palette.Gold, Palette.Ink, () => hud.MenuClicked?.Invoke(), 32, 24);
+            Ui.Button(rt, "Menu", "メニュー", new Vector2(right - 110, top), new Vector2(190, 76), Palette.Gold, Palette.Ink, () => hud.MenuClicked?.Invoke(), 30, 24).Label.font = Fonts.Body;
 
             const float row = -50;
             hud.level = Ui.Text(rt, "Level", "", Fonts.Label, 26, Palette.GoldLight, new Vector2(left + 190, row + 16), new Vector2(320, 30), TextAlignmentOptions.Left);
@@ -47,7 +50,7 @@ namespace Vector.Game.World
             hud.comps = CurrencyPill.Create(rt, new Vector2(350, row), 250, Chrome.Jewel, Palette.Cyan, v => v.ToString("N0"));
 
             // バーのすぐ下に、いまの目標
-            var goal = new Vector2(0, -Height / 2 - 44);
+            var goal = new Vector2(0, -Height / 2 - ObjectiveHeight / 2 - 4);
             Ui.Shadow(rt, "GoalShadow", goal + new Vector2(0, -3), new Vector2(980, 60), 30, 0.5f);
             Ui.Sliced(rt, "Goal", Chrome.Shade, Palette.Violet.WithAlpha(0.92f), goal, new Vector2(980, 60), 30);
             Ui.Sliced(rt, "GoalRim", Chrome.Rim, Palette.GoldMid.WithAlpha(0.8f), goal, new Vector2(980, 60), 30);
