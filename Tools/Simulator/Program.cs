@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Vector.Core;
+using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 
 namespace Vector.Simulator
@@ -11,6 +12,7 @@ namespace Vector.Simulator
     /// dotnet run -c Release -- bonus
     /// dotnet run -c Release -- main [rounds] [advisor|greedy|random] [seed] [mainPays=1:1]
     /// dotnet run -c Release -- crown [rounds] [advisor|greedy|random] [seed] [crownYachtBonus=5:1]
+    /// dotnet run -c Release -- colosseum [rounds] [advisor|greedy|random] [seed] [playerHp:beastHp=30:42]
     /// </code>
     /// </summary>
     static class Program
@@ -41,6 +43,13 @@ namespace Vector.Simulator
                             strategy: args.Length > 2 ? ParseStrategy(args[2]) : PlayerStrategy.Advisor,
                             seed: args.Length > 3 ? ulong.Parse(args[3]) : 20261021UL);
                         return 0;
+                    case "colosseum":
+                        ColosseumSimulation.Run(
+                            args.Length > 4 ? new BattleRules(ParseSetup(args[4])) : BattleRules.Standard,
+                            rounds: args.Length > 1 ? int.Parse(args[1]) : 400_000,
+                            strategy: args.Length > 2 ? ParseStrategy(args[2]) : PlayerStrategy.Advisor,
+                            seed: args.Length > 3 ? ulong.Parse(args[3]) : 20261021UL);
+                        return 0;
                     default:
                         Console.Error.WriteLine($"unknown mode: {mode}");
                         return 1;
@@ -59,6 +68,14 @@ namespace Vector.Simulator
             if (parts.Length != 2)
                 throw new FormatException($"odds must be like 5:4 (got {text})");
             return new Odds(int.Parse(parts[0]), int.Parse(parts[1]));
+        }
+
+        static BattleSetup ParseSetup(string text)
+        {
+            var parts = text.Split(':');
+            if (parts.Length != 2)
+                throw new FormatException($"setup must be like 30:42 (got {text})");
+            return new BattleSetup(int.Parse(parts[0]), int.Parse(parts[1]));
         }
 
         static PlayerStrategy ParseStrategy(string text)
