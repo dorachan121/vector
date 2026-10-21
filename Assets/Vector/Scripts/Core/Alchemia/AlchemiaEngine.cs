@@ -59,12 +59,13 @@ namespace Vector.Core.Alchemia
                 }
             }
 
+            // スロットの慣例どおり、配当の倍率は賭け金を含む払い戻しの倍率（x1.00 なら賭け金がそのまま戻る）
             var results = new List<SpotResult>();
             foreach (var bet in bets.NonZero())
             {
-                long win = checked(bet.Value * total) / 100;
-                results.Add(win > 0
-                    ? new SpotResult(bet.Key, bet.Value, BetOutcome.Win, checked(bet.Value + win))
+                long paid = checked(bet.Value * total) / 100;
+                results.Add(paid > 0
+                    ? new SpotResult(bet.Key, bet.Value, BetOutcome.Win, paid)
                     : SpotResult.Lose(bet.Key, bet.Value));
             }
             return new SpinResult(initial, steps, total, capped, results);

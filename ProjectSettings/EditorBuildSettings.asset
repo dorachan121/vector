@@ -11,4 +11,19 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Vector/Scenes/Table.unity
     guid: 0cda446573184cb498c483b6d38063a2
+  - enabled: 1
+    path: Assets/Vector/Scenes/Colosseum.unity
+    guid: f235eb26612d41f1aa880643c5b43240
+  - enabled: 1
+    path: Assets/Vector/Scenes/Crown.unity
+    guid: 6cec31b76b9e4971b084afa793d2cb56
+  - enabled: 1
+    path: Assets/Vector/Scenes/Delve.unity
+    guid: 0029df55e77845629a4c18da64f81d48
+  - enabled: 1
+    path: Assets/Vector/Scenes/Derby.unity
+    guid: 3ce57a3cf93e4757a7d40ee04b1a3d2a
+  - enabled: 1
+    path: Assets/Vector/Scenes/Alchemia.unity
+    guid: 663be2fb3856452a9ee756e989035d96
   m_configObjects: {}

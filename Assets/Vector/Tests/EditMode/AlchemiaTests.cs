@@ -111,7 +111,7 @@ namespace Vector.Tests
         }
 
         [Test]
-        public void Spin_PaysFlooredWinAndRecordsSteps()
+        public void Spin_PaysFlooredMultipleOfBetAndRecordsSteps()
         {
             var engine = new AlchemiaEngine(Rules, new SeededRandom(42));
             var bets = new BetBoard();
@@ -121,7 +121,7 @@ namespace Vector.Tests
                 var result = engine.Spin(bets);
                 long pay = result.Steps.Sum(s => s.PayHundredths);
                 Assert.AreEqual(Math.Min(pay, Rules.MaxWinMultiple * 100), result.PayHundredths);
-                long expected = result.PayHundredths > 0 ? 50 + 50 * result.PayHundredths / 100 : 0;
+                long expected = 50 * result.PayHundredths / 100;
                 Assert.AreEqual(expected, result.TotalReturn);
                 Assert.AreEqual(50, result.TotalStake);
                 if (result.Steps.Count > 0)

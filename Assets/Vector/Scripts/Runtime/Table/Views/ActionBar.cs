@@ -46,6 +46,9 @@ namespace Vector.Game.Table
                 UndoClicked?.Invoke();
         }
 
+        /// <summary>開始ボタンの文言（ゲームによって DEAL / FIGHT / SPIN など）。</summary>
+        public void SetDealLabel(string label) => deal.SetLabel(label);
+
         public void Refresh(bool betting, bool canUndo, bool canRebet, bool canDouble, bool canDeal)
         {
             undo.Interactable = betting && canUndo;

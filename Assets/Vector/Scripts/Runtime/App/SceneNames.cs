@@ -5,5 +5,13 @@ namespace Vector.Game
     {
         public const string Lobby = "Lobby";
         public const string Table = "Table";
+        public const string Crown = "Crown";
+        public const string Colosseum = "Colosseum";
+        public const string Derby = "Derby";
+        public const string Alchemia = "Alchemia";
+        public const string Delve = "Delve";
+
+        /// <summary>RPG のフロア（カジノの中を歩くシーン）。</summary>
+        public const string World = "World";
     }
 }

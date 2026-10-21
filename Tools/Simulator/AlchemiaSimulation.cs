@@ -53,7 +53,8 @@ namespace Vector.Simulator
                 for (long s = 0; s < share; s++)
                 {
                     var result = engine.Spin(bets);
-                    double win = result.PayHundredths / 100.0;
+                    // 実際の払い戻し（賭け金 100 に対する倍率）で数える
+                    double win = result.TotalReturn / 100.0;
                     local.Sum += win;
                     local.Squares += win * win;
                     local.Max = Math.Max(local.Max, win);

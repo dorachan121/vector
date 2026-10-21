@@ -17,7 +17,7 @@ namespace Vector.Core.Alchemia
         public Symbol[] Initial { get; }
         public IReadOnlyList<CascadeStep> Steps { get; }
 
-        /// <summary>勝ちの倍率（100倍した値。上限を適用した後）。</summary>
+        /// <summary>払い戻しの倍率（賭け金を含む。100倍した値。上限を適用した後）。</summary>
         public long PayHundredths { get; }
 
         /// <summary>勝ちの上限に達して打ち切った。</summary>

@@ -53,6 +53,21 @@ namespace Vector.Game.Audio
                 case SfxKind.Shuffle:
                     data = Riffle(random, 0.9f);
                     break;
+                case SfxKind.DiceRoll:
+                    data = Mix(DieClack(random, 0f, 1f), DieClack(random, 0.07f, 0.8f), DieClack(random, 0.15f, 0.9f),
+                        DieClack(random, 0.26f, 0.6f), DieClack(random, 0.4f, 0.45f));
+                    break;
+                case SfxKind.DoorOpen:
+                    data = Render(0.6f, (t, i) => (Sine(t, 70 + 40 * Mathf.Sin(t * 9)) * 0.5f + (float)(random.NextDouble() * 2 - 1) * 0.15f)
+                                                  * Mathf.Sin(Mathf.PI * Mathf.Clamp01(t / 0.6f)) * 0.35f);
+                    break;
+                case SfxKind.Growl:
+                    data = Render(0.7f, (t, i) => Math.Sign(Sine(t, 55 + 12 * Mathf.Sin(t * 23))) * (0.6f + 0.4f * (float)random.NextDouble())
+                                                  * Mathf.Sin(Mathf.PI * Mathf.Clamp01(t / 0.7f)) * 0.16f);
+                    break;
+                case SfxKind.Sparkle:
+                    data = Mix(Arpeggio(new[] { 1318.5f, 1760f, 2093f }, 0.04f, 0.3f, 0.18f), Shimmer(random, 0.4f));
+                    break;
                 default:
                     data = Render(0.18f, (t, i) => Math.Sign(Sine(t, 110)) * Decay(t, 14) * 0.18f);
                     break;
@@ -95,6 +110,21 @@ namespace Vector.Game.Audio
                 float noise = (float)(random.NextDouble() * 2 - 1) * Decay(local, 220);
                 float ring = (Sine(local, 3300 * pitch) * 0.6f + Sine(local, 5200 * pitch) * 0.3f) * Decay(local, 75);
                 return (noise * 0.5f + ring) * 0.38f;
+            });
+        }
+
+        /// <summary>ダイスが木のテーブルに当たる「コッ」。チップより低く、短い。</summary>
+        static float[] DieClack(System.Random random, float offset, float gain)
+        {
+            float pitch = 1f + (float)(random.NextDouble() - 0.5) * 0.2f;
+            return Render(offset + 0.06f, (t, i) =>
+            {
+                float local = t - offset;
+                if (local < 0)
+                    return 0;
+                float noise = (float)(random.NextDouble() * 2 - 1) * Decay(local, 300);
+                float knock = (Sine(local, 1150 * pitch) * 0.7f + Sine(local, 2300 * pitch) * 0.25f) * Decay(local, 110);
+                return (noise * 0.6f + knock) * 0.42f * gain;
             });
         }
 

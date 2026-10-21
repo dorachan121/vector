@@ -146,8 +146,18 @@ namespace Vector.Game.Casino
             if (realityCheck.IsDue(DateTime.UtcNow))
                 yield return ShowRealityCheck();
 
-            View.ShowBettingControls(true);
             View.Hud.SetLobbyEnabled(true);
+            yield return WaitForBets();
+            View.Hud.SetLobbyEnabled(false);
+        }
+
+        /// <summary>
+        /// チップを置いて開始ボタンを押すまで待つ（チップラックとベットエリアを使う標準の受付）。
+        /// スロットのように独自の操作で賭けるゲームは上書きし、Session にベットを置いてから戻る。
+        /// </summary>
+        protected virtual IEnumerator WaitForBets()
+        {
+            View.ShowBettingControls(true);
             View.Status.Show("PLACE YOUR BETS", BettingHint);
             betting.Begin();
 
@@ -175,7 +185,6 @@ namespace Vector.Game.Casino
                 yield return null;
             }
             View.Status.HideTimer();
-            View.Hud.SetLobbyEnabled(false);
         }
 
         IEnumerator OfferReload()

@@ -17,7 +17,7 @@ namespace Vector.Core.Alchemia
         readonly int[] cascadeMultipliers;
         readonly long[] betLevels = { 10, 20, 50, 100, 200, 500, 1_000 };
 
-        /// <param name="creationPays">位ごとの「その位を作ったとき」の配当（賭け金に対する倍率を100倍した値。添字が位）。</param>
+        /// <param name="creationPays">位ごとの「その位を作ったとき」の配当（賭け金を含む払い戻しの倍率を100倍した値。添字が位）。</param>
         /// <param name="transmutationPay">賢者の石がさらに融合した大錬成の配当（100倍した値）。</param>
         /// <param name="cascadeMultipliers">連鎖の段ごとの倍率（最後の値が以降も続く）。</param>
         public AlchemiaRules(long[] creationPays, long transmutationPay, int[] cascadeMultipliers)

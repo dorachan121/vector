@@ -14,5 +14,17 @@ namespace Vector.Game.Audio
         Push,
         Shuffle,
         Error,
+
+        /// <summary>ダイスがテーブルを転がる音。</summary>
+        DiceRoll,
+
+        /// <summary>扉がきしんで開く音。</summary>
+        DoorOpen,
+
+        /// <summary>獣・魔物のうなり声。</summary>
+        Growl,
+
+        /// <summary>シンボルが融合するきらめき。</summary>
+        Sparkle,
     }
 }
