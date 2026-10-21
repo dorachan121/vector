@@ -11,6 +11,9 @@ namespace Vector.Game.Audio
     {
         const int SampleRate = 44100;
 
+        /// <summary>終わりのフェードアウトの長さ。</summary>
+        const float FadeSeconds = 0.008f;
+
         public static AudioClip Create(SfxKind kind)
         {
             var random = new System.Random((int)kind * 7919 + 17);
@@ -54,6 +57,7 @@ namespace Vector.Game.Audio
                     data = Render(0.18f, (t, i) => Math.Sign(Sine(t, 110)) * Decay(t, 14) * 0.18f);
                     break;
             }
+            FadeOut(data);
             var clip = AudioClip.Create("sfx_" + kind, data.Length, 1, SampleRate, false);
             clip.SetData(data, 0);
             return clip;
@@ -65,6 +69,14 @@ namespace Vector.Game.Audio
             for (int i = 0; i < data.Length; i++)
                 data[i] = sample(i / (float)SampleRate, i);
             return data;
+        }
+
+        /// <summary>波形が途中で途切れて「プツッ」と鳴らないよう、最後を短くフェードアウトする。</summary>
+        static void FadeOut(float[] data)
+        {
+            int n = Mathf.Min(data.Length, Mathf.CeilToInt(FadeSeconds * SampleRate));
+            for (int i = 0; i < n; i++)
+                data[data.Length - 1 - i] *= i / (float)n;
         }
 
         static float Sine(float t, float hz) => Mathf.Sin(2 * Mathf.PI * hz * t);
