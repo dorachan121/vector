@@ -49,8 +49,10 @@ namespace Vector.Game.Table
             ring.fillAmount = total > 0 ? Mathf.Clamp01(remaining / total) : 0;
             ring.color = remaining <= 5 ? Theme.DealerRed : Theme.Gold;
             int whole = Mathf.CeilToInt(remaining);
-            seconds.text = whole.ToString();
             bool changed = whole != lastWholeSecond;
+            // 文字列の生成は秒が変わったときだけ（毎フレームのガベージを出さない）
+            if (changed)
+                seconds.text = whole.ToString();
             lastWholeSecond = whole;
             return changed;
         }
