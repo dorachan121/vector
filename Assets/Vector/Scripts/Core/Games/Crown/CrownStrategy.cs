@@ -48,11 +48,8 @@ namespace Vector.Core.Crown
                 }
                 stand[i] = value + (rank.IsCrownYachtFor(crown) ? bonus : 0);
             }
-            var oneLeft = DiceTables.Expect(stand);
-            var afterSecond = Best(oneLeft, stand);
-            var twoLeft = DiceTables.Expect(afterSecond);
-            var afterFirst = Best(twoLeft, stand);
-            return new CrownStrategy(crown, stand, oneLeft, twoLeft, DiceTables.ExpectInitial(afterFirst));
+            var (oneLeft, twoLeft, initial) = RerollSolver.Solve(stand, maximize: true);
+            return new CrownStrategy(crown, stand, oneLeft, twoLeft, initial);
         }
 
         /// <summary>今の手で止めたときの期待値。</summary>
@@ -72,37 +69,9 @@ namespace Vector.Core.Crown
         {
             if (rollsLeft < 1)
                 throw new ArgumentOutOfRangeException(nameof(rollsLeft));
-            int all = (1 << dice.Count) - 1;
             double standValue = StandValue(dice);
-            int bestMask = all;
-            double best = standValue;
-            foreach (int mask in DiceTables.RerollMasks)
-            {
-                double v = HoldValue(dice, mask, rollsLeft);
-                if (v > best + 1e-12)
-                {
-                    best = v;
-                    bestMask = mask;
-                }
-            }
+            int bestMask = RerollSolver.ChooseHold(dice, standValue, rollsLeft >= 2 ? twoLeft : oneLeft, maximize: true, out double best);
             return new HoldAdvice(bestMask, best, standValue);
-        }
-
-        static double[] Best(double[] holdValues, double[] stand)
-        {
-            var v = new double[DiceTables.HandCount];
-            for (int i = 0; i < v.Length; i++)
-            {
-                double best = stand[i];
-                var holds = DiceTables.HoldsOf(i);
-                for (int k = 1; k < holds.Count; k++)
-                {
-                    if (holdValues[holds[k]] > best)
-                        best = holdValues[holds[k]];
-                }
-                v[i] = best;
-            }
-            return v;
         }
     }
 }

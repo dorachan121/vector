@@ -36,11 +36,8 @@ namespace Vector.Core.Crown
             var final = new double[DiceTables.HandCount];
             for (int i = 0; i < final.Length; i++)
                 final[i] = table[i] > player ? 0 : table[i] == player ? 1 : win;
-            var oneLeft = DiceTables.Expect(final);
-            var afterSecond = Best(oneLeft, final);
-            var twoLeft = DiceTables.Expect(afterSecond);
-            var afterFirst = Best(twoLeft, final);
-            return new DealerPlan(final, oneLeft, twoLeft, DiceTables.ExpectInitial(afterFirst));
+            var (oneLeft, twoLeft, initial) = RerollSolver.Solve(final, maximize: false);
+            return new DealerPlan(final, oneLeft, twoLeft, initial);
         }
 
         /// <summary>
@@ -48,39 +45,8 @@ namespace Vector.Core.Crown
         /// </summary>
         public int ChooseHold(IReadOnlyList<int> dice, int rollsLeft)
         {
-            var values = rollsLeft >= 2 ? twoLeft : oneLeft;
             int hand = DiceTables.HandIndex(DiceTables.CountsOf(dice));
-            int all = (1 << dice.Count) - 1;
-            int bestMask = all;
-            double best = stand[hand];
-            foreach (int mask in DiceTables.RerollMasks)
-            {
-                double v = values[DiceTables.HoldIndexOf(dice, mask)];
-                if (v < best - 1e-12)
-                {
-                    best = v;
-                    bestMask = mask;
-                }
-            }
-            return bestMask;
-        }
-
-        /// <summary>止める（全部残す）場合は確定値、振り直す場合は次の段の期待値として、最小を取る。</summary>
-        internal static double[] Best(double[] holdValues, double[] stand)
-        {
-            var v = new double[DiceTables.HandCount];
-            for (int i = 0; i < v.Length; i++)
-            {
-                double best = stand[i];
-                var holds = DiceTables.HoldsOf(i);
-                for (int k = 1; k < holds.Count; k++)
-                {
-                    if (holdValues[holds[k]] < best)
-                        best = holdValues[holds[k]];
-                }
-                v[i] = best;
-            }
-            return v;
+            return RerollSolver.ChooseHold(dice, stand[hand], rollsLeft >= 2 ? twoLeft : oneLeft, maximize: false, out _);
         }
 
         static DiceRank[][] BuildRanks()
