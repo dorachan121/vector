@@ -9,6 +9,7 @@ on:
       - "Assets/Vector/Scripts/Core/**"
       - "Assets/Vector/Tests/**"
       - "Tools/**"
+      - ".editorconfig"
       - ".github/workflows/core.yml"
   pull_request:
 
@@ -24,9 +25,25 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
+      # ビルドで .editorconfig の解析（不要な using・使われていないメンバー）も検査する
       - name: Unit tests
         run: dotnet test Tools/CoreTests -c Release
-      - name: Bonus bet RTP (exact)
-        run: dotnet run --project Tools/Simulator -c Release -- bonus
-      - name: Main game smoke simulation
-        run: dotnet run --project Tools/Simulator -c Release -- main 2000 greedy
+      - name: Build simulator
+        run: dotnet build Tools/Simulator -c Release
+      # 厳密に計算できるゲームは RTP を出力し、そうでないものは短いシミュレーションで動作を確かめる
+      - name: VECTOR bonus bet RTP (exact)
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- bonus
+      - name: VECTOR smoke simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- main 2000 greedy
+      - name: CROWN DICE RTP (exact) and simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- crown 20000
+      - name: COLOSSEUM RTP (exact) and simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- colosseum 20000
+      - name: DERBY odds (exact) and simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- derby 2000
+      - name: DELVE RTP (exact) and simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- delve 200000
+      - name: ALCHEMIA smoke simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- alchemia 200000
+      - name: Story mode challenge balance
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- challenge 200

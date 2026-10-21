@@ -1,0 +1,9 @@
+<Project>
+  <!-- Tools 以下の .NET プロジェクト共通の設定。.editorconfig の解析（不要な using・使われていないメンバー）をビルドで検査する -->
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- IDE0005（不要な using）の検出に必要。ドキュメントコメントの書き漏れは警告にしない -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+</Project>

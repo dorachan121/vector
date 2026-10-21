@@ -16,6 +16,11 @@ csharp_prefer_braces = when_multiline:suggestion
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 dotnet_sort_system_directives_first = true
+# 不要なコードを残さない（Tools の dotnet build と CI で検査する。Unity のコンパイラはこれらを実行しない）
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0051.severity = warning
+dotnet_diagnostic.IDE0052.severity = warning
+dotnet_diagnostic.IDE0060.severity = warning
 
 [*.{asmdef,json}]
 indent_size = 4
