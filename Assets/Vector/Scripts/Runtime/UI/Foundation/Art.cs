@@ -405,6 +405,40 @@ namespace Vector.Game.UI
         });
 
         // ------------------------------------------------------------------
+        // フロア（ストーリーモード）
+        // ------------------------------------------------------------------
+
+        /// <summary>カジノの絨毯の1マス（つなげて敷ける）。地の色に、細い格子と中央の菱形の柄。</summary>
+        public static Sprite Carpet(Color ground, Color motif) => Cached($"carpet{ColorUtility.ToHtmlStringRGB(ground)}{ColorUtility.ToHtmlStringRGB(motif)}", () =>
+        {
+            const int size = 64;
+            var tex = NewTexture(size, size);
+            tex.wrapMode = TextureWrapMode.Repeat;
+            var px = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float u = (x + 0.5f) / size * 2 - 1;
+                float v = (y + 0.5f) / size * 2 - 1;
+                var c = ground * (1 + (Hash(x, y) - 0.5f) * 0.08f);
+                // 斜めの格子（マスの角どうしを結ぶ）
+                float lattice = Mathf.Min(Mathf.Abs(Mathf.Abs(u) - Mathf.Abs(v)), 1f) * size / 2;
+                c = Color.Lerp(c, motif, Mathf.Clamp01(1.2f - lattice) * 0.45f);
+                // 中央の菱形と四隅の点
+                float diamond = SdRhombus(u, v, 0.32f, 0.32f) * size / 2;
+                c = Color.Lerp(c, motif, Alpha(diamond) / 255f * 0.55f);
+                float ring = Mathf.Abs(SdRhombus(u, v, 0.5f, 0.5f) * size / 2) - 0.8f;
+                c = Color.Lerp(c, motif, Alpha(ring) / 255f * 0.35f);
+                c.a = 1;
+                px[y * size + x] = c;
+            }
+            return Finish(tex, px, FilterMode.Bilinear);
+        });
+
+        /// <summary>髪（円の上側）。顔の円に重ねて使う。</summary>
+        public static Sprite HairCap => Cached("haircap", () => Disc(128, (x, y) => Mathf.Max(SdCircle(x, y, 0, 0, 0.96f), -(y + 0.12f))));
+
+        // ------------------------------------------------------------------
         // 補助
         // ------------------------------------------------------------------
 

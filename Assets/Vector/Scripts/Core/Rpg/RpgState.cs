@@ -10,9 +10,6 @@ namespace Vector.Core.Rpg
     [Serializable]
     public sealed class RpgState
     {
-        /// <summary>ストーリーを始めた（オープニングを見た）。</summary>
-        public bool started;
-
         public int level = 1;
 
         /// <summary>今のレベルで貯めた経験値。</summary>
