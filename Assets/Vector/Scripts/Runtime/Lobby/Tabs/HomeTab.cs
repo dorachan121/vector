@@ -117,7 +117,7 @@ namespace Vector.Game.Lobby
             var carousel = BannerCarousel.Create(Top, new Vector2(196, 640), size);
             carousel.Add(b => Banner(b, size, Palette.Violet, "STORY", "最上階のオーナーに挑め", () => nav.SelectTab(HomeTabId.Story),
                 art => PortraitView.Create(art, "Zero", Cast.Of("zero").Look, new Vector2(0, -50), 330)));
-            carousel.Add(b => Banner(b, size, Theme.Hex("6B4A12"), "7 GAMES", "ここでしか遊べない7つのゲーム", () => nav.SelectTab(HomeTabId.Play),
+            carousel.Add(b => Banner(b, size, Theme.Hex("6B4A12"), "8 GAMES", "ここでしか遊べない8つのゲーム", () => nav.SelectTab(HomeTabId.Play),
                 art => GameEmblem.Create(art, new Vector2(0, -6), 200, Core.GameId.Crown)));
             carousel.Add(b => Banner(b, size, Theme.Hex("0E5E4A"), "DAILY", "毎日のミッションとログボ", () => nav.SelectTab(HomeTabId.Missions), art =>
             {

@@ -5,6 +5,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Harpoon;
 using Vector.Core.Orbit;
 using Vector.Game.UI;
 
@@ -36,6 +37,7 @@ namespace Vector.Game
             var alchemia = AlchemiaRules.Standard;
             var delve = DelveRules.Standard;
             var orbit = OrbitRules.Standard;
+            var harpoon = HarpoonRules.Standard;
             return new List<GameEntry>
             {
                 new GameEntry
@@ -86,6 +88,13 @@ namespace Vector.Game
                     Pitch = "3つの惑星が止まる位置と並びに賭ける天球儀のルーレット。直列すれば 287 倍",
                     Features = new[] { "RTP 一定", "直列 287:1" },
                     Terms = $"{Labels.Money(orbit.MinBet)}–{Labels.Money(orbit.MaxFor(OrbitSpots.Half(0)))}  ·  ALIGNMENT {orbit.PaysFor(OrbitSpots.Alignment)}  ·  COMET 1 IN {OrbitRules.CometOneIn}",
+                },
+                new GameEntry
+                {
+                    Id = GameId.Harpoon, Title = "HARPOON", Rtp = $"{HarpoonRules.ReturnPercent}%", Genre = "FISH HUNT", Scene = SceneNames.Harpoon, Accent = Theme.Hex("34C6E0"),
+                    Pitch = "泳ぐ獲物を選んでモリを撃つ。大物ほど逃げやすく、どれを狙っても RTP は同じ",
+                    Features = new[] { "タップで狩る", $"最大 {harpoon.MaxMultiple(Quarry.Jellyfish)}倍" },
+                    Terms = $"BET {Labels.Money(harpoon.BetLevels[0])}–{Labels.Money(harpoon.BetLevels[harpoon.BetLevels.Count - 1])} / 1発  ·  LEVIATHAN x{harpoon.MaxMultiple(Quarry.Leviathan)}",
                 },
             };
         }

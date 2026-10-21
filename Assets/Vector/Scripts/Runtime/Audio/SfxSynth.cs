@@ -68,6 +68,12 @@ namespace Vector.Game.Audio
                 case SfxKind.Sparkle:
                     data = Mix(Arpeggio(new[] { 1318.5f, 1760f, 2093f }, 0.04f, 0.3f, 0.18f), Shimmer(random, 0.4f));
                     break;
+                case SfxKind.Harpoon:
+                    data = Mix(Swish(random, 0.24f, 2600f, 500f, 0.7f), Render(0.14f, (t, i) => Sine(t, 190 - 420 * t) * Decay(t, 28) * 0.4f));
+                    break;
+                case SfxKind.Splash:
+                    data = Mix(Swish(random, 0.26f, 1800f, 380f, 0.4f), Bubbles(random, 0.5f, 7));
+                    break;
                 default:
                     data = Render(0.18f, (t, i) => Math.Sign(Sine(t, 110)) * Decay(t, 14) * 0.18f);
                     break;
@@ -186,6 +192,26 @@ namespace Vector.Game.Audio
                 {
                     float t = i / (float)SampleRate;
                     data[start + i] += (float)(random.NextDouble() * 2 - 1) * amp * Decay(t, 500);
+                }
+            }
+            return data;
+        }
+
+        /// <summary>泡が弾ける「ポコポコ」。音程が上がっていく短い音を散らす。</summary>
+        static float[] Bubbles(System.Random random, float seconds, int count)
+        {
+            var data = new float[Mathf.CeilToInt(seconds * SampleRate)];
+            const int length = 2600;
+            for (int k = 0; k < count; k++)
+            {
+                int start = random.Next(Math.Max(1, data.Length - length));
+                float baseHz = 300 + (float)random.NextDouble() * 500;
+                float phase = 0;
+                for (int i = 0; i < length && start + i < data.Length; i++)
+                {
+                    float t = i / (float)SampleRate;
+                    phase += 2 * Mathf.PI * baseHz * (1 + t * 25) / SampleRate;
+                    data[start + i] += Mathf.Sin(phase) * Decay(t, 60) * 0.22f;
                 }
             }
             return data;

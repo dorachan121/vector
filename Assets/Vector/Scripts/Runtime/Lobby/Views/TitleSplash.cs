@@ -39,7 +39,7 @@ namespace Vector.Game.Lobby
             var sub = Ui.Text(root, "Sub", "CASINO RESORT", Fonts.Label, 48, Palette.Ivory, new Vector2(0, 452), new Vector2(1000, 60));
             sub.characterSpacing = 22;
             Ui.Outline(sub, Palette.Ink, 0.2f);
-            Ui.Ribbon(root, "Tagline", "SEVEN ORIGINAL GAMES  ·  CASINO RPG", new Vector2(0, 352), 760, Palette.Ruby, 28);
+            Ui.Ribbon(root, "Tagline", "EIGHT ORIGINAL GAMES  ·  CASINO RPG", new Vector2(0, 352), 760, Palette.Ruby, 28);
 
             Ui.Image(root, "Shade", Chrome.Gradient(Palette.NightDeep.WithAlpha(0f), Palette.NightDeep), Color.white, new Vector2(0, -820), new Vector2(Ui.Portrait.x * 3, 760));
             // 看板の2人の服に重なっても読めるよう、文字の後ろに暗い帯を敷く

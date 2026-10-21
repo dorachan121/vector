@@ -1,8 +1,8 @@
-# VECTOR CASINO RESORT — 7つのオリジナルカジノゲームとカジノ RPG
+# VECTOR CASINO RESORT — 8つのオリジナルカジノゲームとカジノ RPG
 
 [![Core](https://github.com/dorachan121/vector/actions/workflows/core.yml/badge.svg)](https://github.com/dorachan121/vector/actions/workflows/core.yml)
 
-**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、7つのオリジナルのカジノゲームと、
+**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、8つのオリジナルのカジノゲームと、
 そのカジノの中を歩いてフロアの主たちに挑む **ストーリーモード（カジノ RPG）** を収録しています。
 
 どのゲームも、実際のカジノと同じ考え方で作っています。配当表は付属のシミュレーターで検証し（厳密に計算できるものは全列挙・動的計画法で求めた **厳密値**）、
@@ -25,6 +25,7 @@
 | **ALCHEMIA** | 融合 × スロット | 同じ元素が3つつながると融合して位が上がる、連鎖型のビデオスロット | 96.92% ±0.19%（1.2億回） |
 | **DELVE** | 迷宮 × 引き際 | 扉を選んで迷宮を潜り、いつ引き返すかを決める | **96.75〜97.00%**（厳密・どこで引き返しても） |
 | **ORBIT** | 天球儀 × ルーレット | 3つの惑星が止まる位置と並び方に賭ける。37回に1回は彗星が横切る | **97.297%**（厳密・どの賭けも同じ） |
+| **HARPOON** | 狩り × リアルタイム | 泳ぐ獲物を選んでモリを撃つ。大物ほど逃げやすく、どれを狙っても同じ | **97.000%**（厳密・どの獲物も同じ） |
 
 「腕で RTP が変わる」スキルゲーム（VECTOR / CROWN DICE / COLOSSEUM）には、設定で ON にできる **戦略ヒント** があります。
 CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法で求めた **厳密な最善手** です。
@@ -223,6 +224,27 @@ CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法�
 | **惑星直列**（3つとも一直線） | **287:1** | 0.34% | $50 |
 | 彗星 | 35:1 | 2.70% | $300 |
 
+## 🔱 HARPOON
+
+![HARPOON](docs/images/harpoon.jpg)
+
+- 深海を泳ぐ獲物を **押すとモリを撃つ**、リアルタイムの狩り。1発ごとに BET（$5〜$200）がかかり、捕まえると **BET × 倍率** が戻る
+- 捕獲率は **97% ÷ 倍率**（整数の比で厳密）。**どの獲物を狙っても RTP は 97.000%** で、違うのは当たりやすさと大きさだけ
+- 獲物の泳ぎ方や現れる順番は演出用の乱数で、結果は撃った瞬間に「狙った獲物の種類」だけで決まる（腕や運の良い位置取りで RTP は変わらない）
+- **LOCK** で、最後に狙った種類が現れるたびに自動で撃ち続ける
+
+| 獲物 | 倍率 | 捕獲率 |
+|---|---:|---:|
+| イワシ | x2 | 48.5% |
+| クマノミ | x3 | 32.33% |
+| フグ | x5 | 19.4% |
+| ウミガメ | x10 | 9.7% |
+| カジキ | x20 | 4.85% |
+| サメ | x50 | 1.94% |
+| クジラ | x100 | 0.97% |
+| **リヴァイアサン**（ときどき現れる） | **x300** | 0.323% |
+| 金のクラゲ（捕まえてから倍率が決まる） | x5〜x500（平均 x26.75） | 3.63% |
+
 ---
 
 ## 🎰 カジノとしての仕様（全ゲーム共通）
@@ -261,14 +283,14 @@ Assets/Vector/
 │   │   │                     Wagering（BetBoard・IBetLimits・WagerCheck・WagerSession・SpotResult）/ ResponsibleGaming
 │   │   ├── Games/            ゲームごとのルール・エンジン・厳密解ソルバー
 │   │   │   ├── Vector/       Betting（TableRules・TableLimits）/ Board / Poker / Round / Strategy
-│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/
+│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/
 │   │   └── Rpg/              ストーリーモードの規則: RpgSession / RpgState / Progress / Quests / Items / Floors / Challenges /
 │   │                         Daily（ログインボーナス・デイリーミッション）
 │   ├── Runtime/              Vector.Runtime（Unity 側）
 │   │   ├── App/              GameContext / GameCatalog / Startup / GuardedRoutine / Log
 │   │   ├── Casino/           全ゲーム共通のテーブル: CasinoDirector（進行のテンプレート）/ CasinoView / WagerInput /
 │   │   │                     財布（ProfileWallet・ChallengeWallet）/ ChallengeFlow / Views（チップ・HUD・ベットエリアなど）
-│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/
+│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/
 │   │   ├── World/            ストーリーモードのフロア: WorldDirector / Conversation / FloorActors / Views / Cast / Panels
 │   │   ├── Story/            進み具合の保存（StoryProgress）・名前の表示（StoryNames）・フロアの並び・報酬の表示
 │   │   ├── Lobby/            ホーム（縦向き）: LobbyScene（組み立て）/ Tabs（ホーム・ストーリー・プレイ・ミッション・ショップ）/
@@ -278,8 +300,8 @@ Assets/Vector/
 │   │   └── UI/               Foundation（Ui・画面の形と向き・SceneFlow・Tween・Palette）/ Art（光沢・額縁・アイコン・立ち絵の部品）/
 │   │                         Effects（回転・脈動・紙吹雪・金貨）/ Widgets（Dialog・報酬・回転の案内・通貨・ゲージ・バッジ・サブタブ）
 │   └── Editor/               日本語フォントの焼き込み（文言が増えたら自動で作り直す）
-├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（137件）
-├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / World（どれも起点コンポーネントを1つ置くだけ）
+├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（142件）
+├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / Harpoon / World（どれも起点コンポーネントを1つ置くだけ）
 └── Fonts/                    Anton / Oswald / BIZ UDPGothic（SIL Open Font License）
 Tools/
 ├── Simulator/                配当表・挑戦の検証ツール（.NET、Core のソースを共有）
@@ -321,8 +343,8 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（137件）
-# Unity なし（Core のみ・122件）
+# Unity: Window > General > Test Runner > EditMode（142件）
+# Unity なし（Core のみ・127件）
 dotnet test Tools/CoreTests
 ```
 
@@ -344,6 +366,7 @@ dotnet run -c Release -- derby                     # DERBY の全出走表のオ
 dotnet run -c Release -- delve                     # DELVE の深さごとの倍率と RTP
 dotnet run -c Release -- alchemia 120000000        # ALCHEMIA の RTP（1.2億回）
 dotnet run -c Release -- orbit                     # ORBIT の賭け先ごとの厳密な RTP とシミュレーション
+dotnet run -c Release -- harpoon                   # HARPOON の獲物ごとの厳密な捕獲率・RTP とシミュレーション
 dotnet run -c Release -- challenge 2000            # ストーリーモードの挑戦の勝率
 ```
 

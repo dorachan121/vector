@@ -23,5 +23,8 @@ namespace Vector.Core
 
         /// <summary>3つの惑星が止まる位置と並び方に賭ける、天球儀のルーレット。</summary>
         Orbit,
+
+        /// <summary>泳ぐ獲物を選んでモリを撃つ、深海の狩り。</summary>
+        Harpoon,
     }
 }

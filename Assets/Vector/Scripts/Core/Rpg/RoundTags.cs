@@ -18,5 +18,8 @@ namespace Vector.Core.Rpg
         public const string OrbitConjunction = "orbit.conjunction";
         public const string OrbitAlignment = "orbit.alignment";
         public const string OrbitComet = "orbit.comet";
+        public const string HarpoonBigCatch = "harpoon.big_catch";
+        public const string HarpoonLeviathan = "harpoon.leviathan";
+        public const string HarpoonJellyJackpot = "harpoon.jelly_jackpot";
     }
 }

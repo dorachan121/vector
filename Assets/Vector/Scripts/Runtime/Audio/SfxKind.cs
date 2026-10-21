@@ -26,5 +26,11 @@ namespace Vector.Game.Audio
 
         /// <summary>シンボルが融合するきらめき。</summary>
         Sparkle,
+
+        /// <summary>モリを撃ち出す「ドシュッ」。</summary>
+        Harpoon,
+
+        /// <summary>水しぶきと泡。</summary>
+        Splash,
     }
 }

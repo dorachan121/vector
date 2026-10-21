@@ -1,5 +1,7 @@
 using UnityEngine;
 using Vector.Core;
+using Vector.Core.Harpoon;
+using Vector.Game.Harpoon;
 using Vector.Game.UI;
 
 namespace Vector.Game.Lobby
@@ -19,7 +21,9 @@ namespace Vector.Game.Lobby
                 case GameId.Derby: Derby(rt, s); break;
                 case GameId.Alchemia: Alchemia(rt, s); break;
                 case GameId.Orbit: Orbit(rt, s); break;
-                default: Delve(rt, s); break;
+                case GameId.Harpoon: Harpoon(rt, s); break;
+                case GameId.Delve: Delve(rt, s); break;
+                default: throw new System.ArgumentOutOfRangeException(nameof(game), game, "紋章のないゲームです。");
             }
             return rt;
         }
@@ -124,6 +128,17 @@ namespace Vector.Game.Lobby
             }
             Ui.Image(rt, "Corona", Art.Glow, Palette.GoldMid.WithAlpha(0.85f), Vector2.zero, Vector2.one * 90 * s);
             Ui.Image(rt, "Sun", Art.Circle, Palette.Gold, Vector2.zero, Vector2.one * 36 * s);
+        }
+
+        /// <summary>深海の狩り: 泳ぐサメと、斜めに飛ぶモリと泡。</summary>
+        static void Harpoon(RectTransform rt, float s)
+        {
+            Ui.Image(rt, "Sea", Art.Glow, Theme.Hex("34C6E0").WithAlpha(0.45f), Vector2.zero, Vector2.one * 210 * s);
+            Ui.Image(rt, "Shark", MarineArt.Of(Quarry.Shark), Color.white, new Vector2(6, 12) * s, new Vector2(184, 82) * s);
+            var spear = Ui.Image(rt, "Harpoon", MarineArt.Harpoon, Palette.GoldLight, new Vector2(-14, -40) * s, new Vector2(170, 36) * s);
+            spear.rectTransform.localEulerAngles = new Vector3(0, 0, 28);
+            for (int i = 0; i < 3; i++)
+                Ui.Image(rt, "Bubble", Art.Ring(0.16f), Color.white.WithAlpha(0.7f), new Vector2(-70 + i * 14, 52 + i * 22) * s, Vector2.one * (12 + i * 6) * s);
         }
     }
 }
