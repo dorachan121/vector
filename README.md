@@ -1,8 +1,8 @@
-# VECTOR CASINO RESORT — 8つのオリジナルカジノゲームとカジノ RPG
+# VECTOR CASINO RESORT — 9つのオリジナルカジノゲームとカジノ RPG
 
 [![Core](https://github.com/dorachan121/vector/actions/workflows/core.yml/badge.svg)](https://github.com/dorachan121/vector/actions/workflows/core.yml)
 
-**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、8つのオリジナルのカジノゲームと、
+**確率をすべて公開した、正直なカジノ。** 既存のゲームの焼き直しではない、9つのオリジナルのカジノゲームと、
 そのカジノの中を歩いてフロアの主たちに挑む **ストーリーモード（カジノ RPG）** を収録しています。
 
 どのゲームも、実際のカジノと同じ考え方で作っています。配当表は付属のシミュレーターで検証し（厳密に計算できるものは全列挙・動的計画法で求めた **厳密値**）、
@@ -26,9 +26,10 @@
 | **DELVE** | 迷宮 × 引き際 | 扉を選んで迷宮を潜り、いつ引き返すかを決める | **96.75〜97.00%**（厳密・どこで引き返しても） |
 | **ORBIT** | 天球儀 × ルーレット | 3つの惑星が止まる位置と並び方に賭ける。37回に1回は彗星が横切る | **97.297%**（厳密・どの賭けも同じ） |
 | **HARPOON** | 狩り × リアルタイム | 泳ぐ獲物を選んでモリを撃つ。大物ほど逃げやすく、どれを狙っても同じ | **97.000%**（厳密・どの獲物も同じ） |
+| **SUGOROKU** | 双六 × 先読み | 2つの目のどちらで進むかを選び、小判を拾って8回以内に上りを目指す | **96.493%**（厳密・最善手） |
 
-「腕で RTP が変わる」スキルゲーム（VECTOR / CROWN DICE / COLOSSEUM）には、設定で ON にできる **戦略ヒント** があります。
-CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法で求めた **厳密な最善手** です。
+「腕で RTP が変わる」スキルゲーム（VECTOR / CROWN DICE / COLOSSEUM / SUGOROKU）には、設定で ON にできる **戦略ヒント** があります。
+CROWN DICE・COLOSSEUM・SUGOROKU のヒントは、後ろ向き帰納・動的計画法で求めた **厳密な最善手** です。
 
 ---
 
@@ -246,6 +247,21 @@ CROWN DICE と COLOSSEUM のヒントは、後ろ向き帰納・動的計画法�
 | **リヴァイアサン**（ときどき現れる） | **x300** | 0.323% |
 | 金のクラゲ（捕まえてから倍率が決まる） | x5〜x500（平均 x26.75） | 3.63% |
 
+## 🎎 SUGOROKU
+
+![SUGOROKU](docs/images/sugoroku.jpg)
+
+- 振出から上りまで、30マスの双六の道を旅する。毎回サイコロを2つ振り、**どちらか1つの目だけ** 進む（8回まで）
+- 止まったマスで段（倍率）が変わる: **小判** 段+1 · **宝** 段+2 · **凶** 段−1 · **橋** 3マス先へ · **穴** 3マス戻る（通り過ぎるだけなら何も起きない）
+- 8回のうちに上りへ着けば、そのときの段の配当が戻る。着けなければ没収
+- 状態は「残りの回数・位置・段」だけなので、全状態を後ろ向きに解いた **厳密な最善手の RTP は 96.493%**。戦略ヒントはこの表から目を勧める
+- 大きい目で急ぐだけだと **41.1%**、目先の小判だけを追うと **83.5%** まで下がる、先読みが物を言うスキルゲーム
+
+| 段 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 上がったときの配当 | x0 | x0.4 | x0.7 | x1 | x1.6 | x2.6 | x6 | **x25** |
+| 最善手でその段で上がる確率 | 4.82% | 13.06% | 19.54% | 18.18% | 13.11% | 6.75% | 2.19% | 0.31% |
+
 ---
 
 ## 🎰 カジノとしての仕様（全ゲーム共通）
@@ -284,14 +300,14 @@ Assets/Vector/
 │   │   │                     Wagering（BetBoard・IBetLimits・WagerCheck・WagerSession・SpotResult）/ ResponsibleGaming
 │   │   ├── Games/            ゲームごとのルール・エンジン・厳密解ソルバー
 │   │   │   ├── Vector/       Betting（TableRules・TableLimits）/ Board / Poker / Round / Strategy
-│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/
+│   │   │   └── Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/ Sugoroku/
 │   │   └── Rpg/              ストーリーモードの規則: RpgSession / RpgState / Progress / Quests / Items / Floors / Challenges /
 │   │                         Daily（ログインボーナス・デイリーミッション）
 │   ├── Runtime/              Vector.Runtime（Unity 側）
 │   │   ├── App/              GameContext / GameCatalog / Startup / GuardedRoutine / Log
 │   │   ├── Casino/           全ゲーム共通のテーブル: CasinoDirector（進行のテンプレート）/ CasinoView / WagerInput /
 │   │   │                     財布（ProfileWallet・ChallengeWallet）/ ChallengeFlow / Views（チップ・HUD・ベットエリアなど）
-│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/
+│   │   ├── Games/            ゲームごとの画面と進行役: Vector/ Crown/ Colosseum/ Derby/ Delve/ Alchemia/ Orbit/ Harpoon/ Sugoroku/
 │   │   ├── World/            ストーリーモードのフロア: WorldDirector / Conversation / FloorActors / Views / Cast / Panels
 │   │   ├── Story/            進み具合の保存（StoryProgress）・名前の表示（StoryNames）・フロアの並び・報酬の表示
 │   │   ├── Lobby/            ホーム（縦向き）: LobbyScene（組み立て）/ Tabs（ホーム・ストーリー・プレイ・ミッション・ショップ）/
@@ -301,8 +317,8 @@ Assets/Vector/
 │   │   └── UI/               Foundation（Ui・画面の形と向き・SceneFlow・Tween・Palette）/ Art（光沢・額縁・アイコン・立ち絵の部品）/
 │   │                         Effects（回転・脈動・紙吹雪・金貨）/ Widgets（Dialog・報酬・回転の案内・通貨・ゲージ・バッジ・サブタブ）
 │   └── Editor/               日本語フォントの焼き込み（文言が増えたら自動で作り直す）
-├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（142件）
-├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / Harpoon / World（どれも起点コンポーネントを1つ置くだけ）
+├── Tests/EditMode/           ルール・厳密解・賭け金・RPG・セーブ・フォント網羅のテスト（147件）
+├── Scenes/                   Lobby / Table / Crown / Colosseum / Derby / Delve / Alchemia / Orbit / Harpoon / Sugoroku / World（どれも起点コンポーネントを1つ置くだけ）
 └── Fonts/                    Anton / Oswald / BIZ UDPGothic（SIL Open Font License）
 Tools/
 ├── Simulator/                配当表・挑戦の検証ツール（.NET、Core のソースを共有）
@@ -344,8 +360,8 @@ Tools/
 ### テスト
 
 ```bash
-# Unity: Window > General > Test Runner > EditMode（142件）
-# Unity なし（Core のみ・127件）
+# Unity: Window > General > Test Runner > EditMode（147件）
+# Unity なし（Core のみ・132件）
 dotnet test Tools/CoreTests
 ```
 
@@ -368,6 +384,7 @@ dotnet run -c Release -- delve                     # DELVE の深さごとの倍
 dotnet run -c Release -- alchemia 120000000        # ALCHEMIA の RTP（1.2億回）
 dotnet run -c Release -- orbit                     # ORBIT の賭け先ごとの厳密な RTP とシミュレーション
 dotnet run -c Release -- harpoon                   # HARPOON の獲物ごとの厳密な捕獲率・RTP とシミュレーション
+dotnet run -c Release -- sugoroku                  # SUGOROKU の最善手・打ち方ごとの厳密な RTP と段の分布
 dotnet run -c Release -- challenge 2000            # ストーリーモードの挑戦の勝率
 ```
 

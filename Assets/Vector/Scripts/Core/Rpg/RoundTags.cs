@@ -21,5 +21,8 @@ namespace Vector.Core.Rpg
         public const string HarpoonBigCatch = "harpoon.big_catch";
         public const string HarpoonLeviathan = "harpoon.leviathan";
         public const string HarpoonJelly = "harpoon.jelly";
+        public const string SugorokuGoal = "sugoroku.goal";
+        public const string SugorokuTreasure = "sugoroku.treasure";
+        public const string SugorokuHighTier = "sugoroku.high_tier";
     }
 }

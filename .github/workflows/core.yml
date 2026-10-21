@@ -47,6 +47,8 @@ jobs:
         run: dotnet run --project Tools/Simulator -c Release --no-build -- orbit 200000
       - name: HARPOON RTP (exact) and simulation
         run: dotnet run --project Tools/Simulator -c Release --no-build -- harpoon 200000
+      - name: SUGOROKU RTP (exact) and simulation
+        run: dotnet run --project Tools/Simulator -c Release --no-build -- sugoroku 100000
       - name: ALCHEMIA smoke simulation
         run: dotnet run --project Tools/Simulator -c Release --no-build -- alchemia 200000
       - name: Story mode challenge balance

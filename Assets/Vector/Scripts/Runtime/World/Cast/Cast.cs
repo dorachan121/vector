@@ -40,7 +40,7 @@ namespace Vector.Game.World
         /// <summary>招待状（ストーリーの最初に一度だけ）。</summary>
         public static readonly string[] Invitation =
         {
-            "<b>招待状</b>\n\nVECTOR CASINO RESORT へようこそ。\n当カジノには、8つのオリジナルゲームがある。どれも確率をすべて公開した、正直なゲームだ。",
+            "<b>招待状</b>\n\nVECTOR CASINO RESORT へようこそ。\n当カジノには、9つのオリジナルゲームがある。どれも確率をすべて公開した、正直なゲームだ。",
             "各フロアには、そのゲームを極めた「主」がいる。\n主に勝てば、エレベーターで上のフロアへ行けるようになる。",
             "最上階のペントハウスで待っている。\n君と、一勝負したい。\n\n— VECTOR オーナー　ゼロ",
         };

@@ -7,6 +7,7 @@ using Vector.Core.Delve;
 using Vector.Core.Derby;
 using Vector.Core.Harpoon;
 using Vector.Core.Orbit;
+using Vector.Core.Sugoroku;
 using Vector.Game.UI;
 
 namespace Vector.Game
@@ -38,6 +39,7 @@ namespace Vector.Game
             var delve = DelveRules.Standard;
             var orbit = OrbitRules.Standard;
             var harpoon = HarpoonRules.Standard;
+            var sugoroku = SugorokuRules.Standard;
             return new List<GameEntry>
             {
                 new GameEntry
@@ -95,6 +97,13 @@ namespace Vector.Game
                     Pitch = "泳ぐ獲物を選んでモリを撃つ。大物ほど逃げやすく、どれを狙っても RTP は同じ",
                     Features = new[] { "タップで狩る", $"最大 {harpoon.MaxMultiple(Quarry.Jellyfish)}倍" },
                     Terms = $"BET {Labels.Money(harpoon.BetLevels[0])}–{Labels.Money(harpoon.BetLevels[harpoon.BetLevels.Count - 1])} / 1発  ·  LEVIATHAN x{harpoon.MaxMultiple(Quarry.Leviathan)}",
+                },
+                new GameEntry
+                {
+                    Id = GameId.Sugoroku, Title = "SUGOROKU", Rtp = "96.49%", Genre = "BOARD JOURNEY", Scene = SceneNames.Sugoroku, Accent = Theme.Hex("E0503A"),
+                    Pitch = "2つの目のどちらで進むかを選び、小判を拾いながら上りを目指す和の双六",
+                    Features = new[] { "先を読む", "最善手ヒント" },
+                    Terms = $"{Labels.Money(sugoroku.MinBet)}–{Labels.Money(sugoroku.MaxBet)}  ·  {sugoroku.Turns} ROLLS  ·  TOP x{sugoroku.PayFor(sugoroku.MaxTier) / 100}",
                 },
             };
         }

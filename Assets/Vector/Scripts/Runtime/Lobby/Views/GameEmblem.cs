@@ -22,6 +22,7 @@ namespace Vector.Game.Lobby
                 case GameId.Alchemia: Alchemia(rt, s); break;
                 case GameId.Orbit: Orbit(rt, s); break;
                 case GameId.Harpoon: Harpoon(rt, s); break;
+                case GameId.Sugoroku: Sugoroku(rt, s); break;
                 case GameId.Delve: Delve(rt, s); break;
                 default: throw new System.ArgumentOutOfRangeException(nameof(game), game, "紋章のないゲームです。");
             }
@@ -128,6 +129,21 @@ namespace Vector.Game.Lobby
             }
             Ui.Image(rt, "Corona", Art.Glow, Palette.GoldMid.WithAlpha(0.85f), Vector2.zero, Vector2.one * 90 * s);
             Ui.Image(rt, "Sun", Art.Circle, Palette.Gold, Vector2.zero, Vector2.one * 36 * s);
+        }
+
+        /// <summary>双六: 小判の載った道のマスと、2つのサイコロ。</summary>
+        static void Sugoroku(RectTransform rt, float s)
+        {
+            var paper = Theme.Hex("F1E3C2");
+            var cells = new[] { new Vector2(-66, -52), new Vector2(0, -52), new Vector2(66, -52), new Vector2(66, 8) };
+            Ui.Panel(rt, "Path", new Vector2(0, -52) * s, new Vector2(140, 8) * s, Theme.Hex("2B1D12"), 4 * s);
+            Ui.Panel(rt, "PathUp", new Vector2(66, -22) * s, new Vector2(8, 60) * s, Theme.Hex("2B1D12"), 4 * s);
+            foreach (var at in cells)
+                Ui.Panel(rt, "Cell", at * s, new Vector2(54, 46) * s, paper, 8 * s);
+            Ui.Image(rt, "Coin", Chrome.Coin, Color.white, new Vector2(0, -52) * s, Vector2.one * 38 * s);
+            Ui.Text(rt, "Goal", "上り", Fonts.Body, 18 * s, Theme.Hex("C8352B"), new Vector2(66, 8) * s, new Vector2(54, 46) * s);
+            Die(rt, new Vector2(-50, 46) * s, 64 * s, -12, 5);
+            Die(rt, new Vector2(16, 62) * s, 54 * s, 16, 6);
         }
 
         /// <summary>深海の狩り: 泳ぐサメと、斜めに飛ぶモリと泡。</summary>

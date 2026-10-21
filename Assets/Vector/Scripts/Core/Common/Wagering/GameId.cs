@@ -26,5 +26,8 @@ namespace Vector.Core
 
         /// <summary>泳ぐ獲物を選んでモリを撃つ、深海の狩り。</summary>
         Harpoon,
+
+        /// <summary>2つのサイコロのどちらで進むかを選び、小判を集めて上がりを目指す双六。</summary>
+        Sugoroku,
     }
 }

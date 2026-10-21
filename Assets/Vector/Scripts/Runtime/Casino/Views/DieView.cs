@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using Vector.Game.UI;
 
-namespace Vector.Game.Crown
+namespace Vector.Game.Casino
 {
     /// <summary>
-    /// 1個のダイス。角丸の面に目（ピップ）を描き、残す（HOLD）と持ち上がって金の縁が付く。振ると転がりながら目が変わる。
+    /// 1個のダイス（CROWN DICE・SUGOROKU で共通）。角丸の面に目（ピップ）を描き、残す（HOLD）と持ち上がって金の縁が付く。振ると転がりながら目が変わる。
     /// </summary>
     public sealed class DieView : MonoBehaviour
     {
