@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using Vector.Core.Rpg;
 using Vector.Game.Story;
 using Vector.Game.UI;
-using Vector.Game.UI.Widgets;
 
 namespace Vector.Game.World
 {

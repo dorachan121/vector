@@ -6,7 +6,6 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
-using Vector.Core.Rpg;
 
 namespace Vector.Simulator
 {

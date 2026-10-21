@@ -457,14 +457,6 @@ namespace Vector.Game.UI
             return sprite;
         }
 
-        static Sprite Finish(Texture2D tex, Color[] px, FilterMode filter)
-        {
-            var px32 = new Color32[px.Length];
-            for (int i = 0; i < px.Length; i++)
-                px32[i] = px[i];
-            return Finish(tex, px32, filter);
-        }
-
         static Sprite SlicedSprite(Texture2D tex, Color32[] px, int border)
         {
             tex.SetPixels32(px);

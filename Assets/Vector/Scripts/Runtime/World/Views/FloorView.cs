@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using Vector.Core;
 using Vector.Core.Rpg;
 using Vector.Game.UI;
@@ -25,7 +24,6 @@ namespace Vector.Game.World
         public RectTransform Ground { get; }
         public RectTransform Objects { get; }
         public RectTransform People { get; }
-        public RectTransform Markers { get; }
 
         FloorView(Transform parent, FloorDef floor)
         {
@@ -36,7 +34,6 @@ namespace Vector.Game.World
             Ground = Ui.Rect(Root, "Ground", Vector2.zero, Vector2.zero);
             Objects = Ui.Rect(Root, "Objects", Vector2.zero, Vector2.zero);
             People = Ui.Rect(Root, "People", Vector2.zero, Vector2.zero);
-            Markers = Ui.Rect(Root, "Markers", Vector2.zero, Vector2.zero);
         }
 
         public static FloorView Build(Transform parent, FloorDef floor)
@@ -214,8 +211,5 @@ namespace Vector.Game.World
                     break;
             }
         }
-
-        /// <summary>話しかけられる物（テーブルなど）の上の吹き出しの位置。</summary>
-        public Vector2 MarkerAbove(int x, int y) => TileCenter(x, y) + new Vector2(0, TileSize * 0.62f);
     }
 }

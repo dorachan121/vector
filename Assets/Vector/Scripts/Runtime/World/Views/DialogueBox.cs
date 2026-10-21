@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using Vector.Game.Audio;
 using Vector.Game.UI;
 using Vector.Game.UI.Widgets;
@@ -29,8 +28,6 @@ namespace Vector.Game.World
         CanvasGroup group;
         bool advance;
         int chosen = -1;
-
-        public bool IsOpen => gameObject.activeSelf;
 
         public static DialogueBox Create(Transform parent)
         {

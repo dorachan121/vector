@@ -13,7 +13,6 @@ namespace Vector.Core.Delve
     {
         readonly DelveRules rules;
         readonly IRandomSource random;
-        readonly List<DoorReveal> history = new List<DoorReveal>();
 
         public DelveEngine(DelveRules rules, IRandomSource random)
         {
@@ -34,8 +33,6 @@ namespace Vector.Core.Delve
 
         public bool Busted { get; private set; }
 
-        public IReadOnlyList<DoorReveal> History => history;
-
         /// <summary>今引き返せるか（1つ以上の深さを抜けている）。</summary>
         public bool CanCashOut => Phase == DelvePhase.Choosing && ClearedDepth > 0;
 
@@ -54,7 +51,6 @@ namespace Vector.Core.Delve
             RoundNumber++;
             ClearedDepth = 0;
             Busted = false;
-            history.Clear();
             Phase = DelvePhase.Choosing;
         }
 
@@ -79,7 +75,6 @@ namespace Vector.Core.Delve
             }
 
             var reveal = new DoorReveal(CurrentDepth, door, monsters);
-            history.Add(reveal);
             if (!reveal.Survived)
             {
                 Busted = true;

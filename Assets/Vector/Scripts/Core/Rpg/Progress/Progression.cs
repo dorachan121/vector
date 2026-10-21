@@ -42,9 +42,6 @@ namespace Vector.Core.Rpg
             return rank;
         }
 
-        /// <summary>そのランクになるレベル。</summary>
-        public static int LevelFor(VipRank rank) => rankLevels[(int)rank];
-
         public static double CompRate(VipRank rank) => compRates[(int)rank];
 
         /// <summary>経験値を足し、上がったレベルの数を返す。最大レベルでは経験値は貯まらない。</summary>

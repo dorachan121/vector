@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Vector.Core;
 using Vector.Core.Alchemia;
 using Vector.Core.Colosseum;

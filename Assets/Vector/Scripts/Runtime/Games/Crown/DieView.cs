@@ -39,7 +39,6 @@ namespace Vector.Game.Crown
         bool crowned;
 
         public int Face { get; private set; }
-        public bool Held => held;
         public RectTransform Rect => (RectTransform)transform;
 
         public event Action Clicked;

@@ -11,8 +11,6 @@ namespace Vector.Game.World
     /// </summary>
     public sealed class CharacterView : MonoBehaviour
     {
-        Image body;
-        Image head;
         Image hair;
         Image hairBack;
         Image[] eyes;
@@ -39,10 +37,10 @@ namespace Vector.Game.World
             Ui.Image(rt, "Shadow", Art.Circle, new Color(0, 0, 0, 0.35f), new Vector2(0, -size * 0.42f), new Vector2(size * 0.66f, size * 0.2f));
             view.figure = Ui.Rect(rt, "Figure", Vector2.zero, new Vector2(size, size));
             var f = view.figure;
-            view.body = Ui.Panel(f, "Body", new Vector2(0, -size * 0.17f), new Vector2(size * 0.56f, size * 0.46f), look.Outfit, size * 0.16f);
+            Ui.Panel(f, "Body", new Vector2(0, -size * 0.17f), new Vector2(size * 0.56f, size * 0.46f), look.Outfit, size * 0.16f);
             Ui.Panel(f, "Collar", new Vector2(0, -size * 0.0f), new Vector2(size * 0.3f, size * 0.1f), look.Accent, size * 0.05f);
             view.hairBack = Ui.Image(f, "HairBack", Art.Circle, look.Hair, new Vector2(0, size * 0.2f), Vector2.one * size * 0.54f);
-            view.head = Ui.Image(f, "Head", Art.Circle, look.Skin, new Vector2(0, size * 0.19f), Vector2.one * size * 0.5f);
+            Ui.Image(f, "Head", Art.Circle, look.Skin, new Vector2(0, size * 0.19f), Vector2.one * size * 0.5f);
             view.hair = Ui.Image(f, "Hair", Art.HairCap, look.Hair, new Vector2(0, size * 0.25f), Vector2.one * size * 0.56f);
             view.eyes = new[]
             {

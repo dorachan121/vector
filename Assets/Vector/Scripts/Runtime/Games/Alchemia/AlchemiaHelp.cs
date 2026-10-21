@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Vector.Core.Alchemia;
-using Vector.Game.UI;
 
 namespace Vector.Game.Alchemia
 {

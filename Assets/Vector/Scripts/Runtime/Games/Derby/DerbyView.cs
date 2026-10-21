@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Vector.Core;
 using Vector.Core.Derby;
 using Vector.Game.Audio;
 using Vector.Game.Casino;

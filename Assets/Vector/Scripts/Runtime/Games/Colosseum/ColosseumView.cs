@@ -69,7 +69,7 @@ namespace Vector.Game.Colosseum
             view.Casino = casino;
             casino.Actions.SetDealLabel("FIGHT");
             casino.Bank.anchoredPosition = BeastCenter;
-            view.BuildFighters(casino.Stage, rules.Setup);
+            view.BuildFighters(casino.Stage);
             view.BuildCards(casino.Stage);
             view.BuildPanels(casino.Stage);
             casino.AddSpot(BattleRules.Main, new Vector2(0, -300), new Vector2(170, 170), true, "MAIN", $"PAYS {rules.WinPays}", Theme.Gold);
@@ -78,7 +78,7 @@ namespace Vector.Game.Colosseum
             return view;
         }
 
-        void BuildFighters(Transform stage, BattleSetup setup)
+        void BuildFighters(Transform stage)
         {
             playerSide = Ui.Rect(stage, "Player", PlayerCenter, new Vector2(300, 300));
             shieldGlow = Ui.Image(playerSide, "Glow", Art.Glow, Theme.PlayerBlue.WithAlpha(0.25f), Vector2.zero, new Vector2(420, 420));

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Vector.Game.UI;
 
 namespace Vector.Game.World
