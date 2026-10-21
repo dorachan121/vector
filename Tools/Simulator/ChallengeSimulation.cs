@@ -10,6 +10,7 @@ using Vector.Core.Derby;
 using Vector.Core.Harpoon;
 using Vector.Core.Orbit;
 using Vector.Core.Rpg;
+using Vector.Core.Sugoroku;
 
 namespace Vector.Simulator
 {
@@ -62,6 +63,8 @@ namespace Vector.Simulator
             readonly DelveEngine delve;
             readonly OrbitEngine orbit;
             readonly HarpoonEngine harpoon;
+            readonly SugorokuEngine sugoroku;
+            readonly SugorokuSolver sugorokuSolver = SugorokuSolver.Solve(SugorokuRules.Standard);
 
             public Bot(ChallengeSpec spec, SeededRandom random)
             {
@@ -78,6 +81,7 @@ namespace Vector.Simulator
                 delve = new DelveEngine(DelveRules.Standard, random);
                 orbit = new OrbitEngine(OrbitRules.Standard, random);
                 harpoon = new HarpoonEngine(HarpoonRules.Standard, random);
+                sugoroku = new SugorokuEngine(SugorokuRules.Standard, random);
             }
 
             public bool Play()
@@ -103,6 +107,7 @@ namespace Vector.Simulator
                     case GameId.Alchemia: return AlchemiaRules.Standard.BetLevels[0];
                     case GameId.Orbit: return OrbitRules.Standard.MinBet;
                     case GameId.Harpoon: return HarpoonRules.Standard.BetLevels[0];
+                    case GameId.Sugoroku: return SugorokuRules.Standard.MinBet;
                     default: return 10;
                 }
             }
@@ -128,6 +133,8 @@ namespace Vector.Simulator
                         return OrbitBet(stack, remaining).stake;
                     case GameId.Harpoon:
                         return HarpoonShot(stack, remaining).stake;
+                    case GameId.Sugoroku:
+                        return Math.Min(stack, SugorokuRules.Standard.MaxBet);
                     case GameId.Delve:
                     case GameId.Derby:
                         return Math.Min(stack, DelveRules.Standard.MaxBet);
@@ -149,6 +156,7 @@ namespace Vector.Simulator
                     case GameId.Alchemia: return PlayAlchemia(stake);
                     case GameId.Orbit: return PlayOrbit(stack, remaining);
                     case GameId.Harpoon: return PlayHarpoon(stack, remaining);
+                    case GameId.Sugoroku: return PlaySugoroku(stake);
                     default: return PlayDelve(stake, stack + remaining);
                 }
             }
@@ -304,6 +312,19 @@ namespace Vector.Simulator
                 var bets = new BetBoard();
                 bets.Add(quarry, stake);
                 return harpoon.Fire(bets).TotalReturn;
+            }
+
+            /// <summary>上限まで賭け、厳密な最善手（期待値が最大の目）で上りを目指す。</summary>
+            long PlaySugoroku(long stake)
+            {
+                if (sugoroku.Phase == SugorokuPhase.Complete)
+                    sugoroku.BeginBetting();
+                var bets = new BetBoard();
+                bets.Add(SugorokuRules.Main, stake);
+                sugoroku.Start(bets);
+                while (sugoroku.Phase == SugorokuPhase.Choosing)
+                    sugoroku.Choose(sugorokuSolver.Best(sugoroku.TurnsLeft, sugoroku.Position, sugoroku.Tier, sugoroku.Dice.first, sugoroku.Dice.second));
+                return sugoroku.Settle().TotalReturn;
             }
 
             /// <summary>目標に届く最も浅い深さまで潜って引き返す。</summary>

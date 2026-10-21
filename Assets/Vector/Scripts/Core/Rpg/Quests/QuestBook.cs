@@ -28,6 +28,9 @@ namespace Vector.Core.Rpg
             new QuestDef { Id = "luna_spins", Giver = "luna", Kind = QuestKind.PlayRounds, Game = GameId.Orbit, Target = 5, Xp = 60, Comps = 30 },
             new QuestDef { Id = "orion_conjunction", Giver = "orion", Kind = QuestKind.Event, Tag = RoundTags.OrbitConjunction, Xp = 120, Chips = 1_000 },
             new QuestDef { Id = "tess_comet", Giver = "tess", Kind = QuestKind.Event, Tag = RoundTags.OrbitComet, Xp = 200, Comps = 80 },
+            new QuestDef { Id = "tomo_journeys", Giver = "tomo", Kind = QuestKind.PlayRounds, Game = GameId.Sugoroku, Target = 3, Xp = 60, Comps = 30 },
+            new QuestDef { Id = "hana_treasure", Giver = "hana", Kind = QuestKind.Event, Tag = RoundTags.SugorokuTreasure, Xp = 100, Comps = 50 },
+            new QuestDef { Id = "genji_high", Giver = "genji", Kind = QuestKind.Event, Tag = RoundTags.SugorokuHighTier, Xp = 200, Chips = 2_000 },
         };
 
         public static IReadOnlyList<QuestDef> All => quests;

@@ -150,6 +150,9 @@ namespace Vector.Game.World
                 case GameId.Harpoon:
                     DrawTank(center, size - new Vector2(16, 16));
                     return;
+                case GameId.Sugoroku:
+                    DrawBoardGame(center, size - new Vector2(16, 16));
+                    return;
             }
             var felt = floor.Id == FloorId.Penthouse
                 ? Art.TableIn(Theme.Hex("3A0E16"), Theme.Hex("12040A"))
@@ -201,6 +204,31 @@ namespace Vector.Game.World
             }
             var gun = Ui.Image(Objects, "Harpoon", Harpoon.MarineArt.Harpoon, Palette.GoldLight, center + new Vector2(0, -size.y / 2 + 14), new Vector2(70, 15));
             gun.rectTransform.localEulerAngles = new Vector3(0, 0, 70);
+        }
+
+        /// <summary>SUGOROKU の卓（漆の台に広げた双六の盤と、2つのサイコロ）。</summary>
+        void DrawBoardGame(Vector2 center, Vector2 size)
+        {
+            Ui.Panel(Objects, "Shadow", center + new Vector2(4, -6), size, new Color(0, 0, 0, 0.4f), 16);
+            Ui.Panel(Objects, "Lacquer", center, size, theme.FeltCenter, 16);
+            var paper = size - new Vector2(20, 20);
+            Ui.Panel(Objects, "Board", center, paper, Sugoroku.SugorokuLabels.Paper, 8);
+            // 蛇行する道のマス（3段）
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < 4; col++)
+                {
+                    var at = center + new Vector2((col - 1.5f) * paper.x / 4.4f, (row - 1) * paper.y / 3.4f);
+                    var color = (row * 4 + col) % 5 == 2 ? Theme.Hex("C9962E") : (row * 4 + col) % 7 == 3 ? Sugoroku.SugorokuLabels.Vermilion : Sugoroku.SugorokuLabels.Ink.WithAlpha(0.25f);
+                    Ui.Panel(Objects, "Cell", at, new Vector2(paper.x / 5.2f, paper.y / 4.2f), color, 3);
+                }
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                var die = Ui.Panel(Objects, "Die", center + new Vector2(-16 + i * 30, -size.y / 2 - 2), new Vector2(24, 24), Theme.CardFace, 5);
+                die.rectTransform.localEulerAngles = new Vector3(0, 0, i == 0 ? -12 : 10);
+                Ui.Image(die.transform, "Pip", Art.Circle, i == 0 ? Theme.CardRed : Theme.Ink, Vector2.zero, new Vector2(7, 7));
+            }
         }
 
         void DrawBar(List<(int x, int y)> group)

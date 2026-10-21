@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Vector.Core.Rpg;
 using Vector.Game.Story;
 using Vector.Game.UI;
@@ -8,19 +9,28 @@ namespace Vector.Game.Lobby
 {
     /// <summary>
     /// ストーリー。カジノの塔を下から登っていく地図（上の階ほど上）。各フロアの主の顔の札と進み具合、いま目指すフロアの印。
-    /// フロアを押すと詳しい案内を出し、そこからフロアへ入れる。
+    /// 塔は上下にスクロールでき、開いたときは目指すフロアが真ん中に来る。フロアを押すと詳しい案内を出し、そこからフロアへ入れる。
     /// </summary>
     public sealed class StoryTab : IHomeTab
     {
-        const float TopY = 548;
-        /// <summary>いちばん下の B1 の札の高さ。「カジノへ入る」ボタンに隠れないところで止め、フロアの間隔はこの間で等分する。</summary>
-        const float BottomY = -472;
+        /// <summary>塔を見せる窓の上端（ページの見出しの下）と下端（「カジノへ入る」ボタンの上）。</summary>
+        const float ViewTop = 672;
+        const float ViewBottom = -556;
+
+        /// <summary>フロアの間隔と、左右に振る幅。</summary>
+        const float Step = 170;
         const float Zig = 200;
+
+        /// <summary>塔のいちばん上（王冠と最上階）・いちばん下の余白。</summary>
+        const float TopPad = 210;
+        const float BottomPad = 150;
 
         readonly StoryProgress story;
         readonly HomeNavigator nav;
         readonly Transform popups;
         readonly List<FloorNode> nodes = new List<FloorNode>();
+        RectTransform viewport;
+        RectTransform tower;
         RectTransform marker;
 
         StoryTab(Transform parent, StoryProgress story, HomeNavigator nav, Transform popups)
@@ -45,12 +55,12 @@ namespace Vector.Game.Lobby
         public static StoryTab Create(Transform parent, StoryProgress story, HomeNavigator nav, Transform popups)
         {
             var tab = new StoryTab(parent, story, nav, popups);
-            tab.BuildTower();
             var floors = FloorOrder.TopDown;
+            float height = TopPad + (floors.Length - 1) * Step + BottomPad;
+            tab.BuildTower(height);
             var points = new Vector2[floors.Length];
-            float step = (TopY - BottomY) / (floors.Length - 1);
             for (int i = 0; i < floors.Length; i++)
-                points[i] = new Vector2(i == 0 ? 0 : (i % 2 == 1 ? Zig : -Zig), TopY - i * step);
+                points[i] = new Vector2(i == 0 ? 0 : (i % 2 == 1 ? Zig : -Zig), height / 2 - TopPad - i * Step);
             tab.BuildPath(points);
             for (int i = 0; i < floors.Length; i++)
             {
@@ -58,10 +68,10 @@ namespace Vector.Game.Lobby
                 // 札の説明は道の内側に出す。中央の最上階は、すぐ下のフロアと反対側に出して重ならないようにする
                 float from = i == 0 && points.Length > 1 ? points[1].x : points[i].x;
                 int side = from > 0 ? -1 : 1;
-                tab.nodes.Add(FloorNode.Create(tab.Body, floor, points[i], side, () => tab.Open(floor)));
+                tab.nodes.Add(FloorNode.Create(tab.tower, floor, points[i], side, () => tab.Open(floor)));
             }
             // 揺れるのは中身だけにして、置き場所（marker）は Refresh で動かせるようにする
-            tab.marker = Ui.Rect(tab.Body, "Marker", Vector2.zero, new Vector2(90, 90));
+            tab.marker = Ui.Rect(tab.tower, "Marker", Vector2.zero, new Vector2(90, 90));
             var pin = Ui.Rect(tab.marker, "Pin", Vector2.zero, new Vector2(90, 90));
             Ui.Icon(pin, "Pin", IconKind.Story, Palette.Ruby, Vector2.zero, 84);
             Ui.Icon(pin, "Dot", IconKind.Star, Palette.GoldLight, new Vector2(0, 10), 30);
@@ -92,29 +102,65 @@ namespace Vector.Game.Lobby
             }
             marker.gameObject.SetActive(next != null);
             if (next != null)
+            {
                 marker.anchoredPosition = next.Position + new Vector2(0, FloorNode.FaceSize / 2 + 36);
+                ScrollTo(next.Position.y);
+            }
         }
 
-        /// <summary>塔の絵（夜空の中のビル・窓の灯り・屋上の王冠）。</summary>
-        void BuildTower()
+        /// <summary>塔の y の位置が窓の真ん中に来るようにスクロールする（端では止める）。</summary>
+        void ScrollTo(float y)
+        {
+            float height = tower.sizeDelta.y, view = viewport.sizeDelta.y;
+            if (height <= view)
+                return;
+            float fromTop = height / 2 - y;
+            tower.anchoredPosition = new Vector2(0, Mathf.Clamp(fromTop - view / 2, 0, height - view));
+        }
+
+        /// <summary>塔の絵（夜空の中のビル・窓の灯り・屋上の王冠）。ビルは上下にスクロールする窓の中に描く。</summary>
+        void BuildTower(float height)
         {
             Ui.Image(Body, "Sky", Chrome.Gradient(Theme.Hex("2A1060"), Palette.NightDeep.WithAlpha(0f)), Color.white, new Vector2(0, 100), new Vector2(Ui.Portrait.x * 3, 1500));
-            var tower = new Vector2(0, -20);
-            Ui.Image(Body, "Glow", Art.Glow, Palette.Magenta.WithAlpha(0.22f), tower, new Vector2(1000, 1500));
-            Ui.Panel(Body, "Tower", tower, new Vector2(620, 1260), Theme.Hex("1E0C44").WithAlpha(0.9f), 40);
-            Ui.Outline(Body, "TowerRim", tower, new Vector2(620, 1260), Palette.GoldMid.WithAlpha(0.5f), 40);
-            for (int row = 0; row < 14; row++)
+            Ui.Image(Body, "Glow", Art.Glow, Palette.Magenta.WithAlpha(0.22f), new Vector2(0, -20), new Vector2(1000, 1500));
+
+            viewport = Ui.Clip(Body, "TowerView", new Vector2(0, (ViewTop + ViewBottom) / 2), new Vector2(Ui.Portrait.x, ViewTop - ViewBottom));
+            // 札のない所を押してもスクロールできるように、透明の受け皿を敷く
+            Ui.Image(viewport, "DragArea", null, Color.clear, Vector2.zero, viewport.sizeDelta, true);
+            tower = Ui.Rect(viewport, "Tower", Vector2.zero, new Vector2(Ui.Portrait.x, height));
+            tower.anchorMin = tower.anchorMax = tower.pivot = new Vector2(0.5f, 1f);
+            tower.anchoredPosition = Vector2.zero;
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = tower;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Elastic;
+            scroll.decelerationRate = 0.1f;
+            scroll.scrollSensitivity = 40f;
+
+            var building = new Vector2(620, height - 90);
+            var center = new Vector2(0, -45);
+            Ui.Panel(tower, "Building", center, building, Theme.Hex("1E0C44").WithAlpha(0.9f), 40);
+            Ui.Outline(tower, "BuildingRim", center, building, Palette.GoldMid.WithAlpha(0.5f), 40);
+            int rows = (int)((building.y - 60) / 86);
+            for (int row = 0; row < rows; row++)
             {
                 for (int col = 0; col < 6; col++)
                 {
                     bool lit = (row * 7 + col * 3) % 5 != 0;
                     // フロアの名前や札に重なるので、窓の灯りはごく淡くする
-                    Ui.Panel(Body, "Window", tower + new Vector2((col - 2.5f) * 80, 560 - row * 86), new Vector2(30, 40),
+                    Ui.Panel(tower, "Window", center + new Vector2((col - 2.5f) * 80, building.y / 2 - 60 - row * 86), new Vector2(30, 40),
                         lit ? Palette.GoldLight.WithAlpha(0.07f) : Palette.Violet.WithAlpha(0.12f), 6);
                 }
             }
-            var crown = Ui.Icon(Body, "Crown", IconKind.Crown, Palette.Gold, new Vector2(0, TopY + 120), 120);
+            var crown = Ui.Icon(tower, "Crown", IconKind.Crown, Palette.Gold, new Vector2(0, height / 2 - 70), 120);
             Float.Add(crown.rectTransform, 6f, 1.2f);
+
+            // 窓の上下の端をぼかして、続きがあること（スクロールできること）を見せる
+            const float fade = 70;
+            var shade = Palette.NightDeep.WithAlpha(0.75f);
+            Ui.Image(Body, "FadeTop", Chrome.Gradient(shade, shade.WithAlpha(0f)), Color.white, new Vector2(0, ViewTop - fade / 2), new Vector2(Ui.Portrait.x, fade));
+            Ui.Image(Body, "FadeBottom", Chrome.Gradient(shade.WithAlpha(0f), shade), Color.white, new Vector2(0, ViewBottom + fade / 2), new Vector2(Ui.Portrait.x, fade));
         }
 
         /// <summary>フロアどうしをつなぐ点線の道。</summary>
@@ -126,7 +172,7 @@ namespace Vector.Game.Lobby
                 var to = points[i + 1];
                 int dots = 7;
                 for (int d = 1; d < dots; d++)
-                    Ui.Image(Body, "Path", Art.Circle, Palette.GoldLight.WithAlpha(0.7f), Vector2.Lerp(from, to, d / (float)dots), Vector2.one * 14);
+                    Ui.Image(tower, "Path", Art.Circle, Palette.GoldLight.WithAlpha(0.7f), Vector2.Lerp(from, to, d / (float)dots), Vector2.one * 14);
             }
         }
 

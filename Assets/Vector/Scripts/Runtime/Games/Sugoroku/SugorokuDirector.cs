@@ -18,6 +18,9 @@ namespace Vector.Game.Sugoroku
     {
         const float ResultSeconds = 2.2f;
 
+        /// <summary>この段以上で上がったら「大当たりの旅」（クエストの条件）。</summary>
+        const int HighTier = 5;
+
         SugorokuRules rules;
         SugorokuEngine engine;
         SugorokuSolver solver;
@@ -52,7 +55,7 @@ namespace Vector.Game.Sugoroku
             var tags = new List<string>();
             if (result.ReachedGoal)
                 tags.Add(RoundTags.SugorokuGoal);
-            if (result.ReachedGoal && result.Tier >= rules.MaxTier - 1)
+            if (result.ReachedGoal && result.Tier >= HighTier)
                 tags.Add(RoundTags.SugorokuHighTier);
             foreach (var step in result.Steps)
             {

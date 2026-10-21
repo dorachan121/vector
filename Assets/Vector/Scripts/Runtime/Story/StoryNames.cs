@@ -37,6 +37,10 @@ namespace Vector.Game.Story
             { "finn", ("フィン", "漁師の少年") },
             { "pearl", ("パール", "真珠採り") },
             { "nemo", ("ネモ", "深海の船長") },
+            { "tomo", ("トモ", "飛脚") },
+            { "hana", ("ハナ", "茶屋の看板娘") },
+            { "genji", ("ゲンジ", "旅の浪人") },
+            { "yuki", ("ユキ", "宿場の女将") },
             { "luna", ("ルナ", "天文台の案内係") },
             { "orion", ("オリオン", "占星術師") },
             { "tess", ("テス", "彗星ハンター") },
@@ -64,6 +68,7 @@ namespace Vector.Game.Story
                 case FloorId.Undervault: return "B1";
                 case FloorId.Observatory: return "6F";
                 case FloorId.Aquarium: return "B2";
+                case FloorId.PostTown: return "7F";
                 default: return "PH";
             }
         }
@@ -80,6 +85,7 @@ namespace Vector.Game.Story
                 case FloorId.Undervault: return "UNDERVAULT";
                 case FloorId.Observatory: return "OBSERVATORY";
                 case FloorId.Aquarium: return "AQUARIUM";
+                case FloorId.PostTown: return "POST TOWN";
                 default: return "PENTHOUSE";
             }
         }
@@ -96,6 +102,7 @@ namespace Vector.Game.Story
                 case FloorId.Undervault: return "アンダーヴォールト";
                 case FloorId.Observatory: return "天文台";
                 case FloorId.Aquarium: return "深海水族館";
+                case FloorId.PostTown: return "宿場町";
                 default: return "ペントハウス";
             }
         }
@@ -122,6 +129,9 @@ namespace Vector.Game.Story
             { "coral_shots", ("はじめての狩り", "HARPOON で 10 発撃つ") },
             { "finn_big_catch", ("大物狙い", "HARPOON で 50倍以上の獲物を仕留める") },
             { "pearl_jelly", ("光る獲物", "HARPOON で 金のクラゲ を捕まえる") },
+            { "tomo_journeys", ("旅の始まり", "SUGOROKU で 3 回旅をする") },
+            { "hana_treasure", ("茶屋の宝探し", "SUGOROKU で 宝 のマスに止まる") },
+            { "genji_high", ("錦を飾る", "SUGOROKU で 段 5（x2.6）以上で上がる") },
             { "luna_spins", ("星空の案内", "ORBIT を 5 回まわす") },
             { "orion_conjunction", ("合の光線", "ORBIT で 内側の合 か 外側の合 を当てる") },
             { "tess_comet", ("彗星を追って", "ORBIT で 彗星 を当てる") },
@@ -144,6 +154,7 @@ namespace Vector.Game.Story
             { ItemCatalog.TrophyVault, ("番人の鍵", "モスに勝った証。地下を制した") },
             { ItemCatalog.TrophyAquarium, ("船長の海図", "ネモに勝った証。深海を制した") },
             { ItemCatalog.TrophyObservatory, ("星図の羅針盤", "ステラに勝った証。6F を制した") },
+            { ItemCatalog.TrophyPostTown, ("女将の通行手形", "ユキに勝った証。7F を制した") },
             { ItemCatalog.BlackCard, ("ブラックカード", "オーナーに勝った者だけが持つ、VECTOR の最上級会員証") },
         };
 

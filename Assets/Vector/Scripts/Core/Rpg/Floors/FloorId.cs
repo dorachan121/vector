@@ -32,5 +32,8 @@ namespace Vector.Core.Rpg
 
         /// <summary>B2 深海水族館（HARPOON）。</summary>
         Aquarium,
+
+        /// <summary>7F 宿場町（SUGOROKU）。</summary>
+        PostTown,
     }
 }

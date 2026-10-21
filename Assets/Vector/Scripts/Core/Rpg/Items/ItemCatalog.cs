@@ -19,6 +19,7 @@ namespace Vector.Core.Rpg
         public const string TrophyVault = "trophy.vault";
         public const string TrophyAquarium = "trophy.aquarium";
         public const string TrophyObservatory = "trophy.observatory";
+        public const string TrophyPostTown = "trophy.post_town";
         public const string BlackCard = "black.card";
 
         static readonly List<ItemDef> items = new List<ItemDef>
@@ -34,6 +35,7 @@ namespace Vector.Core.Rpg
             new ItemDef { Id = TrophyVault },
             new ItemDef { Id = TrophyAquarium },
             new ItemDef { Id = TrophyObservatory },
+            new ItemDef { Id = TrophyPostTown },
             new ItemDef { Id = BlackCard },
         };
 
