@@ -321,9 +321,43 @@ namespace Vector.Core.Rpg
             },
             new FloorDef
             {
+                Id = FloorId.Rooftop,
+                Game = GameId.Hanabi,
+                UnlockedBy = "yuki",
+                People = new Dictionary<char, string> { { 'a', "taro" }, { 'b', "mio" }, { 'c', "goro" }, { 'M', "kaede" } },
+                Map = new TileMap(new[]
+                {
+                    "############",
+                    "#E..P..P..C#",
+                    "#..........#",
+                    "#.BBB..BBB.#",
+                    "#..a.......#",
+                    "#..........#",
+                    "#.TT.,,.TT.#",
+                    "#.TT.,,.TT.#",
+                    "#....,,..b.#",
+                    "#..,,,,,,..#",
+                    "#..,,M,,,..#",
+                    "#..,,,,,,..#",
+                    "#.TT....TT.#",
+                    "#.TT..c.TT.#",
+                    "#..........#",
+                    "#P..====..P#",
+                    "#....@=....#",
+                    "############",
+                }),
+                Master = new ChallengeSpec
+                {
+                    Master = "kaede", Floor = FloorId.Rooftop, Game = GameId.Hanabi, RequiredLevel = 15,
+                    EntryFee = 1000, Stack = 1000, Target = 3000, Rounds = 10, Prize = 18000, XpReward = 1000,
+                    Trophy = ItemCatalog.TrophyRooftop,
+                },
+            },
+            new FloorDef
+            {
                 Id = FloorId.Penthouse,
                 Game = GameId.Colosseum,
-                UnlockedBy = "yuki",
+                UnlockedBy = "kaede",
                 People = new Dictionary<char, string> { { 'a', "sebas" }, { 'M', "zero" } },
                 Map = new TileMap(new[]
                 {
@@ -348,8 +382,8 @@ namespace Vector.Core.Rpg
                 }),
                 Master = new ChallengeSpec
                 {
-                    Master = "zero", Floor = FloorId.Penthouse, Game = GameId.Colosseum, RequiredLevel = 15,
-                    EntryFee = 1000, Stack = 1000, Target = 2000, Rounds = 1, Prize = 30000, XpReward = 1500,
+                    Master = "zero", Floor = FloorId.Penthouse, Game = GameId.Colosseum, RequiredLevel = 16,
+                    EntryFee = 1200, Stack = 1000, Target = 2000, Rounds = 1, Prize = 30000, XpReward = 1500,
                     Trophy = ItemCatalog.BlackCard,
                     Opponent = new BattleSetup(30, 44, 3),
                 },

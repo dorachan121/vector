@@ -31,6 +31,9 @@ namespace Vector.Core.Rpg
             new QuestDef { Id = "tomo_journeys", Giver = "tomo", Kind = QuestKind.PlayRounds, Game = GameId.Sugoroku, Target = 3, Xp = 60, Comps = 30 },
             new QuestDef { Id = "hana_treasure", Giver = "hana", Kind = QuestKind.Event, Tag = RoundTags.SugorokuTreasure, Xp = 100, Comps = 50 },
             new QuestDef { Id = "genji_high", Giver = "genji", Kind = QuestKind.Event, Tag = RoundTags.SugorokuHighTier, Xp = 200, Chips = 2_000 },
+            new QuestDef { Id = "mio_bloom", Giver = "mio", Kind = QuestKind.Event, Tag = RoundTags.HanabiBloom, Xp = 80, Comps = 40 },
+            new QuestDef { Id = "goro_grand", Giver = "goro", Kind = QuestKind.Event, Tag = RoundTags.HanabiGrand, Xp = 200, Chips = 2_000 },
+            new QuestDef { Id = "taro_close", Giver = "taro", Kind = QuestKind.Event, Tag = RoundTags.HanabiClose, Xp = 150, Item = ItemCatalog.LuckyCoin },
         };
 
         public static IReadOnlyList<QuestDef> All => quests;

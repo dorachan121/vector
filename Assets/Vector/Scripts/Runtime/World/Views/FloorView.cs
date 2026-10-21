@@ -153,6 +153,9 @@ namespace Vector.Game.World
                 case GameId.Sugoroku:
                     DrawBoardGame(center, size - new Vector2(16, 16));
                     return;
+                case GameId.Hanabi:
+                    DrawLaunchStand(center, size - new Vector2(16, 16));
+                    return;
             }
             var felt = floor.Id == FloorId.Penthouse
                 ? Art.TableIn(Theme.Hex("3A0E16"), Theme.Hex("12040A"))
@@ -228,6 +231,29 @@ namespace Vector.Game.World
                 var die = Ui.Panel(Objects, "Die", center + new Vector2(-16 + i * 30, -size.y / 2 - 2), new Vector2(24, 24), Theme.CardFace, 5);
                 die.rectTransform.localEulerAngles = new Vector3(0, 0, i == 0 ? -12 : 10);
                 Ui.Image(die.transform, "Pip", Art.Circle, i == 0 ? Theme.CardRed : Theme.Ink, Vector2.zero, new Vector2(7, 7));
+            }
+        }
+
+        /// <summary>HANABI の卓（打ち上げ台に並んだ筒と、その上で開いた花火）。</summary>
+        void DrawLaunchStand(Vector2 center, Vector2 size)
+        {
+            Ui.Panel(Objects, "Shadow", center + new Vector2(4, -6), size, new Color(0, 0, 0, 0.4f), 16);
+            Ui.Panel(Objects, "Stand", center, size, theme.FeltCenter, 16);
+            Ui.Outline(Objects, "Rim", center, size, theme.Trim.WithAlpha(0.7f), 16);
+            for (int i = 0; i < 3; i++)
+            {
+                var tube = center + new Vector2((i - 1) * size.x * 0.28f, -size.y * 0.22f);
+                Ui.Panel(Objects, "Tube", tube, new Vector2(18, 40), Theme.Hex("3A2414"), 4);
+                Ui.Panel(Objects, "Band", tube + new Vector2(0, 14), new Vector2(22, 6), Palette.GoldDark, 3);
+            }
+            var bloom = center + new Vector2(0, size.y * 0.16f);
+            Ui.Image(Objects, "Glow", Art.Glow, theme.Trim.WithAlpha(0.5f), bloom, Vector2.one * size.x * 0.8f);
+            for (int i = 0; i < 12; i++)
+            {
+                float angle = i * Mathf.PI / 6;
+                var spark = Ui.Image(Objects, "Spark", Art.Circle, i % 2 == 0 ? theme.Trim : Palette.GoldLight,
+                    bloom + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * size.x * 0.26f, Vector2.one * 8);
+                Flicker.Add(spark);
             }
         }
 

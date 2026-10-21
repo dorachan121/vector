@@ -8,7 +8,7 @@ namespace Vector.Game.Story
         /// <summary>建物の上から（エレベーターやフロアの一覧の表示順）。</summary>
         public static readonly FloorId[] TopDown =
         {
-            FloorId.Penthouse, FloorId.PostTown, FloorId.Observatory, FloorId.AlchemyHall, FloorId.BeastTrack, FloorId.Arena, FloorId.DiceParlor, FloorId.Lobby, FloorId.Undervault, FloorId.Aquarium,
+            FloorId.Penthouse, FloorId.Rooftop, FloorId.PostTown, FloorId.Observatory, FloorId.AlchemyHall, FloorId.BeastTrack, FloorId.Arena, FloorId.DiceParlor, FloorId.Lobby, FloorId.Undervault, FloorId.Aquarium,
         };
 
         /// <summary>挑む順（1F から主に勝つたびに次へ）。</summary>

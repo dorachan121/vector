@@ -7,6 +7,7 @@ using Vector.Core.Colosseum;
 using Vector.Core.Crown;
 using Vector.Core.Delve;
 using Vector.Core.Derby;
+using Vector.Core.Hanabi;
 using Vector.Core.Harpoon;
 using Vector.Core.Orbit;
 using Vector.Core.Rpg;
@@ -64,6 +65,7 @@ namespace Vector.Simulator
             readonly OrbitEngine orbit;
             readonly HarpoonEngine harpoon;
             readonly SugorokuEngine sugoroku;
+            readonly HanabiEngine hanabi;
             readonly SugorokuSolver sugorokuSolver = SugorokuSolver.Solve(SugorokuRules.Standard);
 
             public Bot(ChallengeSpec spec, SeededRandom random)
@@ -82,6 +84,7 @@ namespace Vector.Simulator
                 orbit = new OrbitEngine(OrbitRules.Standard, random);
                 harpoon = new HarpoonEngine(HarpoonRules.Standard, random);
                 sugoroku = new SugorokuEngine(SugorokuRules.Standard, random);
+                hanabi = new HanabiEngine(HanabiRules.Standard, random);
             }
 
             public bool Play()
@@ -108,6 +111,7 @@ namespace Vector.Simulator
                     case GameId.Orbit: return OrbitRules.Standard.MinBet;
                     case GameId.Harpoon: return HarpoonRules.Standard.BetLevels[0];
                     case GameId.Sugoroku: return SugorokuRules.Standard.MinBet;
+                    case GameId.Hanabi: return HanabiRules.Standard.MinBet;
                     default: return 10;
                 }
             }
@@ -135,6 +139,8 @@ namespace Vector.Simulator
                         return HarpoonShot(stack, remaining).stake;
                     case GameId.Sugoroku:
                         return Math.Min(stack, SugorokuRules.Standard.MaxBet);
+                    case GameId.Hanabi:
+                        return Math.Min(stack, HanabiRules.Standard.MaxBet);
                     case GameId.Delve:
                     case GameId.Derby:
                         return Math.Min(stack, DelveRules.Standard.MaxBet);
@@ -157,6 +163,7 @@ namespace Vector.Simulator
                     case GameId.Orbit: return PlayOrbit(stack, remaining);
                     case GameId.Harpoon: return PlayHarpoon(stack, remaining);
                     case GameId.Sugoroku: return PlaySugoroku(stake);
+                    case GameId.Hanabi: return PlayHanabi(stake, remaining + stake);
                     default: return PlayDelve(stake, stack + remaining);
                 }
             }
@@ -325,6 +332,23 @@ namespace Vector.Simulator
                 while (sugoroku.Phase == SugorokuPhase.Choosing)
                     sugoroku.Choose(sugorokuSolver.Best(sugoroku.TurnsLeft, sugoroku.Position, sugoroku.Tier, sugoroku.Dice.first, sugoroku.Dice.second));
                 return sugoroku.Settle().TotalReturn;
+            }
+
+            /// <summary>上限まで賭け、払い戻しが needed に届く倍率で開く（届かない倍率なら上限の倍率）。</summary>
+            long PlayHanabi(long stake, long needed)
+            {
+                var rules = HanabiRules.Standard;
+                if (hanabi.Phase == HanabiPhase.Complete)
+                    hanabi.BeginBetting();
+                var bets = new BetBoard();
+                bets.Add(HanabiRules.Main, stake);
+                hanabi.Launch(bets);
+                int target = (int)Math.Max(rules.MinCashOut, Math.Min(rules.MaxHundredths, (needed * HanabiRules.One + stake - 1) / stake));
+                if (hanabi.HasBurstAt(target))
+                    hanabi.Burst();
+                else
+                    hanabi.CashOut(target);
+                return hanabi.Settle().TotalReturn;
             }
 
             /// <summary>目標に届く最も浅い深さまで潜って引き返す。</summary>

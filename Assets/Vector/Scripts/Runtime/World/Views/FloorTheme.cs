@@ -50,6 +50,8 @@ namespace Vector.Game.World
                     return new FloorTheme("0B2A3E", "1E6E8C", "0F3A52", "14506E", "041018", "34C6E0", "17608F", Harpoon.HarpoonView.Water, Harpoon.HarpoonView.Deep);
                 case FloorId.PostTown:
                     return new FloorTheme("5E6A34", "8E9A4E", "6E5A36", "8E2A1E", "2A1A10", "C9A24E", "2E6E8C", Sugoroku.SugorokuView.Lacquer, Sugoroku.SugorokuView.LacquerEdge);
+                case FloorId.Rooftop:
+                    return new FloorTheme("1A1F3A", "3A4570", "2A2350", "8E2A1E", "0A0C18", "FF6FAE", "1E3A6E", Hanabi.HanabiView.Night, Hanabi.HanabiView.NightEdge);
                 case FloorId.Observatory:
                     return new FloorTheme("10163A", "3E5AA8", "1A2458", "2A1A5E", "05060F", "7FE3FF", "1E4E8C", Orbit.OrbitView.SkyCenter, Orbit.OrbitView.SkyEdge);
                 default:

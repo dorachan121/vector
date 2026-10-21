@@ -35,5 +35,8 @@ namespace Vector.Core.Rpg
 
         /// <summary>7F 宿場町（SUGOROKU）。</summary>
         PostTown,
+
+        /// <summary>8F 屋上（HANABI）。</summary>
+        Rooftop,
     }
 }
