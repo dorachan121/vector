@@ -45,7 +45,8 @@ namespace Vector.Game.UI
 
         /// <summary>
         /// 1画面ぶんの土台を作り、端末の向きをその形にする（シーンの切り替え中なら、回転を促してから）。入力を受け付ける EventSystem も用意する。
-        /// 背景は画面いっぱいに敷き、中身の親は安全領域（ノッチを避けた範囲）に収める。
+        /// 背景は画面いっぱいに敷き、中身の親は基準解像度ちょうどの枠にして安全領域（ノッチを避けた範囲）の中央に収める（<see cref="ScreenFrame"/>）。
+        /// そのため、どの端末でも中身の配置は同じになる。
         /// </summary>
         public static RectTransform CreateScreen(string name, ScreenShape shape)
         {
@@ -55,9 +56,48 @@ namespace Vector.Game.UI
             var backdrop = Image(canvas.transform, "Backdrop", Art.Backdrop, Color.white, Vector2.zero, Vector2.zero);
             backdrop.rectTransform.anchorMin = Vector2.zero;
             backdrop.rectTransform.anchorMax = Vector2.one;
-            var root = Stretch(canvas.transform, name);
-            root.gameObject.AddComponent<SafeAreaFitter>();
+            var root = Rect(canvas.transform, name, Vector2.zero, ReferenceSize(shape));
+            ScreenFrame.Attach(root, ReferenceSize(shape));
             return root;
+        }
+
+        /// <summary>
+        /// rt を親いっぱいに広げ、さらに画面の枠の外（端末の縦横比で余った所）まで覆う。暗幕や画面全体を覆う演出に使う。
+        /// </summary>
+        public static void Cover(RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = -Vector2.one * ScreenFrame.Bleed;
+            rt.offsetMax = Vector2.one * ScreenFrame.Bleed;
+        }
+
+        /// <summary>
+        /// 親いっぱいの縦のグラデーション（タイトルなど画面全体の背景）。画面の枠の外（余りの所）にも同じ色が切れ目なく続くよう、
+        /// 上下は端の色の帯で、左右は同じグラデーションで延ばす。中身はこの画像の子に置けば、枠の中の配置のまま使える。
+        /// </summary>
+        public static Image GradientCover(Transform parent, string name, Color top, Color bottom, bool raycast = false)
+        {
+            var gradient = Chrome.Gradient(top, bottom);
+            var image = Image(parent, name, gradient, Color.white, Vector2.zero, Vector2.zero, raycast);
+            var rt = image.rectTransform;
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            float b = ScreenFrame.Bleed;
+            Extend(rt, "Above", null, top, new Vector2(0, 1), new Vector2(1, 1), new Vector2(-b, 0), new Vector2(b, b), raycast);
+            Extend(rt, "Below", null, bottom, new Vector2(0, 0), new Vector2(1, 0), new Vector2(-b, -b), new Vector2(b, 0), raycast);
+            Extend(rt, "Left", gradient, Color.white, new Vector2(0, 0), new Vector2(0, 1), new Vector2(-b, 0), Vector2.zero, raycast);
+            Extend(rt, "Right", gradient, Color.white, new Vector2(1, 0), new Vector2(1, 1), Vector2.zero, new Vector2(b, 0), raycast);
+            return image;
+        }
+
+        static void Extend(RectTransform parent, string name, Sprite sprite, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, bool raycast)
+        {
+            var rt = Image(parent, name, sprite, color, Vector2.zero, Vector2.zero, raycast).rectTransform;
+            rt.anchorMin = anchorMin;
+            rt.anchorMax = anchorMax;
+            rt.offsetMin = offsetMin;
+            rt.offsetMax = offsetMax;
         }
 
         static void EnsureEventSystem()

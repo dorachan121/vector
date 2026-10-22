@@ -32,6 +32,9 @@ namespace Vector.Game.Casino
             var rt = Ui.Edge(parent, "Hud", true, w, Height);
             var hud = rt.gameObject.AddComponent<TableHud>();
             Ui.Image(rt, "Fade", Chrome.Gradient(Palette.NightDeep.WithAlpha(0.95f), Palette.NightDeep.WithAlpha(0f)), Color.white, new Vector2(0, -10), new Vector2(w * 2, Height + 20));
+            // 横幅のわりに縦が長い端末（タブレットなど）で画面の枠の上に余った所も、同じ暗さで続ける
+            float fadeTop = -10 + (Height + 20) / 2;
+            Ui.Image(rt, "FadeAbove", null, Palette.NightDeep.WithAlpha(0.95f), new Vector2(0, fadeTop + ScreenFrame.Bleed / 2), new Vector2(w * 2, ScreenFrame.Bleed));
 
             float left = -w / 2;
             hud.lobby = Ui.IconButton(rt, "Lobby", IconKind.Back, new Vector2(left + 58, 2), 68, new Color(1, 1, 1, 0.1f), () => hud.LobbyClicked?.Invoke());

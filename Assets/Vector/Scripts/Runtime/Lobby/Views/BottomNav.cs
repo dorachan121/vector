@@ -47,6 +47,8 @@ namespace Vector.Game.Lobby
             // 帯は横に長めに敷き、縦長の画面を横に広げた PC のウィンドウでも途切れないようにする
             Ui.Shadow(rt, "Shadow", new Vector2(0, 10), new Vector2(w * 3, Height), 20, 0.7f);
             Ui.Image(rt, "Bar", Chrome.Gradient(Theme.Hex("2B1460"), Palette.NightDeep), Color.white, Vector2.zero, new Vector2(w * 3, Height), true);
+            // 縦に長い端末で画面の枠の下に余った所も、帯の下端の色で続ける
+            Ui.Image(rt, "BarBelow", null, Palette.NightDeep, new Vector2(0, -Height / 2 - ScreenFrame.Bleed / 2), new Vector2(w * 3, ScreenFrame.Bleed), true);
             Ui.Image(rt, "Edge", null, Palette.GoldMid, new Vector2(0, Height / 2 - 2), new Vector2(w * 3, 4));
             Ui.Image(rt, "EdgeGlow", Art.Glow, Palette.Gold.WithAlpha(0.3f), new Vector2(0, Height / 2), new Vector2(w, 50));
 

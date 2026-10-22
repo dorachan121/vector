@@ -21,8 +21,7 @@ namespace Vector.Game.Casino
         {
             var hit = Ui.Image(parent, "TurnOrder", null, new Color(0, 0, 0, 0.001f), Vector2.zero, Vector2.zero, true);
             var root = hit.rectTransform;
-            root.anchorMin = Vector2.zero;
-            root.anchorMax = Vector2.one;
+            Ui.Cover(root);
             var group = Ui.Group(hit.gameObject);
             bool skipped = false;
             hit.gameObject.AddComponent<ClickTarget>().Clicked += () => skipped = true;

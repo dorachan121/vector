@@ -12,6 +12,9 @@ namespace Vector.Game.World
         WorldScreen(RectTransform root)
         {
             Root = root;
+            // 見取り図のまわりは暗くする（端末の縦横比で画面の枠の外に余った所も、上のバーや下のパッドと同じ暗さで続く）
+            var surround = Ui.Image(root, "Surround", null, Palette.NightDeep, Vector2.zero, Vector2.zero);
+            Ui.Cover(surround.rectTransform);
             // 見取り図が見える場所は、上のバーと目標の帯の下から、タッチパッドの上まで
             Stage = Ui.Between(root, "Stage", WorldHud.Height + WorldHud.ObjectiveHeight, TouchPad.Height - 40, Ui.Portrait.x);
             Hud = WorldHud.Create(root);

@@ -28,6 +28,9 @@ namespace Vector.Game.Lobby
             float w = Ui.Portrait.x;
             var rt = Ui.Edge(parent, "Header", true, w, Height);
             Ui.Image(rt, "Fade", Chrome.Gradient(Palette.NightDeep.WithAlpha(0.9f), Palette.NightDeep.WithAlpha(0f)), Color.white, new Vector2(0, 10), new Vector2(w * 3, Height + 60));
+            // 縦に長い端末で画面の枠の上に余った所も、同じ暗さで続ける
+            float fadeTop = 10 + (Height + 60) / 2;
+            Ui.Image(rt, "FadeAbove", null, Palette.NightDeep.WithAlpha(0.9f), new Vector2(0, fadeTop + ScreenFrame.Bleed / 2), new Vector2(w * 3, ScreenFrame.Bleed));
             float left = -w / 2;
 
             // プレイヤーの札

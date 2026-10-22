@@ -17,9 +17,7 @@ namespace Vector.Game.Lobby
 
         public static TitleSplash Show(Transform parent, Action done)
         {
-            var cover = Ui.Image(parent, "Title", Chrome.Gradient(Palette.VioletBright, Palette.NightDeep), Color.white, Vector2.zero, Vector2.zero, true);
-            cover.rectTransform.anchorMin = Vector2.zero;
-            cover.rectTransform.anchorMax = Vector2.one;
+            var cover = Ui.GradientCover(parent, "Title", Palette.VioletBright, Palette.NightDeep, true);
             var splash = cover.gameObject.AddComponent<TitleSplash>();
             splash.done = done;
             splash.group = Ui.Group(cover.gameObject);

@@ -33,8 +33,8 @@ namespace Vector.Game.UI.Widgets
         {
             var shade = Ui.Image(root, "Dialog", null, new Color(0.03f, 0.01f, 0.08f, 0.8f), Vector2.zero, Vector2.zero, true);
             var shadeRect = shade.rectTransform;
-            shadeRect.anchorMin = Vector2.zero;
-            shadeRect.anchorMax = Vector2.one;
+            // 画面の枠の外（端末の縦横比で余った所）まで暗くする
+            Ui.Cover(shadeRect);
             var dialog = shade.gameObject.AddComponent<Dialog>();
             dialog.size = size;
             open.Add(dialog);
