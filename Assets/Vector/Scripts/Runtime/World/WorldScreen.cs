@@ -20,7 +20,8 @@ namespace Vector.Game.World
             Hud = WorldHud.Create(root);
             Pad = TouchPad.Create(root);
             Dialogue = DialogueBox.Create(root);
-            Toast = Toast.Create(root, new Vector2(0, 690));
+            // お知らせは目標の帯を隠さないよう、そのすぐ下に出す
+            Toast = Toast.Create(root, WorldHud.Height + WorldHud.ObjectiveHeight + 20 + Toast.Height / 2);
         }
 
         /// <summary>画面の土台（ダイアログはここに開く）。</summary>

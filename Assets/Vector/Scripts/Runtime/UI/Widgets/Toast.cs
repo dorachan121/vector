@@ -9,12 +9,18 @@ namespace Vector.Game.UI.Widgets
         const float VisibleSeconds = 2.4f;
         static readonly Vector2 ToastSize = new Vector2(760, 52);
 
+        /// <summary>通知の高さ。</summary>
+        public static float Height => ToastSize.y;
+
         CanvasGroup group;
         TextMeshProUGUI text;
 
-        public static Toast Create(Transform root, Vector2 position)
+        /// <param name="top">親の上端から通知の中心までの距離（縦に長い端末でも上端に付いたまま）。</param>
+        public static Toast Create(Transform root, float top)
         {
-            var rt = Ui.Rect(root, "Toast", position, ToastSize);
+            var rt = Ui.Rect(root, "Toast", Vector2.zero, ToastSize);
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = new Vector2(0, -top);
             var toast = rt.gameObject.AddComponent<Toast>();
             toast.group = Ui.Group(rt.gameObject);
             toast.group.blocksRaycasts = false;

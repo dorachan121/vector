@@ -55,7 +55,7 @@ namespace Vector.Game.Lobby
             header = HomeHeader.Create(root, () => SelectTab(HomeTabId.Shop));
             nav = BottomNav.Create(root);
             nav.Selected += SelectTab;
-            toast = Toast.Create(root, new Vector2(0, 560));
+            toast = Toast.Create(root, 400);
         }
 
         void SelectTab(HomeTabId id)

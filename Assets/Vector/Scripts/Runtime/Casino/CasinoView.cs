@@ -59,7 +59,7 @@ namespace Vector.Game.Casino
             view.Hud = TableHud.Create(root, title, subtitle, limits);
             view.Fx = Ui.Stretch(root, "Fx");
             view.Overlay = Ui.Stretch(root, "Overlay");
-            view.Toast = Toast.Create(view.Overlay, new Vector2(0, 396));
+            view.Toast = Toast.Create(view.Overlay, 144);
             return view;
         }
 
