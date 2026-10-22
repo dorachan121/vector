@@ -13,7 +13,10 @@ namespace Vector.Game.Lobby
     /// </summary>
     public sealed class StoryTab : IHomeTab
     {
-        /// <summary>塔を見せる窓の上端（ページの見出しの下）と下端（「カジノへ入る」ボタンの上）。</summary>
+        /// <summary>
+        /// 塔を見せる窓の上端（ページの見出しの下）と下端（「カジノへ入る」ボタンの上）。基準の高さの中身の中心からの位置で、
+        /// 縦に長い端末では上端は見出しに、下端はボタンに付いたまま窓が伸びる。
+        /// </summary>
         const float ViewTop = 672;
         const float ViewBottom = -556;
 
@@ -111,7 +114,7 @@ namespace Vector.Game.Lobby
         /// <summary>塔の y の位置が窓の真ん中に来るようにスクロールする（端では止める）。</summary>
         void ScrollTo(float y)
         {
-            float height = tower.sizeDelta.y, view = viewport.sizeDelta.y;
+            float height = tower.sizeDelta.y, view = viewport.rect.height;
             if (height <= view)
                 return;
             float fromTop = height / 2 - y;
@@ -124,9 +127,11 @@ namespace Vector.Game.Lobby
             Ui.Image(Body, "Sky", Chrome.Gradient(Theme.Hex("2A1060"), Palette.NightDeep.WithAlpha(0f)), Color.white, new Vector2(0, 100), new Vector2(Ui.Portrait.x * 3, 1500));
             Ui.Image(Body, "Glow", Art.Glow, Palette.Magenta.WithAlpha(0.22f), new Vector2(0, -20), new Vector2(1000, 1500));
 
-            viewport = Ui.Clip(Body, "TowerView", new Vector2(0, (ViewTop + ViewBottom) / 2), new Vector2(Ui.Portrait.x, ViewTop - ViewBottom));
+            float half = HomeLayout.ContentHeight / 2;
+            viewport = Ui.Between(Root, "TowerView", half - ViewTop, half + ViewBottom, Ui.Portrait.x);
+            viewport.gameObject.AddComponent<RectMask2D>();
             // 札のない所を押してもスクロールできるように、透明の受け皿を敷く
-            Ui.Image(viewport, "DragArea", null, Color.clear, Vector2.zero, viewport.sizeDelta, true);
+            Ui.Stretch(viewport, "DragArea").gameObject.AddComponent<Image>().color = Color.clear;
             tower = Ui.Rect(viewport, "Tower", Vector2.zero, new Vector2(Ui.Portrait.x, height));
             tower.anchorMin = tower.anchorMax = tower.pivot = new Vector2(0.5f, 1f);
             tower.anchoredPosition = Vector2.zero;
@@ -159,8 +164,16 @@ namespace Vector.Game.Lobby
             // 窓の上下の端をぼかして、続きがあること（スクロールできること）を見せる
             const float fade = 70;
             var shade = Palette.NightDeep.WithAlpha(0.75f);
-            Ui.Image(Body, "FadeTop", Chrome.Gradient(shade, shade.WithAlpha(0f)), Color.white, new Vector2(0, ViewTop - fade / 2), new Vector2(Ui.Portrait.x, fade));
-            Ui.Image(Body, "FadeBottom", Chrome.Gradient(shade.WithAlpha(0f), shade), Color.white, new Vector2(0, ViewBottom + fade / 2), new Vector2(Ui.Portrait.x, fade));
+            EdgeFade("FadeTop", true, Chrome.Gradient(shade, shade.WithAlpha(0f)), fade);
+            EdgeFade("FadeBottom", false, Chrome.Gradient(shade.WithAlpha(0f), shade), fade);
+        }
+
+        /// <summary>窓の上端か下端に付くぼかし（下の札は押せるまま）。</summary>
+        void EdgeFade(string name, bool top, Sprite gradient, float height)
+        {
+            var image = Ui.Edge(viewport, name, top, Ui.Portrait.x, height).gameObject.AddComponent<Image>();
+            image.sprite = gradient;
+            image.raycastTarget = false;
         }
 
         /// <summary>フロアどうしをつなぐ点線の道。</summary>

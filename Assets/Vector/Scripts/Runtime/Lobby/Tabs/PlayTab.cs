@@ -20,13 +20,17 @@ namespace Vector.Game.Lobby
             this.nav = nav;
             Root = Ui.Stretch(parent, "PlayTab");
             Body = HomeLayout.Top(Root);
+            Cards = HomeLayout.Middle(Root);
             Controls = HomeLayout.Bottom(Root);
         }
 
         public RectTransform Root { get; }
 
-        /// <summary>中身の土台（上端に寄せる）。</summary>
+        /// <summary>ページの見出し（上端に寄せる）。</summary>
         RectTransform Body { get; }
+
+        /// <summary>ゲームのカード（見出しと PLAY の間の真ん中に置く）。</summary>
+        RectTransform Cards { get; }
 
         /// <summary>席の選択と PLAY（下端に寄せて、親指の届くところに置く）。</summary>
         RectTransform Controls { get; }
@@ -35,7 +39,7 @@ namespace Vector.Game.Lobby
         {
             var tab = new PlayTab(parent, nav);
             PageTitle.Create(tab.Body, 728, "PLAY", "ゲームを選ぶ");
-            tab.carousel = GameCarousel.Create(tab.Body, new Vector2(0, 116), GameCatalog.All, -GameKeyCard.Size.y / 2 - 34);
+            tab.carousel = GameCarousel.Create(tab.Cards,new Vector2(0, 116), GameCatalog.All, -GameKeyCard.Size.y / 2 - 34);
             tab.carousel.Changed += _ => tab.Refresh();
 
             tab.seatRoot = Ui.Rect(tab.Controls, "Seats", new Vector2(0, -486), new Vector2(760, 90));

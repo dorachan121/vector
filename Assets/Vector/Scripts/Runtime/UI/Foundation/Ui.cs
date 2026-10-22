@@ -45,8 +45,8 @@ namespace Vector.Game.UI
 
         /// <summary>
         /// 1画面ぶんの土台を作り、端末の向きをその形にする（シーンの切り替え中なら、回転を促してから）。入力を受け付ける EventSystem も用意する。
-        /// 背景は画面いっぱいに敷き、中身の親は基準解像度ちょうどの枠にして安全領域（ノッチを避けた範囲）の中央に収める（<see cref="ScreenFrame"/>）。
-        /// そのため、どの端末でも中身の配置は同じになる。
+        /// 背景は画面いっぱいに敷き、中身の親は安全領域（ノッチを避けた範囲）いっぱいの枠にする（<see cref="ScreenFrame"/>）。
+        /// 部品の大きさと配置は基準解像度のままで、端末の縦横比で余った長さは真ん中に回る。
         /// </summary>
         public static RectTransform CreateScreen(string name, ScreenShape shape)
         {
