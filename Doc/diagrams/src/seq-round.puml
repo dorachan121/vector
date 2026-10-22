@@ -1,0 +1,57 @@
+@startuml seq-round
+!include _style.iuml
+title シーケンス図① 全ゲーム共通の 1 ラウンド（受付 → 勝負 → 精算 → 障害時の返金）
+autonumber "<b>[0]"
+
+actor プレイヤー as P
+participant "CasinoDirector\n（MainLoop）" as D
+participant "GuardedRoutine" as G
+participant "WagerInput /\nCasinoView" as UI
+participant "WagerSession" as WS
+participant "ITableWallet\n(ProfileWallet)" as W
+participant "ProfileService" as PS
+participant "派生 Director\n.PlayRound()" as Game
+
+loop 離席するまで
+  D -> G : Run(Round(), onFault)
+  activate G
+  G -> D : Round()
+  opt 手持ちがミニマム未満
+    D -> UI : 補充ダイアログ → W.Reload()
+  end
+  opt 30 分経過
+    D -> UI : リアリティチェック（プレイ時間と収支）
+  end
+  D -> UI : PLACE YOUR BETS（チップラック・ベットエリア）
+  P -> UI : チップを置く / UNDO / CLEAR / REBET / ×2
+  UI -> WS : TryAddChip(spot, amount)
+  WS --> UI : ChipError（残高・リミットを検証）
+  note right of UI : チップを置いたら持ち時間が動き出す
+  P -> UI : DEAL（または時間切れ）
+  D -> WS : CheckBets() → Commit()
+  D -> W : RecordDeal(balanceAfterDebit, stake)
+  W -> PS : pendingStake = stake を保存
+  D -> Game : PlayRound(inPlay)
+  Game -> Game : ゲームごとの勝負（Core のエンジン）
+  Game -> D : Settle(outcome)
+  D -> WS : Settle(totalReturn)
+  D -> W : RecordSettlement(balance, outcome, tags)
+  W -> PS : pendingStake = 0・統計・経験値・クエストを保存
+  D -> UI : 結果表示（5 倍以上なら BIG WIN）
+  D -> D : ResetTable()
+  deactivate G
+  alt 想定外の例外が起きた
+    G --> D : onFault(e)
+    D -> Game : AbortRound()
+    D -> WS : Void() → 賭け金を返金
+    D -> W : RecordVoid(balance)
+    D --> P : 「勝負を無効にして返金しました」
+    note right of D : 3 回続いたらロビーへ戻る\n（挑戦中なら参加費も返金）
+  end
+end
+
+note over PS
+  勝負の途中でアプリが落ちても、次の起動時に
+  pendingStake を返金する（ProfileService.Load）
+end note
+@enduml

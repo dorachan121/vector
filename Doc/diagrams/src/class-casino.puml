@@ -1,0 +1,125 @@
+@startuml class-casino
+!include _style.iuml
+title クラス図① テーブルの共通基盤（Template Method と Wallet の差し替え）
+
+abstract class CasinoDirector <<MonoBehaviour>> {
+  # View : CasinoView
+  # Session : WagerSession
+  # Wallet : ITableWallet
+  # InRound : bool
+  --
+  # {abstract} Game : GameId
+  # {abstract} BettingSeconds : float
+  # {abstract} TableMinimum : long
+  # {abstract} PlayRound(inPlay : BetBoard) : IEnumerator
+  # {abstract} AbortRound()
+  # {abstract} SpotName(spot) / HelpPages
+  # ResetTable() / BeforeBetting() / WaitForBets()
+  # TagsFor(outcome) : string[]
+  # Begin(view, session, wallet)
+  # Settle(outcome) / Record(outcome)
+  - MainLoop()  // GuardedRoutine で 1 ラウンドずつ包む
+  - Round()     // 受付 → 引き落とし → PlayRound → 精算 → 片付け
+  - Recover(fault)  // 無効にして返金
+}
+
+class TableDirector
+class CrownDirector
+class ColosseumDirector
+class DerbyDirector
+class AlchemiaDirector
+class DelveDirector
+class OrbitDirector
+class HarpoonDirector
+class SugorokuDirector
+class HanabiDirector
+
+CasinoDirector <|-- TableDirector : VECTOR
+CasinoDirector <|-- CrownDirector
+CasinoDirector <|-- ColosseumDirector
+CasinoDirector <|-- DerbyDirector
+CasinoDirector <|-- AlchemiaDirector
+CasinoDirector <|-- DelveDirector
+CasinoDirector <|-- OrbitDirector
+CasinoDirector <|-- HarpoonDirector
+CasinoDirector <|-- SugorokuDirector
+CasinoDirector <|-- HanabiDirector
+
+interface ITableWallet {
+  + Balance : long
+  + CanReload : bool
+  + RecordDeal(balanceAfterDebit, stake)
+  + RecordSettlement(balance, outcome, tags)
+  + RecordVoid(balance)
+  + Reload(tableMinimum) : long
+}
+class ProfileWallet {
+  所持金（保存あり）
+}
+class ChallengeWallet {
+  挑戦用チップ（保存なし）
+  + Run : ChallengeRun
+}
+ITableWallet <|.. ProfileWallet
+ITableWallet <|.. ChallengeWallet
+
+package "Vector.Core.Common（Unity 非依存）" {
+  class WagerSession {
+    + Bets : BetBoard
+    + InPlay : BetBoard
+    + Balance / Available : long
+    --
+    + TryAddChip(spot, amount) : ChipError
+    + TryUndo() / ClearBets() / TryRebet() / TryDouble()
+    + CheckBets() : WagerCheck
+    + Commit() : BetBoard
+    + Settle(totalReturn)
+    + Void() : long  // 返金
+  }
+  class Bankroll {
+    + Balance : long
+    + CanAfford(amount) : bool
+    + TryDebit(amount) : bool
+    + Credit(amount)
+  }
+  interface IChipAccount
+  interface IBetLimits {
+    + IsSpotAvailable(spot) : bool
+    + MinFor(spot) / MaxFor(spot) : long
+    + IsPrimary(spot) : bool
+  }
+  interface IRoundOutcome {
+    + TotalStake : long
+    + TotalReturn : long
+  }
+  class BetBoard
+  interface IRandomSource
+  class CryptoRandom
+  class SeededRandom
+}
+
+CasinoDirector --> WagerSession
+CasinoDirector --> ITableWallet
+CasinoDirector ..> IRoundOutcome
+WagerSession --> Bankroll
+WagerSession --> IBetLimits
+WagerSession *-- BetBoard
+IChipAccount <|.. Bankroll
+IRandomSource <|.. CryptoRandom : カード・ダイス・扉
+IRandomSource <|.. SeededRandom : AI の先読み
+
+class GuardedRoutine <<static>> {
+  + Run(routine, onFault) : IEnumerator
+}
+CasinoDirector ..> GuardedRoutine
+
+note bottom of CasinoDirector
+  新しいゲームは PlayRound などを実装するだけで、
+  ベット受付・精算・返金・離席・リアリティチェック・
+  フロアの主の挑戦をすべて受け継ぐ（開放閉鎖の原則）。
+end note
+note bottom of ChallengeWallet
+  ITableWallet を入れ替えても、
+  テーブルはそのまま動く（リスコフの置換原則）
+end note
+@enduml

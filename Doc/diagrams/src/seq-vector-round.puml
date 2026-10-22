@@ -1,0 +1,47 @@
+@startuml seq-vector-round
+!include _style.iuml
+title シーケンス図② VECTOR の勝負（TableDirector.PlayRound の中身）
+autonumber "<b>[0]"
+
+actor プレイヤー as P
+participant "TableDirector" as TD
+participant "PlayerAdvisor\n（ワーカースレッド）" as AD
+participant "RoundEngine" as RE
+participant "Shoe\n（6 デッキ）" as SH
+participant "HouseWay\n（IDealerPolicy）" as HW
+
+TD -> RE : Deal(mode, bets)
+RE -> SH : 中央のベクターカード 1 枚＋手札 4 枚
+RE -> RE : Phase = ChoosingFamily
+opt 戦略ヒント ON
+  TD -> AD : EstimateFamilies(values, hand)（各種類 120 回の試行）
+  AD --> TD : ROW / COLUMN / SLASH ごとの勝率
+end
+P -> TD : ライン選択（25 秒・時間切れはヒントの手）
+TD -> RE : ChooseFamily(family)
+loop 4 回（盤面 9 マスが埋まるまで）
+  opt 戦略ヒント ON
+    TD -> AD : SuggestPlacement()
+  end
+  P -> TD : 手札 1 枚をマスに置く
+  TD -> RE : PlacePlayerCard(handIndex, cell)
+  RE -> RE : Phase = DealerTurn
+  TD -> RE : PlayDealerCard()
+  RE -> SH : 1 枚引く
+  RE -> HW : ChooseCell(values, card, playerFamily, playerHand)
+  HW -> HW : 空きマスごとに最後まで試算（Playout）\nディーラーが最も勝ちやすいマス
+  HW --> RE : cell
+  RE --> TD : DealerMove（演出）
+end
+TD -> RE : Settle()
+RE -> RE : プレイヤー＝選んだ種類の最大ライン\nディーラー＝残り 2 種類のうち高い方
+RE -> RE : BONUS（5 枚のポーカー役）・Settlement で精算
+RE --> TD : RoundResult
+TD -> TD : 勝ちラインを光らせる → Settle(result)
+
+note over HW
+  ディーラーに裁量はない（決められた手順）。
+  元の設計の「SLASH は 3 倍」では上手に打つと RTP が 100% を超えたため、
+  全ライン 1:1 とハウスウェイで、最善手でもハウスエッジ約 3% に調整
+end note
+@enduml

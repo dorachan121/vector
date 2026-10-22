@@ -1,0 +1,53 @@
+@startuml screen-transition
+!include _style.iuml
+title 画面遷移図 — VECTOR CASINO RESORT
+hide empty description
+left to right direction
+
+state "タイトル\n（起動して最初の 1 回だけ）" as Title
+state "Lobby シーン（縦向き）\n下部のタブで切り替え" as Lobby {
+  state "ホーム\nコンシェルジュ・お知らせ・\nログボ・ミッション" as Home
+  state "ストーリー\n塔の地図" as Story
+  state "プレイ\nゲームのカルーセル" as Play
+  state "ミッション\nデイリー｜ログインボーナス" as Mission
+  state "ショップ\n交換所｜コレクション" as Shop
+  Home -[hidden]down-> Story
+  Story -[hidden]down-> Play
+  Play -[hidden]down-> Mission
+  Mission -[hidden]down-> Shop
+}
+
+state "回転の案内\nTABLE READY" as Rotate
+state "テーブル（横向き）\nTable(VECTOR) / Crown / Colosseum / Derby /\nAlchemia / Delve / Orbit / Harpoon / Sugoroku / Hanabi" as Table {
+  state "ベット受付" as Bet
+  state "勝負" as Round
+  state "精算・結果" as Result
+  Bet --> Round : DEAL
+  Round --> Result
+  Result --> Bet
+}
+state "World シーン（縦向き）\nフロア 1F〜8F・B1・B2・ペントハウス" as World
+state "会話・クエスト" as Talk
+state "メニュー\n会員・クエスト・持ち物・設定" as Menu
+state "挑戦の結果" as ChallengeResult
+
+[*] --> Title
+Title --> Home : TAP TO START
+Play --> Rotate : PLAY（自分で打つ／観戦して賭ける）
+Rotate --> Table : 端末を横に持ち替える／タップ
+Table --> Rotate : ◀ LOBBY（離席）
+Rotate --> Lobby : 縦に戻す
+Story --> World : フロアを選ぶ →「カジノへ入る」
+World --> Talk : TALK
+Talk --> World
+World --> Menu : MENU / Esc
+World --> Rotate : 主に挑戦／テーブルに座る
+Table --> ChallengeResult : 挑戦が決着
+ChallengeResult --> World : フロアへ帰還
+World --> Lobby : エレベーターでロビーへ
+
+note right of Table
+  共通ダイアログ：配当表・遊び方・設定・
+  手持ちの補充・リアリティチェック・BIG WIN
+end note
+@enduml

@@ -1,0 +1,59 @@
+@startuml architecture
+!include _style.iuml
+title システム構成図 — Core（ルール）と Runtime（表示）の分離
+
+package "Unity プロジェクト（Assets/Vector）" {
+  package "Vector.Core（noEngineReferences：Unity 非依存）" as Core {
+    component "Common\nCards / Randomness / Money /\nWagering / ResponsibleGaming" as Common
+    component "Games\n10 ゲームのルール・エンジン・\n厳密解ソルバー" as Games
+    component "Rpg\nRpgSession / Floors / Quests /\nChallenges / Daily" as Rpg
+  }
+  package "Vector.Runtime（Unity 側）" as Runtime {
+    component "App\nGameContext / Startup /\nGuardedRoutine" as App
+    component "Casino\nCasinoDirector（テンプレート）\nWallet / WagerInput" as Casino
+    component "Games\n各ゲームの Director と View" as RGames
+    component "Lobby\nホーム（5 タブ）" as Lobby
+    component "World / Story\nストーリーモードのフロア" as World
+    component "Persistence\nProfileService / ProfileCodec(HMAC)" as Persist
+    component "UI / Audio\n画像なしで UI を生成・\n効果音を実行時に合成" as UI
+  }
+  package "Vector.Editor" as Editor {
+    component "日本語フォントの焼き込み\nAndroid App Bundle ビルド\nストア画像の描き出し" as Ed
+  }
+  folder "Scenes（12）\n起点コンポーネントを 1 つ置くだけ" as Scenes
+  folder "Tests/EditMode\n152 件" as UTests
+}
+
+package "Tools（.NET 8）" {
+  component "Simulator\n配当表・RTP の厳密計算と\nモンテカルロ検証" as Sim
+  component "CoreTests\nUnity なしで Core をテスト\n137 件" as CTests
+}
+cloud "GitHub Actions\n(core.yml)" as CI
+database "端末のストレージ\nprofile.sav（HMAC-SHA256）\n＋ 1 世代バックアップ" as Save
+node "Android（API 36・ARM64）\n／ Windows" as Device
+
+Scenes --> App
+App --> Casino
+App --> Lobby
+App --> World
+Casino --> RGames
+RGames --> Games : ルールは Core に委譲
+Casino --> Common
+World --> Rpg
+Lobby --> Rpg
+Persist --> Save
+RGames ..> UI
+Sim ..> Core : ソースを共有
+CTests ..> Core : ソースを共有
+UTests ..> Core
+CI --> CTests
+CI --> Sim : 全ゲームの厳密 RTP
+Runtime --> Device
+
+note right of Core
+  Core は Unity API に触れないため、
+  ・Unity なしで高速にテストできる（CI で数十秒）
+  ・AI の先読みをワーカースレッドで安全に回せる
+  ・シミュレーターと同じコードで配当を検証できる
+end note
+@enduml

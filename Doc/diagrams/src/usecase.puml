@@ -1,0 +1,62 @@
+@startuml usecase
+!include _style.iuml
+title ユースケース図 — VECTOR CASINO RESORT
+left to right direction
+
+actor "プレイヤー" as P
+actor "ディーラー\n（ハウスウェイ）" as Dealer
+actor "フロアの主\n（ストーリー）" as Master
+
+rectangle "VECTOR CASINO RESORT（Unity / Android・Windows）" {
+  package "ホーム（縦向き）" {
+    usecase "ログインボーナスを受け取る" as H1
+    usecase "デイリーミッションに挑む" as H2
+    usecase "コンプを景品と交換する" as H3
+    usecase "遊ぶゲームを選ぶ" as H4
+  }
+  package "テーブル（横向き）— 10 ゲーム" {
+    usecase "チップを賭ける\n（UNDO・CLEAR・REBET・×2）" as T1
+    usecase "勝負する\n（VECTOR / CROWN DICE / COLOSSEUM …）" as T2
+    usecase "戦略ヒントを見る\n（厳密な最善手）" as T3
+    usecase "配当表・遊び方を見る" as T4
+    usecase "観戦して賭ける\n（VECTOR のバックベット）" as T5
+    usecase "精算・BIG WIN 演出" as T6
+  }
+  package "ストーリーモード（カジノ RPG）" {
+    usecase "フロアを歩いて人と話す" as S1
+    usecase "クエストを受ける・報告する" as S2
+    usecase "フロアの主に挑戦する\n（参加費 → 目標額）" as S3
+    usecase "次のフロアを開放する" as S4
+  }
+  package "安全装置（カジノとしての仕様）" {
+    usecase "手持ちを補充する（遊戯用チップ）" as G1
+    usecase "リアリティチェック\n（30 分ごとの収支のお知らせ）" as G2
+    usecase "中断した勝負を返金する" as G3
+  }
+}
+
+P --> H1
+P --> H2
+P --> H3
+P --> H4
+P --> T1
+P --> T2
+P --> T5
+P --> S1
+P --> S2
+P --> S3
+T3 .> T2 : <<extend>>
+T4 .> T2 : <<extend>>
+T6 .> T2 : <<include>>
+S4 .> S3 : <<extend>>\n初めて勝ったとき
+T2 --> Dealer
+S3 --> Master
+G1 .> T1 : <<extend>>
+G2 .> T1 : <<extend>>
+G3 .> T2 : <<extend>>\n障害・中断時
+
+legend bottom
+  チップは遊戯用（現金・景品とは交換できない）。ガチャ（確率で当たりが決まるくじ）はない。
+  経験値・会員ランク・コンプは賭けた額だけで貯まり、ゲームの確率や配当には一切影響しない。
+endlegend
+@enduml

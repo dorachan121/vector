@@ -1,0 +1,44 @@
+@startuml seq-save
+!include _style.iuml
+title シーケンス図④ セーブデータの保存と復旧（改ざん検知・原子的な書き込み）
+autonumber "<b>[0]"
+
+participant "ProfileService" as PS
+participant "ProfileCodec" as PC
+participant "FileProfileStorage" as FS
+database "profile.sav" as F
+database "profile.sav の\nバックアップ" as B
+
+== 保存（配札時と精算時だけ） ==
+PS -> PC : Encode(profile)
+PC -> PC : JSON 化 → HMAC-SHA256 で署名\n{format, payload, mac}
+PC --> PS : 文字列
+PS -> FS : Write(contents)
+FS -> FS : 一時ファイルに書く
+alt 既存のセーブがある
+  FS -> F : File.Replace(temp, primary, backup)
+  note right : 旧データは 1 世代のバックアップに
+else 初回
+  FS -> F : File.Move(temp, primary)
+end
+
+== 読み込み（起動時） ==
+PS -> FS : ReadPrimary()
+PS -> PC : TryDecode(primary)
+alt 署名が一致（固定時間比較）
+  PC -> PC : Sanitize()（範囲チェック・重複・知らない項目を除去）
+  PC --> PS : Loaded
+else 壊れている・改ざんされている
+  PS -> FS : ReadBackup()
+  PS -> PC : TryDecode(backup)
+  alt バックアップは正常
+    PC --> PS : RestoredFromBackup
+  else どちらもだめ
+    PS -> PS : 初期状態（ResetAfterCorruption）
+  end
+end
+opt pendingStake > 0（前回勝負中に終了）
+  PS -> PS : 賭け金を所持金に戻す（RefundedStake）
+end
+PS -> FS : 必要なら保存し直す
+@enduml

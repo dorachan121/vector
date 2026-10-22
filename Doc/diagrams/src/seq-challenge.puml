@@ -1,0 +1,44 @@
+@startuml seq-challenge
+!include _style.iuml
+title シーケンス図③ ストーリーモード — フロアの主への挑戦
+autonumber "<b>[0]"
+
+actor プレイヤー as P
+participant "WorldDirector\n（フロア）" as WD
+participant "RpgSession" as RS
+participant "ProfileService" as PS
+participant "ChallengeFlow" as CF
+participant "ChallengeWallet\n(ITableWallet)" as CW
+participant "CasinoDirector\n（各ゲームのテーブル）" as T
+
+P -> WD : 主に話しかける（TALK）
+WD -> RS : CheckChallenge(spec)
+alt レベル不足・参加費不足
+  RS --> WD : ChallengeBlock
+  WD --> P : 条件を表示
+else 挑戦できる
+  WD --> P : 立ち絵・条件・初回の報酬
+  P -> WD : 挑戦する
+  WD -> RS : StartChallenge(spec)
+  RS -> RS : 参加費を所持金から引き、\n挑戦用チップ（Stack）の ChallengeRun を作る
+  RS -> PS : Save()（challenge を記録）
+  WD -> T : シーン遷移（回転の案内 → 横向き）
+  T -> CF : WalletFor(game, minimum)
+  CF --> T : ChallengeWallet（所持金とは別）
+  T -> CF : ShowHud（相手・目標額・残りラウンド）
+  loop 規定ラウンド数 or 目標到達 or 手持ち不足
+    T -> T : 通常と同じ 1 ラウンド\n（配当・確率は通常のテーブルと同じ）
+    T -> CW : RecordSettlement → Run.RecordRound()
+  end
+  T -> CF : Finish(run)
+  CF -> RS : FinishChallenge(run)
+  RS -> RS : 勝ち：賞金・記念品・経験値・\n次のフロアを開放（初回のみ）
+  CF -> PS : Save()（**結果を見せる前に**確定・保存）
+  CF --> P : 結果画面 → フロアへ帰還
+end
+
+note over RS
+  決着前にアプリが終わったら、次の起動時に
+  RefundInterruptedChallenge() で参加費を返す（二重には返さない）
+end note
+@enduml

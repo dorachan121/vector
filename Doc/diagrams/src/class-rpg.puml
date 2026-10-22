@@ -1,0 +1,110 @@
+@startuml class-rpg
+!include _style.iuml
+title クラス図③ ストーリーモードとセーブデータ
+
+package "Vector.Core.Rpg（Unity 非依存）" {
+  class RpgSession {
+    + State : RpgState
+    + Daily : DailyProgress
+    + Rank : VipRank
+    --
+    + OnRound(round) : RoundReport  // 経験値・コンプ・クエスト
+    + OfferFrom(giver) / Accept(id) / Claim(id)
+    + Buy(itemId) / Redeem(itemId)
+    + IsFloorOpen(id) / StatusOf(id) : FloorStatus
+    + CheckChallenge(spec) : ChallengeBlock
+    + StartChallenge(spec) : ChallengeRun
+    + FinishChallenge(run) : ChallengeReward
+    + RefundInterruptedChallenge() : long
+  }
+  class RpgState {
+    + level / xp / comps / wagered
+    + floor / x / y / facing
+    + flags : List<string>  // 制覇・会話
+    + quests : List<QuestProgress>
+    + items : List<ItemStack>
+    + challenge : string  // 進行中の挑戦
+    + loginCount / daily*（ログボ・ミッション）
+  }
+  enum VipRank {
+    BRONZE … BLACK
+  }
+  class ChallengeSpec {
+    + Master / Floor / Game
+    + RequiredLevel / EntryFee
+    + Stack / Target / Rounds
+    + Prize / XpReward / Trophy
+  }
+  class ChallengeRun {
+    + Spec : ChallengeSpec
+    + Bankroll : Bankroll  // 挑戦用チップ（Stack）
+    + RoundsPlayed / RoundsLeft
+    + State : ChallengeState
+    + Remaining : long
+    + RecordRound(tableMinimum)
+  }
+  class FloorDef
+  class QuestDef
+  class ItemDef
+  class DailyProgress
+  class "Floors / QuestBook /\nItemCatalog / DailyMissions /\nLoginBonus / Progression" as Catalogs <<static>>
+  class TileMap
+  class Pathfinder <<static>>
+}
+
+package "Vector.Game.Persistence（Unity）" {
+  class ProfileService {
+    + Profile : PlayerProfile
+    + LoadResult : ProfileLoadResult
+    + RefundedStake : long
+    + Load()
+    + Save() : bool
+    + RecordDeal / RecordSettlement / RecordVoid
+    + Reload(tableMinimum) : long
+  }
+  class PlayerProfile {
+    + version = 2
+    + balance : long  // 初期 $10,000
+    + pendingStake : long  // 勝負中の賭け金
+    + stats / settings
+    + rpg : RpgState
+    + Sanitize()  // 範囲チェック・重複除去
+  }
+  class ProfileCodec <<static>> {
+    + Encode(profile) : string
+    + TryDecode(text, out profile) : bool
+    - Sign(payload)  // HMAC-SHA256
+  }
+  interface IProfileStorage {
+    + ReadPrimary() / ReadBackup()
+    + Write(contents)
+  }
+  class FileProfileStorage {
+    一時ファイル → File.Replace で
+    原子的に書き込み、1 世代を残す
+  }
+  enum ProfileLoadResult {
+    New
+    Loaded
+    RestoredFromBackup
+    ResetAfterCorruption
+  }
+}
+
+RpgSession --> RpgState
+RpgSession --> DailyProgress
+RpgSession ..> ChallengeRun
+ChallengeRun --> ChallengeSpec
+RpgSession ..> Catalogs
+Catalogs ..> FloorDef
+Catalogs ..> QuestDef
+Catalogs ..> ItemDef
+FloorDef --> TileMap
+TileMap ..> Pathfinder : タップした場所まで歩く
+ProfileService --> PlayerProfile
+PlayerProfile *-- RpgState : rpg
+ProfileService --> IProfileStorage
+ProfileService ..> ProfileCodec
+IProfileStorage <|.. FileProfileStorage
+ProfileService --> ProfileLoadResult
+@enduml

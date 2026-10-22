@@ -1,0 +1,24 @@
+@startuml state-vector-round
+!include _style.iuml
+title 状態遷移図 — VECTOR のラウンド（RoundEngine.Phase）
+hide empty description
+
+[*] --> Betting
+Betting : ベット受付（15 秒）\nMAIN / BONUS
+ChoosingFamily : 手札 4 枚を見て\nROW / COLUMN / SLASH を選ぶ（25 秒）
+PlayerTurn : 手札を 1 枚置く（25 秒）
+DealerTurn : シューから 1 枚引き\nハウスウェイでマスを選ぶ
+Showdown : 得点を比べる\n（引き分けは PUSH）
+Complete : 精算済み
+
+Betting --> ChoosingFamily : Deal()
+ChoosingFamily --> PlayerTurn : ChooseFamily()
+PlayerTurn --> DealerTurn : PlacePlayerCard()
+DealerTurn --> PlayerTurn : PlayDealerCard()\n[空きマスあり]
+DealerTurn --> Showdown : [盤面が埋まった]
+Showdown --> Complete : Settle()
+Complete --> Betting : 次のラウンド
+ChoosingFamily --> Betting : Abort()（返金）
+PlayerTurn --> Betting : Abort()
+DealerTurn --> Betting : Abort()
+@enduml

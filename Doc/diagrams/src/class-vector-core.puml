@@ -1,0 +1,100 @@
+@startuml class-vector-core
+!include _style.iuml
+title クラス図② VECTOR のルールエンジン（Vector.Core.Vector）
+
+class RoundEngine {
+  + {static} HandSize = 4
+  + Board : Board
+  + Phase : RoundPhase
+  + Bets : BetBoard
+  + Hand : IReadOnlyList<Card>
+  + BonusHand : PokerHand
+  + PlayerFamily : LineFamily
+  --
+  + BeginBetting() : bool
+  + Deal(mode, bets)
+  + ChooseFamily(family)
+  + PlacePlayerCard(handIndex, cell)
+  + PlayDealerCard() : DealerMove
+  + Settle() : RoundResult
+  + Abort() : long
+}
+enum RoundPhase {
+  Betting
+  ChoosingFamily
+  PlayerTurn
+  DealerTurn
+  Showdown
+  Complete
+}
+enum LineFamily {
+  Row（横 3 本）
+  Column（縦 3 本）
+  Slash（斜め 2 本）
+}
+class Board {
+  - cells : Card?[9]
+  - owners : Seat[9]
+  + Place(cell, card, by)
+  + IsFull : bool
+  + ToValues() : int[]
+}
+class Shoe {
+  6 デッキ
+  Fisher–Yates ＋ 暗号論的乱数
+}
+class TableRules {
+  配当・リミット・持ち時間
+  （配当の数値はここだけが持つ）
+}
+interface IDealerPolicy {
+  + ChooseCell(values, cardValue,
+    playerFamily, playerHand) : int
+}
+class HouseWay {
+  + HouseWay(random, playoutsPerCell)
+  各マスに置いた場合を最後まで試算し、
+  ディーラーが最も勝ちやすいマスを選ぶ
+}
+class PlayerAdvisor {
+  + EstimateFamilies(values, hand) : FamilyEstimate[]
+  + {static} Best(estimates) : LineFamily
+  + SuggestPlacement(values, hand, family) : Placement
+}
+class RoundResult {
+  + PlayerFamily / DealerFamily
+  + PlayerScore / DealerScore : int
+  + Winner : RoundWinner
+  + PlayerLines / DealerLines
+  + BonusHand : PokerHand
+  + Bets : SpotResult[]
+  + TotalStake / TotalReturn / Net
+}
+interface IRoundOutcome
+class Scoring <<static>> {
+  選んだ種類の最大ライン vs
+  残り 2 種類のうち高い方
+}
+class PokerEvaluator <<static>> {
+  中央 1 枚＋手札 4 枚の役
+}
+class Settlement <<static>> {
+  精算を一本化
+}
+class Playout <<static>>
+
+RoundEngine --> RoundPhase
+RoundEngine *-- Board
+RoundEngine --> Shoe
+RoundEngine --> TableRules
+RoundEngine --> IDealerPolicy
+RoundEngine ..> RoundResult : Settle()
+RoundEngine ..> Scoring
+RoundEngine ..> PokerEvaluator
+RoundEngine ..> Settlement
+IDealerPolicy <|.. HouseWay
+HouseWay ..> Playout
+PlayerAdvisor ..> Playout
+RoundResult ..|> IRoundOutcome
+Scoring ..> LineFamily
+@enduml
