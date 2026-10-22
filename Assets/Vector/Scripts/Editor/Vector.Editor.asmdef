@@ -2,7 +2,10 @@
     "name": "Vector.Editor",
     "rootNamespace": "Vector.EditorTools",
     "references": [
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "Vector.Core",
+        "Vector.Runtime"
     ],
     "includePlatforms": [
         "Editor"

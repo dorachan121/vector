@@ -374,7 +374,7 @@ Tools/
 ## 🛠️ 開発
 
 - **Unity** 6000.6.6f1（uGUI / TextMesh Pro）
-- **対象** Windows / Android（横向き）
+- **対象** Windows / Android（ホーム・ストーリーは縦向き、テーブルは横向き）
 
 ### テスト
 
@@ -407,6 +407,13 @@ dotnet run -c Release -- sugoroku                  # SUGOROKU の最善手・打
 dotnet run -c Release -- hanabi                    # HANABI の開く倍率ごとの厳密な確率・RTP とシミュレーション
 dotnet run -c Release -- challenge 2000            # ストーリーモードの挑戦の勝率
 ```
+
+### Google Play での公開
+
+パッケージ名 `com.dorachan121.vector`、対象 API レベル 36、ARM64（IL2CPP）の Android App Bundle で出します。権限は要求しません。
+署名した .aab はメニュー **Vector / Build Android App Bundle** で作ります（鍵は環境変数で渡し、リポジトリには置きません）。
+アイコンとストア用の画像はメニュー **Vector / Build Store Art** で描き出します。
+鍵の作り方・Play Console に入れる内容・クローズドテストの進め方は [Store/README.md](Store/README.md) にまとめています。
 
 ---
 

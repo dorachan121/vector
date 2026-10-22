@@ -262,14 +262,15 @@ namespace Vector.Game.UI
         // チップ
         // ------------------------------------------------------------------
 
-        /// <summary>カジノチップ。縁に6か所のインサート、内側に破線のリングを描く。</summary>
-        public static Sprite Chip(Color body, Color accent) => Cached($"chip{ColorUtility.ToHtmlStringRGB(body)}{ColorUtility.ToHtmlStringRGB(accent)}", () =>
+        /// <summary>カジノチップ。縁に6か所のインサート、内側に破線のリングを描く。size は元画像の大きさ（アプリのアイコンなど大きく見せるときに上げる）。</summary>
+        public static Sprite Chip(Color body, Color accent, int size = 200) => Cached($"chip{size}{ColorUtility.ToHtmlStringRGB(body)}{ColorUtility.ToHtmlStringRGB(accent)}", () =>
         {
-            const int size = 200;
             var tex = NewTexture(size, size);
             var px = new Color32[size * size];
             float half = size / 2f;
-            float outer = half - 2;
+            // 線の太さなどは 200px の原図での値を比例させる
+            float unit = size / 200f;
+            float outer = half - 2 * unit;
             for (int y = 0; y < size; y++)
             for (int x = 0; x < size; x++)
             {
@@ -285,21 +286,19 @@ namespace Vector.Game.UI
                 float angle = Mathf.Atan2(ly, lx);
                 Color c = body;
                 float rn = r / outer;
-                // 縁のインサート（6か所）
-                if (rn > 0.74f)
-                {
-                    float seg = Mathf.Repeat(angle / (Mathf.PI * 2) * 6f, 1f);
-                    if (seg > 0.18f && seg < 0.46f)
-                        c = accent;
-                }
+                // 縁のインサート（6か所）。境目は内側からの距離（px）で塗り分けて、ギザギザにしない
+                float seg = Mathf.Repeat(angle / (Mathf.PI * 2) * 6f, 1f);
+                float across = Mathf.Min(seg - 0.18f, 0.46f - seg) * (Mathf.PI * 2 / 6f) * r;
+                float insert = Mathf.Min(Mathf.Clamp01(0.5f + across), Mathf.Clamp01(0.5f + r - outer * 0.74f));
+                c = Color.Lerp(c, accent, insert);
                 // 内側の盛り上がりと破線リング
                 if (rn < 0.66f)
                     c = Color.Lerp(body, Color.white, 0.12f);
-                float ringD = Mathf.Abs(r - outer * 0.7f) - 1.6f;
+                float ringD = Mathf.Abs(r - outer * 0.7f) - 1.6f * unit;
                 float dash = Mathf.Repeat(angle / (Mathf.PI * 2) * 24f, 1f);
-                if (dash < 0.55f)
-                    c = Color.Lerp(c, accent, Alpha(ringD) / 255f);
-                float edgeD = Mathf.Abs(r - outer * 0.74f) - 0.8f;
+                float along = (dash < 0.55f ? Mathf.Min(dash, 0.55f - dash) : -Mathf.Min(dash - 0.55f, 1 - dash)) * (Mathf.PI * 2 / 24f) * r;
+                c = Color.Lerp(c, accent, Alpha(ringD) / 255f * Mathf.Clamp01(0.5f + along));
+                float edgeD = Mathf.Abs(r - outer * 0.74f) - 0.8f * unit;
                 c = Color.Lerp(c, Color.black, Alpha(edgeD) / 255f * 0.25f);
                 // 立体感
                 float light = 1 + (-ly / outer) * 0.12f;

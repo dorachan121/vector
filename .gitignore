@@ -59,6 +59,10 @@ sysinfo.txt
 # Builds
 *.apk
 *.aab
+
+# Android の署名鍵（リポジトリに入れない）
+*.jks
+*.keystore
 *.unitypackage
 *.app
 
